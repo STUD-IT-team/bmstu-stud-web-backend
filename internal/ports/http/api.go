@@ -3,9 +3,10 @@ package http
 import (
 	"net/http"
 
+	"github.com/go-chi/chi"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
-	"github.com/go-chi/chi"
 )
 
 type APIHandler struct {

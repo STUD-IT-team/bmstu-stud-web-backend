@@ -20,6 +20,6 @@ $(SERVICES_RUN_TARGETS_LIST): run-%: ## run service from $(BINARIES_DIR)
 	go run ./cmd/$* --config-path=./cmd/$*/infra/$(ENV)/application.conf
 .PHONY: $(SERVICES_RUN_TARGETS_LIST)
 
-# WIP
+# need v1.54.2 of golangci-lint
 lint:
 	golangci-lint run -v -c golangci.yml ./...
