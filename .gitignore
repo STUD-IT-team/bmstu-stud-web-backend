@@ -1,0 +1,30 @@
+vendor
+.DS_Store
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+.DS_Store
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# IDE
+.idea
+.idea/
+.vscode
+
+# Project specific
+.env
+.pkg
+.cache
+bin
+
+test-logs
+test-logs/*
+coverage.tmp.out
+coverage.out
