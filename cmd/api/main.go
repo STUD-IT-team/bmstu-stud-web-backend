@@ -67,11 +67,19 @@ func main() {
 		ErrorLog: log.New(logger.Out, "api", 0),
 	})
 
-	fmt.Printf("Listing actual routes:\n")
-	chi.Walk(router, func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		fmt.Printf("[%s]: /bmstu-stud-web/%s%s\n", method, appconfig.APIAppName, route)
-		return nil
-	})
+	logger.Debugf("Listing actual routes:\n")
+
+	_ = chi.Walk(
+		router,
+		func(
+			method string,
+			route string,
+			handler http.Handler,
+			middlewares ...func(http.Handler) http.Handler,
+		) error {
+			logger.Debugf("[%s]: /bmstu-stud-web/%s%s\n", method, appconfig.APIAppName, route)
+			return nil
+		})
 
 	for i := range servers {
 		srv := servers[i]
@@ -106,6 +114,7 @@ func main() {
 
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 	defer cancel()
+
 	for _, srv := range servers {
 		if err := srv.Shutdown(timeoutCtx); err != nil {
 			logger.WithError(err).Fatalf("can't close server listening on '%s'", srv.Addr)

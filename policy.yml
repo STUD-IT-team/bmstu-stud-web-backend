@@ -1,0 +1,14 @@
+project:
+  protected_branches:
+    - main
+  test_coverage_regex:
+    type: Go
+  badges:
+    - type: Coverage
+    - type: Pipeline
+  commit_template:
+    squash: "%{first_commit}"
+merge_request:
+  method: fast-forward
+  squash: encourage
+  resolve_outdated_diff_discussions: false

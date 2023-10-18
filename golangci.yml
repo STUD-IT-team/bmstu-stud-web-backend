@@ -1,0 +1,236 @@
+# https://github.com/golangci/golangci-lint
+run:
+  skip-dirs:
+    - "pkg"
+    - "cmd/configer"
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  deadline: 5m
+
+  # include test files or not, default is true
+  tests: true
+
+  # whether to hide "congrats" message if no issues were found,
+  # default is false (show "congrats" message by default).
+  # set this option to true to print nothing if no issues were found.
+  silent: false
+
+
+# all available settings of specific linters
+linters-settings:
+  goimports:
+    local-prefixes: github.com/STUD-IT-team/
+  errcheck:
+    # report about not checking of errors in type assetions: `a := b.(MyStruct)`;
+    # default is false: such cases aren't reported by default.
+    check-type-assertions: false
+
+    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`;
+    # default is false: such cases aren't reported by default.
+    check-blank: false
+  govet:
+    # report about shadowed variables
+    check-shadowing: true
+
+    # Obtain type information from installed (to $GOPATH/pkg) package files:
+    # golangci-lint will execute `go install -i` and `go test -i` for analyzed packages
+    # before analyzing them.
+    # By default this option is disabled and govet gets type information by loader from source code.
+    # Loading from source code is slow, but it's done only once for all linters.
+    # Go-installing of packages first time is much slower than loading them from source code,
+    # therefore this option is disabled by default.
+    # But repeated installation is fast in go >= 1.10 because of build caching.
+    # Enable this option only if all conditions are met:
+    #  1. you use only "fast" linters (--fast e.g.): no program loading occurs
+    #  2. you use go >= 1.10
+    #  3. you do repeated runs (false for CI) or cache $GOPATH/pkg or `go env GOCACHE` dir in CI.
+    use-installed-packages: false
+  golint:
+    # minimal confidence for issues, default is 0.8
+    min-confidence: 0.8
+  gofmt:
+    # simplify code: gofmt with `-s` option, true by default
+    simplify: true
+  gocyclo:
+    # minimal code complexity to report, 30 by default (but we recommend 10-20)
+    min-complexity: 20
+  maligned:
+    # print struct with more effective memory layout or not, false by default
+    suggest-new: true
+  dupl:
+    # tokens count to trigger issue, 150 by default
+    threshold: 100
+  goconst:
+    # minimal length of string constant, 3 by default
+    min-len: 3
+    # minimal occurrences count to trigger, 3 by default
+    min-occurrences: 3
+  depguard:
+    list-type: blacklist
+    include-go-root: false
+    packages:
+      - github.com/davecgh/go-spew/spew
+  misspell:
+    # Correct spellings using locale preferences for US or UK.
+    # Default is to use a neutral variety of English.
+    # Setting locale to US will correct the British spelling of 'colour' to 'color'.
+    locale: US
+  lll:
+    # max line length, lines longer will be reported. Default is 120.
+    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+    line-length: 120
+    # tab width in spaces. Default to 1.
+    tab-width: 1
+  unused:
+    # treat code as a program (not a library) and report unused exported identifiers; default is false.
+    # XXX: if you enable this setting, unused will report a lot of false-positives in text editors:
+    # if it's called for subdir of a project it can't find funcs usages. All text editor integrations
+    # with golangci-lint call it on a directory with the changed file.
+    check-exported: false
+  unparam:
+    # call graph construction algorithm (cha, rta). In general, use cha for libraries,
+    # and rta for programs with main packages. Default is cha.
+    algo: cha
+
+    # Inspect exported functions, default is false. Set to true if no external program/library imports your code.
+    # XXX: if you enable this setting, unparam will report a lot of false-positives in text editors:
+    # if it's called for subdir of a project it can't find external interfaces. All text editor integrations
+    # with golangci-lint call it on a directory with the changed file.
+    check-exported: true
+  nakedret:
+    # make an issue if func has more lines of code than this setting and it has naked returns; default is 30
+    max-func-lines: 30
+  prealloc:
+    # XXX: we don't recommend using this linter before doing performance profiling.
+    # For most programs usage of prealloc will be a premature optimization.
+
+    # Report preallocation suggestions only on simple loops that have no returns/breaks/continues/gotos in them.
+    # True by default.
+    simple: true
+    range-loops: true # Report preallocation suggestions on range loops, true by default
+    for-loops: false # Report preallocation suggestions on for loops, false by default
+  forbidigo:
+    # Forbid the following identifiers (identifiers are written using regexp):
+    forbid:
+      - 'fmt\.Print.*'
+    exclude_godoc_examples: true
+  wsl:
+    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md
+    strict-append: true
+    allow-assign-and-call: false
+    allow-assign-and-anything: false
+    allow-multiline-assign: true
+    allow-separated-leading-comment: true
+    allow-cuddle-declarations: false
+    force-case-trailing-whitespace: 1
+    allow-case-trailing-whitespace: false
+    allow-trailing-comment: true
+    enforce-err-cuddling: true
+    force-short-decl-cuddling: false
+  revive:
+    # see https://github.com/mgechev/revive#available-rules for details.
+    ignore-generated-header: true
+    severity: error
+    rules:
+      - name: argument-limit
+        arguments: [7]
+      - name: function-result-limit
+        arguments: [3]
+      - name: modifies-value-receiver
+
+linters:
+  exclude_paths:
+    - "vendor"
+    - "./cmd/configer"
+    - ".cache"
+    - ".idea"
+    - "docker"
+    - "./pkg/"
+  disable-all: true
+  enable:
+    - asciicheck
+    - bodyclose
+    - unused
+    - dogsled
+    - durationcheck
+    - exportloopref
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gofmt
+    - goimports
+    - gomnd
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
+    - govet
+    - importas
+    - ineffassign
+    - misspell
+    - nakedret
+    - nilerr
+    - prealloc
+    - rowserrcheck
+    - sqlclosecheck
+    - unconvert
+    - unparam
+    - staticcheck
+    - errcheck
+    - lll
+    - forbidigo
+    - wsl
+    - revive
+    - gocyclo
+    - exhaustive
+  fast: false
+
+
+issues:
+  max-same-issues: 10
+
+  exclude-rules:
+    - source: "//noinspection"
+      linters: [ gocritic ]
+    - source: "^\\s+if _, ok := err\\.\\([^.]+\\.InternalError\\); ok {"
+      linters: [ errorlint ]
+    - path: "_test\\.go"
+      linters:
+        - bodyclose
+        - gosec
+        - noctx
+        - wrapcheck
+        - gocyclo
+        - dupl
+        - gosec
+        - gomnd
+  # List of regexps of issue texts to exclude, empty list by default.
+  # But independently from this option we use default exclude patterns,
+  # it can be disabled by `exclude-use-default: false`. To list all
+  # excluded by default patterns execute `golangci-lint run --help`
+  exclude:
+    - G104 # already check in `errcheck` linter
+    - Error return value of .((os\.)?std(out|err)\..*|.*Close|.*Flush|os\.Remove(All)?|.*printf?|os\.(Un)?Setenv)|render\.Render. is not checked
+    - (comment on exported (method|function|type|const)|should have( a package)? comment|comment should be of the form)
+    - declaration of "(err)" shadows declaration at
+
+  # Independently from option `exclude` we use default exclude patterns,
+  # it can be disabled by this option. To list all
+  # excluded by default patterns execute `golangci-lint run --help`.
+  # Default value for this option is true.
+  exclude-use-default: false
+
+  # Maximum issues count per one linter. Set to 0 to disable. Default is 50.
+  max-per-linter: 10
+
+  # Maximum count of issues with the same text. Set to 0 to disable. Default is 3.
+  max-same: 10
+
+  # Show only new issues: if there are unstaged changes or untracked files,
+  # only those changes are analyzed, else only changes in HEAD~ are analyzed.
+  # It's a super-useful option for integration of golangci-lint into existing
+  # large codebase. It's not practical to fix all existing issues at the moment
+  # of integration: much better don't allow issues in new code.
+  # Default is false.
+  new: false
+
+  # Show only new issues created after git revision `REV`
+  #  new-from-rev: e3bbb2d1ba119f480c0af06dae5dcaf0dcd6f6b0

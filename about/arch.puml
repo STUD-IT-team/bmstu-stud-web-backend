@@ -1,0 +1,26 @@
+@startuml
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Диаграмма архитектуры сайта Студа
+
+Container(apiAdmin, "API", "API", "API бэкенда сайта Студа Бауманки")
+Container(feed, "feed", "feed", "Сервис ленты новостей")
+Container(guard, "guard", "guard", "Сервис аутентификации")
+
+ContainerDb(db, "Pgs-Storage", "Postgres", "Хранит данные сайта")
+ContainerDb(s3, "S3-Storage", "S3", "Хранит медиа")
+ContainerDb(session, "Session-Storage", "In-memory cache", "Хранит данные сессий пользователей")
+
+Rel_R(entryPoint, apiAdmin, "Новостная лента", "HTTPS")
+
+Rel_R(apiAdmin, feed, "Новостная лента", "HTTPS")
+Rel_D(apiAdmin, guard, "авторизация админов", "GRPC")
+
+Rel_R(feed, s3, "медиа для новостной ленты", "S3")
+Rel_D(feed, db, "медиа для новостной ленты", "SQL")
+
+Rel(guard, db, "медиа для новостной ленты", "SQL")
+Rel(guard, session, "медиа для новостной ленты", "Go")
+
+@enduml
