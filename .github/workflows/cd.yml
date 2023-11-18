@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run command on remote server
-        uses: D3rHase/ssh-command-action@{version}
+        uses: D3rHase/ssh-command-action@v0.2.2
         with:
           host: ${{secrets.HOST}} # Remote server address / ip - required
           user: ${{secrets.USER}} # Remote server user - required
