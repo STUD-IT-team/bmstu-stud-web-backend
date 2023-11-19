@@ -3,16 +3,21 @@ name: CD
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
 
 jobs:
   deploy:
-    # needs: []
+    #needs: []
     runs-on: ubuntu-latest
     steps:
-      - name: Run command on remote server
-        uses: D3rHase/ssh-command-action@v0.2.2
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{secrets.HOST}} # Remote server address / ip - required
-          user: ${{secrets.USER}} # Remote server user - required
-          private_key: ${{secrets.PRIVATE_KEY}} # Private ssh key registered on the remote server - required
-          command: echo 'hello world' # Command to be executed - Default: echo 'hello world' - optional
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            whoami
+            ls -al
+            docker run hello-world
