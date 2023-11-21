@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  deploy:
+  deploy_with_ssh:
     #needs: []
     runs-on: ubuntu-latest
     steps:
@@ -21,3 +21,13 @@ jobs:
             whoami
             ls -al
             docker run hello-world
+
+  deploy_on_self_runner:
+    runs-on: self-hosted
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+      - name: docker test
+        run: docker run hello-world
+      - name: check ls
+        run: ls
