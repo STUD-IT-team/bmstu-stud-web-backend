@@ -10,8 +10,9 @@ import (
 )
 
 type APIHandler struct {
-	r   handler.Renderer
-	api app.API
+	r    handler.Renderer
+	api  app.API
+	feed app.FeedService
 }
 
 func NewAPIHandler(r handler.Renderer, api app.API) *APIHandler {
