@@ -12,7 +12,7 @@ import (
 type APIHandler struct {
 	r    handler.Renderer
 	api  app.API
-	feed app.FeedServiceSrorage
+	feed app.FeedService
 }
 
 func NewAPIHandler(r handler.Renderer, api app.API, feed app.FeedServiceSrorage) *APIHandler {
