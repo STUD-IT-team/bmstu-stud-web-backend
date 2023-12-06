@@ -1,0 +1,33 @@
+name: CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  deploy_with_ssh:
+    #needs: []
+    runs-on: ubuntu-latest
+    steps:
+      - name: executing remote ssh commands using ssh key
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.PRIVATE_KEY }}
+          script: |
+            whoami
+            ls -al
+            docker run hello-world
+
+  deploy_on_self_runner:
+    runs-on: self-hosted
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+      - name: docker test
+        run: docker run hello-world
+      - name: check ls
+        run: ls
