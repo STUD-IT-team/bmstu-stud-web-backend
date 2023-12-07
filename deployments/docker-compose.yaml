@@ -36,9 +36,9 @@ services:
 
     env_file:
       - db.env
-    volumes:
-      - ../InitDatabase:/docker-entrypoint-initdb.d
-      - ../SWB_DB-data:/var/lib/postgresql/data
+#    volumes:
+#      - ../InitDatabase:/docker-entrypoint-initdb.d
+#      - ../SWB_DB-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -59,10 +59,8 @@ services:
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4:7.2
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "antonpawlenko@yandex.ru"
-      PGADMIN_DEFAULT_PASSWORD: "pgadmin"
-      PGADMIN_CONFIG_SERVER_MODE: "False"
+    env_file:
+      - pg-admin.env
     volumes:
       - pgadmin-data:/var/lib/pgadmin
     ports:

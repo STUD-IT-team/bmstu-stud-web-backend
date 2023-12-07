@@ -26,9 +26,3 @@ lint:
 
 migration-create-sql:
 	goose -dir=./migrations create $(NAME) sql
-
-migrations-up:
-	goose -dir=./migrations postgres "host=localhost user=stud password=7dgvJVDJvh254aqOpfd dbname=stud_web_backend" up
-
-migrations-down:
-	goose -dir=./migrations postgres "host=localhost user=stud password=7dgvJVDJvh254aqOpfd dbname=stud_web_backend" down
