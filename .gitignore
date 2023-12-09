@@ -19,7 +19,7 @@ vendor
 .vscode
 
 # Project specific
-.env
+*.env
 .pkg
 .cache
 bin

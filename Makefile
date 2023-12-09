@@ -23,3 +23,6 @@ $(SERVICES_RUN_TARGETS_LIST): run-%: ## run service from $(BINARIES_DIR)
 # need v1.54.2 of golangci-lint
 lint:
 	golangci-lint run -v -c golangci.yml ./...
+
+migration-create-sql:
+	goose -dir=./migrations create $(NAME) sql
