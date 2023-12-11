@@ -16,6 +16,7 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
 	internalhttp "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/http"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
@@ -46,12 +47,17 @@ func main() {
 	servers := make([]*http.Server, 0)
 	router := chi.NewRouter()
 
+	//Storage
+	postgres := *storage.NewPostgres()
+	storage := storage.NewStorage(postgres)
+
 	// services
 	apiService := app.NewAPI(logger)
+	feedService := app.NewFeedService(storage)
 
 	// Main API router.
 	mainGroupHandler := handler.NewGroupHandler("/",
-		internalhttp.NewAPIHandler(jsonRenderer, apiService),
+		internalhttp.NewAPIHandler(jsonRenderer, apiService, feedService),
 	)
 
 	mainHandler := handler.New(handler.MakePublicRoutes(
