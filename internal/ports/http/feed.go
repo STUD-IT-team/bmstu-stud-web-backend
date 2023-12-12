@@ -1,7 +1,6 @@
 package http
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 )
@@ -13,12 +12,7 @@ func (h *APIHandler) GetAllFeed(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "", http.StatusInternalServerError)
 	}
 
-	err = json.NewEncoder(w).Encode(res)
-
-	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
-		return
-	}
+	return handler.OkResponse(res)
 }
 
 func (h *APIHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
@@ -31,12 +25,8 @@ func (h *APIHandler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	res, err := h.feed.GetFeed(id)
 	if err != nil {
 		http.Error(w, "", http.StatusInternalServerError)
+		//handler.
 	}
 
-	err = json.NewEncoder(w).Encode(res)
-
-	if err != nil {
-		http.Error(w, "", http.StatusInternalServerError)
-		return
-	}
+	return handler.OkResponse(res)
 }
