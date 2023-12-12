@@ -53,12 +53,12 @@ func main() {
 
 	// services
 	apiService := app.NewAPI(logger)
-	feedService := app.NewFeedService(storage)
+	//feedService := app.NewFeedService(storage)
 
 	// Main API router.
 	mainGroupHandler := handler.NewGroupHandler("/",
 		internalhttp.NewAPIHandler(jsonRenderer, apiService),
-		internalhttp.NewFeedHandler(jsonRenderer, feedService),
+		internalhttp.NewFeedHandler(jsonRenderer, storage),
 	)
 
 	mainHandler := handler.New(handler.MakePublicRoutes(

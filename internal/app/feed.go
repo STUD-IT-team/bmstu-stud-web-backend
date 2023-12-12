@@ -4,22 +4,24 @@ import (
 	"context"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/repository"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
-type FeedServiceSrorage interface {
-	GetAllFeed(ctx context.Context) ([]responses.GetAllFeed, error)
-	GetFeed(ctx context.Context, id int) (responses.GetFeed, error)
+type feedServiceSrorage interface {
+	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
+	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 }
 
 type feedService struct {
-	storage storage.Storage
+	logger  *logrus.Logger
+	storage feedServiceSrorage
 }
 
-func NewFeedService(repository repository.IFeedRepository) *FeedService {
-	return &FeedService{repository: repository}
+func NewFeedService(logger *logrus.Logger, storage feedServiceSrorage) *feedService {
+	return &feedService{logger: logger, storage: storage}
 }
 
 func (s *feedService) GetAllFeed(ctx context.Context) ([]responses.GetAllFeed, error) {

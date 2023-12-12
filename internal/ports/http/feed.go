@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
@@ -13,10 +13,10 @@ import (
 
 type FeedHandler struct {
 	r    handler.Renderer
-	feed app.FeedServiceSrorage
+	feed storage.Storage
 }
 
-func NewFeedHandler(r handler.Renderer, feed app.FeedServiceSrorage) *FeedHandler {
+func NewFeedHandler(r handler.Renderer, feed storage.Storage) *FeedHandler {
 	return &FeedHandler{
 		r:    r,
 		feed: feed,
