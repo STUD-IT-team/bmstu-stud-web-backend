@@ -10,16 +10,14 @@ import (
 )
 
 type APIHandler struct {
-	r    handler.Renderer
-	api  app.API
-	feed app.FeedService
+	r   handler.Renderer
+	api app.API
 }
 
-func NewAPIHandler(r handler.Renderer, api app.API, feed app.FeedServiceSrorage) *APIHandler {
+func NewAPIHandler(r handler.Renderer, api app.API) *APIHandler {
 	return &APIHandler{
-		r:    r,
-		api:  api,
-		feed: feed,
+		r:   r,
+		api: api,
 	}
 }
 
@@ -31,9 +29,6 @@ func (h *APIHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/echo", h.r.Wrap(h.echo))
-
-	r.Get("/feed", h.r.Wrap(h.GetAllFeed))
-	r.Get("/feed/{id}", h.r.Wrap(h.GetFeed))
 
 	return r
 }
