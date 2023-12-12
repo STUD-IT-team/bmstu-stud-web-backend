@@ -33,7 +33,7 @@ func (h *APIHandler) Routes() chi.Router {
 	r.Get("/echo", h.r.Wrap(h.echo))
 
 	r.Get("/feed", h.r.Wrap(h.GetAllFeed))
-	r.Get("/feed/:id", h.r.Wrap(h.GetFeed))
+	r.Get("/feed/{id}", h.r.Wrap(h.GetFeed))
 
 	return r
 }

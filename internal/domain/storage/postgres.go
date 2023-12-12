@@ -1,6 +1,10 @@
 package storage
 
-import "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+import (
+	"context"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+)
 
 type Postgres struct{}
 
@@ -8,7 +12,7 @@ func NewPostgres() *Postgres {
 	return &Postgres{}
 }
 
-func (p *Postgres) GetAllFeed() ([]domain.Feed, error) {
+func (p *Postgres) GetAllFeed(ctx context.Context) ([]domain.Feed, error) {
 	return []domain.Feed{
 		{Id: 1, Title: "Title1", Description: "Description1"},
 		{Id: 2, Title: "Title2", Description: "Description2"},
@@ -16,7 +20,7 @@ func (p *Postgres) GetAllFeed() ([]domain.Feed, error) {
 	}, nil
 }
 
-func (p *Postgres) GetFeed(id int) (domain.Feed, error) {
+func (p *Postgres) GetFeed(ctx context.Context, id int) (domain.Feed, error) {
 	if id == 1 {
 		return domain.Feed{Id: 1, Title: "Title1", Description: "Description1", RegistationURL: "URL1"}, nil
 	} else if id == 2 {
