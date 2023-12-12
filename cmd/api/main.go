@@ -57,7 +57,8 @@ func main() {
 
 	// Main API router.
 	mainGroupHandler := handler.NewGroupHandler("/",
-		internalhttp.NewAPIHandler(jsonRenderer, apiService, feedService),
+		internalhttp.NewAPIHandler(jsonRenderer, apiService),
+		internalhttp.NewFeedHandler(jsonRenderer, feedService),
 	)
 
 	mainHandler := handler.New(handler.MakePublicRoutes(
