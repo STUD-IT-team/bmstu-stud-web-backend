@@ -11,7 +11,7 @@ func NewMockFeedRepository() *MockFeedRepository {
 func (m *MockFeedRepository) GetAllFeed() ([]responses.Feed, error) {
 	return []responses.Feed{
 		{
-			Id:          1,
+			ID:          1,
 			Title:       "Title",
 			Description: "Description",
 		},
@@ -20,7 +20,7 @@ func (m *MockFeedRepository) GetAllFeed() ([]responses.Feed, error) {
 
 func (m *MockFeedRepository) GetFeed() (responses.Feed, error) {
 	return responses.Feed{
-		Id:          1,
+		ID:          1,
 		Title:       "Title",
 		Description: "Description",
 	}, nil

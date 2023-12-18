@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
 )
 
 type Storage interface {
@@ -12,10 +13,10 @@ type Storage interface {
 }
 
 type storage struct {
-	postgres Postgres
+	postgres postgres.Postgres
 }
 
-func NewStorage(postgres Postgres) *storage {
+func NewStorage(postgres postgres.Postgres) *storage {
 	return &storage{postgres: postgres}
 }
 

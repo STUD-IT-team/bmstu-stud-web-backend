@@ -10,23 +10,22 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type feedServiceSrorage interface {
+type feedServiceStorage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 }
 
-type feedService struct {
+type FeedService struct {
 	logger  *logrus.Logger
-	storage feedServiceSrorage
+	storage feedServiceStorage
 }
 
-func NewFeedService(logger *logrus.Logger, storage feedServiceSrorage) *feedService {
-	return &feedService{logger: logger, storage: storage}
+func NewFeedService(logger *logrus.Logger, storage feedServiceStorage) *FeedService {
+	return &FeedService{logger: logger, storage: storage}
 }
 
-func (s *feedService) GetAllFeed(ctx context.Context) ([]responses.GetAllFeed, error) {
+func (s *FeedService) GetAllFeed(ctx context.Context) ([]responses.GetAllFeed, error) {
 	res, err := s.storage.GetAllFeed(ctx)
-
 	if err != nil {
 		log.WithField("", "GetAllFeed").Error(err)
 		return nil, err
@@ -34,11 +33,12 @@ func (s *feedService) GetAllFeed(ctx context.Context) ([]responses.GetAllFeed, e
 	return *mapper.MakeResponseAllFeed(res), nil
 }
 
-func (s *feedService) GetFeed(ctx context.Context, id int) (responses.GetFeed, error) {
+func (s *FeedService) GetFeed(ctx context.Context, id int) (responses.GetFeed, error) {
 	res, err := s.storage.GetFeed(ctx, id)
 	if err != nil {
 		log.WithField("", "GetFeed").Error(err)
 		return responses.GetFeed{}, err
 	}
+
 	return *mapper.MakeResponseFeed(res), nil
 }
