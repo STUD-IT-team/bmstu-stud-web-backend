@@ -17,6 +17,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
 	internalhttp "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/http"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
@@ -48,12 +49,11 @@ func main() {
 	router := chi.NewRouter()
 
 	//Storage
-	postgres := *storage.NewPostgres()
+	postgres := *postgres.NewPostgres()
 	storage := storage.NewStorage(postgres)
 
 	// services
 	apiService := app.NewAPI(logger)
-	//feedService := app.NewFeedService(storage)
 
 	// Main API router.
 	mainGroupHandler := handler.NewGroupHandler("/",

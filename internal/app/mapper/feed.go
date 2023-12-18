@@ -9,7 +9,7 @@ func MakeResponseAllFeed(dom []domain.Feed) *[]responses.GetAllFeed {
 	res := []responses.GetAllFeed{}
 	for _, i := range dom {
 		res = append(res, responses.GetAllFeed{
-			Id: i.Id, Title: i.Title, Description: i.Description,
+			ID: i.ID, Title: i.Title, Description: i.Description,
 		})
 	}
 	return &res
@@ -17,6 +17,6 @@ func MakeResponseAllFeed(dom []domain.Feed) *[]responses.GetAllFeed {
 
 func MakeResponseFeed(dom domain.Feed) *responses.GetFeed {
 	return &responses.GetFeed{
-		Id: dom.Id, Title: dom.Title, Description: dom.Description, RegistationURL: dom.RegistationURL,
+		ID: dom.ID, Title: dom.Title, Description: dom.Description, RegistationURL: dom.RegistationURL,
 	}
 }
