@@ -49,8 +49,11 @@ func main() {
 	router := chi.NewRouter()
 
 	//Storage
-	postgres := *postgres.NewPostgres()
-	storage := storage.NewStorage(postgres)
+	postgres, err := postgres.NewPostgres("postgres://stud:7dgvJVDJvh254aqOpfd@localhost:5432/stud_web_backend?sslmode=disable")
+	if  err != nil{
+		logger.WithError(err).Errorf("can`t connect to postgres")
+	}
+	storage := storage.NewStorage(*postgres)
 
 	// services
 	apiService := app.NewAPI(logger)
