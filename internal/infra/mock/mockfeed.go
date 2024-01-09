@@ -20,7 +20,6 @@ func (m *MockFeedRepository) GetAllFeed() ([]responses.GetAllFeed, error) {
 
 func (m *MockFeedRepository) GetFeed() (responses.GetFeed, error) {
 	return responses.GetFeed{
-
 		ID:          1,
 		Title:       "Title",
 		Description: "Description",
