@@ -14,7 +14,6 @@ run:
   # set this option to true to print nothing if no issues were found.
   silent: false
 
-
 # all available settings of specific linters
 linters-settings:
   goimports:
@@ -145,6 +144,7 @@ linters:
     - ".idea"
     - "docker"
     - "./pkg/"
+    - "./internal/infra/mock"
   disable-all: true
   enable:
     - asciicheck
@@ -183,15 +183,14 @@ linters:
     - exhaustive
   fast: false
 
-
 issues:
   max-same-issues: 10
 
   exclude-rules:
     - source: "//noinspection"
-      linters: [ gocritic ]
+      linters: [gocritic]
     - source: "^\\s+if _, ok := err\\.\\([^.]+\\.InternalError\\); ok {"
-      linters: [ errorlint ]
+      linters: [errorlint]
     - path: "_test\\.go"
       linters:
         - bodyclose

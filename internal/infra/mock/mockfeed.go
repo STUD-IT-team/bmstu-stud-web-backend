@@ -8,13 +8,16 @@ func NewMockFeedRepository() *MockFeedRepository {
 	return &MockFeedRepository{}
 }
 
-func (m *MockFeedRepository) GetAllFeed() ([]responses.GetAllFeed, error) {
-	return []responses.GetAllFeed{
+func (m *MockFeedRepository) GetAllFeed() (responses.GetAllFeed, error) {
+	feed := []responses.Feed{
 		{
 			ID:          1,
 			Title:       "Title",
 			Description: "Description",
 		},
+	}
+	return responses.GetAllFeed{
+		Feed: feed,
 	}, nil
 }
 
