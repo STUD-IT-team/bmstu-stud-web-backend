@@ -24,21 +24,21 @@ func NewFeedService(logger *log.Logger, storage feedServiceStorage) *FeedService
 	return &FeedService{logger: logger, storage: storage}
 }
 
-func (s *FeedService) GetAllFeed(ctx context.Context) (responses.GetAllFeed, error) {
+func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, error) {
 	res, err := s.storage.GetAllFeed(ctx)
 	if err != nil {
-		log.WithField("", "GetAllFeed").Error(err)
-		return responses.GetAllFeed{}, err
+		log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
+		return nil, err
 	}
-	return *mapper.MakeResponseAllFeed(res), nil
+	return mapper.MakeResponseAllFeed(res), nil
 }
 
-func (s *FeedService) GetFeed(ctx context.Context, id int) (responses.GetFeed, error) {
+func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, error) {
 	res, err := s.storage.GetFeed(ctx, id)
 	if err != nil {
-		log.WithField("", "GetFeed").Error(err)
-		return responses.GetFeed{}, err
+		log.WithError(err).Warnf("can't storage.GetFeed GetFeed")
+		return nil, err
 	}
 
-	return *mapper.MakeResponseFeed(res), nil
+	return mapper.MakeResponseFeed(res), nil
 }

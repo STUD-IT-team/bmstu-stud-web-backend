@@ -38,9 +38,8 @@ func (h *FeedHandler) Routes() chi.Router {
 
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler.Response {
 	res, err := h.feed.GetAllFeed(context.Background())
-
 	if err != nil {
-		log.WithField("", "GetAllFeed").Error(err)
+		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -49,16 +48,14 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler
 
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
-
 	if err != nil {
-		log.WithField("", "GetFeed").Error(err)
+		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
 		return handler.BadRequestResponse()
 	}
 
 	res, err := h.feed.GetFeed(context.Background(), id)
-
 	if err != nil {
-		log.WithField("", "GetFeed").Error(err)
+		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
 		return handler.InternalServerErrorResponse()
 	}
 
