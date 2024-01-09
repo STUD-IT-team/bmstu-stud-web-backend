@@ -2,10 +2,10 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+
 	"github.com/jackc/pgx"
 )
 
@@ -28,31 +28,34 @@ func NewPostgres(databaseURL string) (*Postgres, error) {
 	return &Postgres{db: db}, nil
 }
 
+const getAllFeedQuery = "SELECT id, description FROM events"
+
 func (p *Postgres) GetAllFeed(ctx context.Context) ([]domain.Feed, error) {
 	var feeds []domain.Feed
 
-	query := "SELECT id, description FROM events"
-
-	rows, err := p.db.Query(query)
+	rows, err := p.db.Query(getAllFeedQuery)
 	if err != nil {
 		return []domain.Feed{}, err
 	}
 
 	for rows.Next() {
 		var feed domain.Feed
-		rows.Scan(&feed.ID, &feed.Description)
+		err = rows.Scan(&feed.ID, &feed.Description)
+		if err != nil {
+			return []domain.Feed{}, err
+		}
 		feeds = append(feeds, feed)
 	}
 
 	return feeds, nil
 }
 
+const getFeedQuery = "SELECT id, description, reg_url FROM events WHERE id=$1"
+
 func (p *Postgres) GetFeed(ctx context.Context, id int) (domain.Feed, error) {
 	var feed domain.Feed
 
-	query := fmt.Sprintf("SELECT id, description, reg_url FROM events WHERE id=%d", id)
-
-	err := p.db.QueryRow(query).Scan(&feed.ID, &feed.Description, &feed.RegistationURL)
+	err := p.db.QueryRow(getFeedQuery, id).Scan(&feed.ID, &feed.Description, &feed.RegistationURL)
 	if err != nil {
 		return domain.Feed{}, err
 	}

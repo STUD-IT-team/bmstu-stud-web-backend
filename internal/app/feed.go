@@ -6,7 +6,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	"github.com/sirupsen/logrus"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -16,11 +16,11 @@ type feedServiceStorage interface {
 }
 
 type FeedService struct {
-	logger  *logrus.Logger
+	logger  *log.Logger
 	storage feedServiceStorage
 }
 
-func NewFeedService(logger *logrus.Logger, storage feedServiceStorage) *FeedService {
+func NewFeedService(logger *log.Logger, storage feedServiceStorage) *FeedService {
 	return &FeedService{logger: logger, storage: storage}
 }
 
