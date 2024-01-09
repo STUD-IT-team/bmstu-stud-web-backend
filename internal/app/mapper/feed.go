@@ -5,14 +5,14 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-func MakeResponseAllFeed(dom []domain.Feed) *[]responses.GetAllFeed {
-	res := []responses.GetAllFeed{}
+func MakeResponseAllFeed(dom []domain.Feed) *responses.GetAllFeed {
+	feed := []responses.Feed{}
 	for _, i := range dom {
-		res = append(res, responses.GetAllFeed{
+		feed = append(feed, responses.Feed{
 			ID: i.ID, Title: i.Title, Description: i.Description,
 		})
 	}
-	return &res
+	return &responses.GetAllFeed{Feed: feed}
 }
 
 func MakeResponseFeed(dom domain.Feed) *responses.GetFeed {

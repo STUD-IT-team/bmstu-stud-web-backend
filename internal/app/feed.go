@@ -24,11 +24,11 @@ func NewFeedService(logger *log.Logger, storage feedServiceStorage) *FeedService
 	return &FeedService{logger: logger, storage: storage}
 }
 
-func (s *FeedService) GetAllFeed(ctx context.Context) ([]responses.GetAllFeed, error) {
+func (s *FeedService) GetAllFeed(ctx context.Context) (responses.GetAllFeed, error) {
 	res, err := s.storage.GetAllFeed(ctx)
 	if err != nil {
 		log.WithField("", "GetAllFeed").Error(err)
-		return nil, err
+		return responses.GetAllFeed{}, err
 	}
 	return *mapper.MakeResponseAllFeed(res), nil
 }
