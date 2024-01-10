@@ -7,8 +7,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	domain "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	gomock "github.com/golang/mock/gomock"
+
+	domain "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
 // MockStorage is a mock of Storage interface.
@@ -46,7 +47,12 @@ func (m *MockStorage) GetAllFeed(ctx context.Context) ([]domain.Feed, error) {
 // GetAllFeed indicates an expected call of GetAllFeed.
 func (mr *MockStorageMockRecorder) GetAllFeed(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllFeed", reflect.TypeOf((*MockStorage)(nil).GetAllFeed), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(
+		mr.mock,
+		"GetAllFeed",
+		reflect.TypeOf((*MockStorage)(nil).GetAllFeed),
+		ctx,
+	)
 }
 
 // GetFeed mocks base method.
@@ -61,5 +67,11 @@ func (m *MockStorage) GetFeed(ctx context.Context, id int) (domain.Feed, error) 
 // GetFeed indicates an expected call of GetFeed.
 func (mr *MockStorageMockRecorder) GetFeed(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockStorage)(nil).GetFeed), ctx, id)
+	return mr.mock.ctrl.RecordCallWithMethodType(
+		mr.mock,
+		"GetFeed",
+		reflect.TypeOf((*MockStorage)(nil).GetFeed),
+		ctx,
+		id,
+	)
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
+
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
 )
