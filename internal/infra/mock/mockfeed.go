@@ -1,4 +1,4 @@
-package cache
+package mock_storage
 
 import "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 
