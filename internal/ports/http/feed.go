@@ -3,8 +3,8 @@ package http
 import (
 	"context"
 	"net/http"
-	"strconv"
 
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
@@ -48,7 +48,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler
 }
 
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	id, err := strconv.Atoi(chi.URLParam(req, "id"))
+	id, err := requests.GetFeedBind(req)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
 		return handler.BadRequestResponse()

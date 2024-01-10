@@ -55,7 +55,7 @@ const getFeedQuery = "SELECT id, title, description, reg_url FROM events WHERE i
 func (p *Postgres) GetFeed(ctx context.Context, id int) (domain.Feed, error) {
 	var feed domain.Feed
 
-	err := p.db.QueryRow(getFeedQuery, id).Scan(&feed.ID, &feed.Title, &feed.Description, &feed.RegistationURL)
+	err := p.db.QueryRow(getFeedQuery, id).Scan(&feed.ID, &feed.Title, &feed.Description, &feed.RegistrationURL)
 	if err != nil {
 		return domain.Feed{}, err
 	}

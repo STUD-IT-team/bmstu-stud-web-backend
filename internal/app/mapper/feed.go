@@ -23,6 +23,6 @@ func MakeResponseFeed(dom domain.Feed) *responses.GetFeed {
 		ID:             dom.ID,
 		Title:          dom.Title,
 		Description:    dom.Description,
-		RegistationURL: dom.RegistationURL,
+		RegistationURL: dom.RegistrationURL,
 	}
 }

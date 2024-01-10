@@ -3,14 +3,15 @@ package app
 import (
 	"context"
 	"errors"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	mock_storage "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
 	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	mock_storage "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
 )
 
 func TestFeedService_GetAllFeed(t *testing.T) {
@@ -92,10 +93,10 @@ func TestFeedService_GetFeed(t *testing.T) {
 
 	// Mock the storage method call
 	mockStorage.EXPECT().GetFeed(ctx, feedID).Return(domain.Feed{
-		ID:             1,
-		Title:          "testAll",
-		Description:    "testAbout",
-		RegistationURL: "testURL",
+		ID:              1,
+		Title:           "testAll",
+		Description:     "testAbout",
+		RegistrationURL: "testURL",
 	}, nil)
 
 	// Call the service method
