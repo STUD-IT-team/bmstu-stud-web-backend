@@ -48,7 +48,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler
 }
 
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	id, err := requests.GetFeedBind(req)
+	id, err := requests.NewGetFeed().Bind(req)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
 		return handler.BadRequestResponse()

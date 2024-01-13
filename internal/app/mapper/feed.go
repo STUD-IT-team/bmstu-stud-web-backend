@@ -5,9 +5,9 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-func MakeResponseAllFeed(dom []domain.Feed) *responses.GetAllFeed {
+func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
 	feed := []responses.Feed{}
-	for _, i := range dom {
+	for _, i := range f {
 		feed = append(feed,
 			responses.Feed{
 				ID:          i.ID,
@@ -18,11 +18,11 @@ func MakeResponseAllFeed(dom []domain.Feed) *responses.GetAllFeed {
 	return &responses.GetAllFeed{Feed: feed}
 }
 
-func MakeResponseFeed(dom domain.Feed) *responses.GetFeed {
+func MakeResponseFeed(f domain.Feed) *responses.GetFeed {
 	return &responses.GetFeed{
-		ID:             dom.ID,
-		Title:          dom.Title,
-		Description:    dom.Description,
-		RegistationURL: dom.RegistrationURL,
+		ID:             f.ID,
+		Title:          f.Title,
+		Description:    f.Description,
+		RegistationURL: f.RegistrationURL,
 	}
 }

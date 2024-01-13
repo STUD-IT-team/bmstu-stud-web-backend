@@ -3,11 +3,12 @@ package app
 import (
 	"context"
 	"errors"
+	"reflect"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
-	"reflect"
-	"testing"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"

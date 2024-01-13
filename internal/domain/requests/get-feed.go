@@ -7,6 +7,14 @@ import (
 	"github.com/go-chi/chi"
 )
 
-func GetFeedBind(req *http.Request) (int, error) {
+type GetFeed struct {
+	ID int `json:"id"`
+}
+
+func NewGetFeed() *GetFeed {
+	return &GetFeed{}
+}
+
+func (f *GetFeed) Bind(req *http.Request) (int, error) {
 	return strconv.Atoi(chi.URLParam(req, "id"))
 }
