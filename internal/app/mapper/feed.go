@@ -20,9 +20,9 @@ func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
 
 func MakeResponseFeed(f domain.Feed) *responses.GetFeed {
 	return &responses.GetFeed{
-		ID:             f.ID,
-		Title:          f.Title,
-		Description:    f.Description,
-		RegistationURL: f.RegistrationURL,
+		ID:              f.ID,
+		Title:           f.Title,
+		Description:     f.Description,
+		RegistrationURL: f.RegistrationURL,
 	}
 }

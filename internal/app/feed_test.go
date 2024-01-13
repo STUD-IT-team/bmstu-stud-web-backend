@@ -9,124 +9,132 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	mock_storage "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
 )
 
+type FeedServiceTestSuite struct {
+	suite.Suite
+	ctrl        *gomock.Controller
+	t           *testing.T
+	mockStorage *mock_storage.MockStorage
+	feedService *FeedService
+}
+
+func NewFeedServiceTestSuite(t *testing.T) *FeedServiceTestSuite {
+	return &FeedServiceTestSuite{t: t}
+}
+
+func (suite *FeedServiceTestSuite) SetupTest() {
+	suite.ctrl = gomock.NewController(suite.t)
+
+	suite.mockStorage = mock_storage.NewMockStorage(suite.ctrl)
+	logger := logrus.New()
+	suite.feedService = NewFeedService(logger, suite.mockStorage)
+
+}
+
+func (suite *FeedServiceTestSuite) TearDownTest() {
+	suite.ctrl.Finish()
+}
+
+func (suite *FeedServiceTestSuite) TestGetAllFeed() {
+	ctx := context.Background()
+	testCase := map[int]struct {
+		nameTest         string
+		request          []domain.Feed
+		expectedResponse *responses.GetAllFeed
+		expectedError    error
+	}{
+		1: {
+			nameTest: "Test Ok",
+			expectedResponse: &responses.GetAllFeed{
+				Feed: []responses.Feed{
+					{
+						ID:          1,
+						Title:       "testAll",
+						Description: "testAbout",
+					},
+				},
+			},
+			request: []domain.Feed{
+				{
+					ID:          1,
+					Title:       "testAll",
+					Description: "testAbout",
+				}},
+			expectedError: nil,
+		},
+		2: {
+			nameTest:         "Test Error",
+			expectedResponse: nil,
+			request:          []domain.Feed{},
+			expectedError:    errors.New("storage error")},
+	}
+
+	for _, test := range testCase {
+
+		// Mock the storage method call
+		suite.mockStorage.EXPECT().GetAllFeed(ctx).Return(test.request, test.expectedError)
+
+		// Call the service method
+		actualResponse, actualError := suite.feedService.GetAllFeed(ctx)
+
+		// Compare the expected and actual responses
+		assert.Equal(suite.T(), test.expectedError, actualError)
+		assert.True(suite.T(), reflect.DeepEqual(test.expectedResponse, actualResponse))
+	}
+}
+
+func (suite *FeedServiceTestSuite) TestGetFeed() {
+	ctx := context.Background()
+	testCase := map[int]struct {
+		nameTest         string
+		request          domain.Feed
+		expectedResponse *responses.GetFeed
+		expectedError    error
+	}{
+		1: {
+			nameTest: "Test Ok",
+			expectedResponse: &responses.GetFeed{
+				ID:              1,
+				Title:           "testAll",
+				RegistrationURL: "testURL",
+				Description:     "testAbout",
+			},
+			request: domain.Feed{
+				ID:    1,
+				Title: "testAll",
+
+				RegistrationURL: "testURL",
+				Description:     "testAbout",
+			},
+			expectedError: nil,
+		},
+		2: {
+			nameTest:         "Test Error",
+			expectedResponse: nil,
+			request:          domain.Feed{},
+			expectedError:    errors.New("storage error")},
+	}
+
+	for _, test := range testCase {
+
+		// Mock the storage method call
+		suite.mockStorage.EXPECT().GetFeed(ctx, 1).Return(test.request, test.expectedError)
+
+		// Call the service method
+		actualResponse, actualError := suite.feedService.GetFeed(ctx, 1)
+
+		// Compare the expected and actual responses
+		assert.Equal(suite.T(), test.expectedError, actualError)
+		assert.True(suite.T(), reflect.DeepEqual(test.expectedResponse, actualResponse))
+	}
+}
+
 func TestFeedService_GetAllFeed(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockStorage := mock_storage.NewMockStorage(ctrl)
-	logger := logrus.New()
-	feedService := NewFeedService(logger, mockStorage)
-
-	ctx := context.Background()
-
-	feeds := []responses.Feed{
-		{
-			ID:          1,
-			Title:       "testAll",
-			Description: "testAbout",
-		},
-	}
-	expectedResponse := &responses.GetAllFeed{
-		Feed: feeds,
-	}
-
-	// Mock the storage method call
-	mockStorage.EXPECT().GetAllFeed(ctx).Return([]domain.Feed{
-		{
-			ID:          1,
-			Title:       "testAll",
-			Description: "testAbout",
-		},
-	}, nil)
-
-	// Call the service method
-	actualResponse, err := feedService.GetAllFeed(ctx)
-
-	// Compare the expected and actual responses
-	assert.Nil(t, err)
-	assert.True(t, reflect.DeepEqual(expectedResponse, actualResponse))
-}
-
-func TestFeedService_GetAllFeed_Error(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockStorage := mock_storage.NewMockStorage(ctrl)
-	logger := logrus.New()
-	feedService := NewFeedService(logger, mockStorage)
-
-	ctx := context.Background()
-	expectedError := errors.New("storage error")
-
-	// Mock the storage method call to return an error
-	mockStorage.EXPECT().GetAllFeed(ctx).Return(nil, expectedError)
-
-	// Call the service method
-	actualResponse, err := feedService.GetAllFeed(ctx)
-
-	// Compare the expected error with actual error
-	assert.Equal(t, expectedError, err)
-	assert.Nil(t, actualResponse)
-}
-
-func TestFeedService_GetFeed(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockStorage := mock_storage.NewMockStorage(ctrl)
-	logger := logrus.New()
-	feedService := NewFeedService(logger, mockStorage)
-
-	ctx := context.Background()
-	expectedResponse := &responses.GetFeed{
-		ID:             1,
-		Title:          "testAll",
-		Description:    "testAbout",
-		RegistationURL: "testURL",
-	}
-	feedID := 1
-
-	// Mock the storage method call
-	mockStorage.EXPECT().GetFeed(ctx, feedID).Return(domain.Feed{
-		ID:              1,
-		Title:           "testAll",
-		Description:     "testAbout",
-		RegistrationURL: "testURL",
-	}, nil)
-
-	// Call the service method
-	actualResponse, err := feedService.GetFeed(ctx, feedID)
-
-	// Compare the expected and actual responses
-	assert.Nil(t, err)
-	assert.True(t, reflect.DeepEqual(expectedResponse, actualResponse))
-}
-
-func TestFeedService_GetFeed_Error(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockStorage := mock_storage.NewMockStorage(ctrl)
-	logger := logrus.New()
-	feedService := NewFeedService(logger, mockStorage)
-
-	ctx := context.Background()
-	expectedError := errors.New("storage error")
-	feedID := 1
-
-	// Mock the storage method call to return an error
-	mockStorage.EXPECT().GetFeed(ctx, feedID).Return(domain.Feed{}, expectedError)
-
-	// Call the service method
-	actualResponse, err := feedService.GetFeed(ctx, feedID)
-
-	// Compare the expected error with actual error
-	assert.Equal(t, expectedError, err)
-	assert.Nil(t, actualResponse)
+	suite.Run(t, NewFeedServiceTestSuite(t))
 }
