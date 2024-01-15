@@ -15,6 +15,8 @@ func NewGetFeed() *GetFeed {
 	return &GetFeed{}
 }
 
-func (f *GetFeed) Bind(req *http.Request) (int, error) {
-	return strconv.Atoi(chi.URLParam(req, "id"))
+func (f *GetFeed) Bind(req *http.Request) error {
+	id, err := strconv.Atoi(chi.URLParam(req, "id"))
+	f.ID = id
+	return err
 }

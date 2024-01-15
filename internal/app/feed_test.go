@@ -30,11 +30,9 @@ func NewFeedServiceTestSuite(t *testing.T) *FeedServiceTestSuite {
 
 func (suite *FeedServiceTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.t)
-
 	suite.mockStorage = mock_storage.NewMockStorage(suite.ctrl)
 	logger := logrus.New()
 	suite.feedService = NewFeedService(logger, suite.mockStorage)
-
 }
 
 func (suite *FeedServiceTestSuite) TearDownTest() {
@@ -76,7 +74,6 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 	}
 
 	for _, test := range testCase {
-
 		// Mock the storage method call
 		suite.mockStorage.EXPECT().GetAllFeed(ctx).Return(test.request, test.expectedError)
 
@@ -122,7 +119,6 @@ func (suite *FeedServiceTestSuite) TestGetFeed() {
 	}
 
 	for _, test := range testCase {
-
 		// Mock the storage method call
 		suite.mockStorage.EXPECT().GetFeed(ctx, 1).Return(test.request, test.expectedError)
 
