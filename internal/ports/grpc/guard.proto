@@ -17,7 +17,6 @@ message LoginRequest {
 
 message LoginResponse {
     string accessToken = 1;
-    string expires = 2;
 }
 
 message LogoutRequest {
