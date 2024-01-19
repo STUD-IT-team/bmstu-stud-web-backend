@@ -3,6 +3,7 @@ run:
   skip-dirs:
     - "pkg"
     - "cmd/configer"
+    - "internal/infra/mock"
   # timeout for analysis, e.g. 30s, 5m, default is 1m
   deadline: 5m
 
@@ -13,7 +14,6 @@ run:
   # default is false (show "congrats" message by default).
   # set this option to true to print nothing if no issues were found.
   silent: false
-
 
 # all available settings of specific linters
 linters-settings:
@@ -145,6 +145,7 @@ linters:
     - ".idea"
     - "docker"
     - "./pkg/"
+    - "./internal/infra/mock"
   disable-all: true
   enable:
     - asciicheck
@@ -183,15 +184,14 @@ linters:
     - exhaustive
   fast: false
 
-
 issues:
   max-same-issues: 10
 
   exclude-rules:
     - source: "//noinspection"
-      linters: [ gocritic ]
+      linters: [gocritic]
     - source: "^\\s+if _, ok := err\\.\\([^.]+\\.InternalError\\); ok {"
-      linters: [ errorlint ]
+      linters: [errorlint]
     - path: "_test\\.go"
       linters:
         - bodyclose
