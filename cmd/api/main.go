@@ -48,8 +48,10 @@ func main() {
 	servers := make([]*http.Server, 0)
 	router := chi.NewRouter()
 
-	//Storage
-	postgres, err := postgres.NewPostgres("postgres://stud:7dgvJVDJvh254aqOpfd@localhost:5432/stud_web_backend?sslmode=disable")
+	// Storage
+	postgres, err := postgres.NewPostgres(
+		"postgres://stud:7dgvJVDJvh254aqOpfd@localhost:5432/stud_web_backend?sslmode=disable",
+	)
 	if err != nil {
 		logger.WithError(err).Errorf("can`t connect to postgres")
 	}
