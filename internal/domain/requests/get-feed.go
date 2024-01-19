@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -17,6 +18,19 @@ func NewGetFeed() *GetFeed {
 
 func (f *GetFeed) Bind(req *http.Request) error {
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
+	if err != nil {
+		return fmt.Errorf("can't Atoi id on GetFeed.Bind: %w", err)
+	}
+
 	f.ID = id
-	return err
+
+	return f.validate()
+}
+
+func (f *GetFeed) validate() error {
+	if f.ID == 0 {
+		return fmt.Errorf("require: id")
+	}
+
+	return nil
 }
