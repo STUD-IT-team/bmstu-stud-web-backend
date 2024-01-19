@@ -15,6 +15,7 @@ func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
 				Description: i.Description,
 			})
 	}
+
 	return &responses.GetAllFeed{Feed: feed}
 }
 

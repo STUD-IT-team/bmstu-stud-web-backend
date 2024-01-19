@@ -55,6 +55,7 @@ func main() {
 	if err != nil {
 		logger.WithError(err).Errorf("can`t connect to postgres")
 	}
+
 	storage := storage.NewStorage(*postgres)
 
 	// services

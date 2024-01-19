@@ -30,6 +30,7 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 		log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
 		return nil, err
 	}
+
 	return mapper.MakeResponseAllFeed(res), nil
 }
 
