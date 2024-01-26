@@ -1,11 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"net"
+	"os"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/adapters/cache"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
-	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
+	serverGRPC "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/handlers/grpc"
 
 	"github.com/sirupsen/logrus"
 	"go.uber.org/automaxprocs/maxprocs"
@@ -28,9 +33,17 @@ func main() {
 		logger.WithError(err).Errorf("can't set maxprocs")
 	}
 
-	guardService := app.NewGuard(logger)
+	postgres, err := postgres.NewPostgres(os.Getenv("DATA_SOURCE"))
+	if err != nil {
+		logger.Fatal(err)
+	}
 
-	lis, err := net.Listen("tcp", ":")
+	storage := storage.NewGuardStorage(*postgres)
+	sessionCache := cache.NewSessionCache()
+
+	guardService := app.NewGuardService(logger, storage, sessionCache)
+
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", os.Getenv("GUARD_DN"), os.Getenv("GUARD_PORT")))
 	if err != nil {
 		logger.WithError(err).Errorf("server can't listen and serve requests")
 	}
@@ -38,7 +51,7 @@ func main() {
 	logger.Infof("starting server, listening on")
 
 	grpcServer := grpc.NewServer()
-	grpc2.RegisterGuardServer(grpcServer, guardService)
+	serverGRPC.Register(grpcServer, guardService)
 
 	logger.Infof("starting service Guard")
 

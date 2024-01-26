@@ -1,5 +1,6 @@
 package responses
 
 type LoginResponse struct {
-	Token string
+	Token   string
+	Expires string
 }

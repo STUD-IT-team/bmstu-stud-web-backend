@@ -2,6 +2,9 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -67,4 +70,22 @@ func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 	}
 
 	return feed, nil
+}
+
+const getUserIDQuery = "SELECT id FROM users WHERE email =$1  AND hash_password = crypt($2, hash_password);"
+
+func (p *Postgres) GetUserID(_ context.Context, email string, password string) (string, error) {
+	const op = "postgres.GetUserID"
+
+	var userID string
+	err := p.db.QueryRow(getUserIDQuery, email, password).Scan(&userID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", fmt.Errorf("%s: %w", op, domain.ErrUserNotFound)
+		}
+
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	return userID, nil
 }

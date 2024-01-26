@@ -23,7 +23,6 @@ require (
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/Microsoft/hcsshim v0.11.4 // indirect
 	github.com/ajg/form v1.5.1 // indirect
-<<<<<<< HEAD
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/containerd/containerd v1.7.11 // indirect
@@ -68,7 +67,6 @@ require (
 	golang.org/x/tools v0.10.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230711160842-782d3b101e98 // indirect
 	google.golang.org/grpc v1.58.3 // indirect
-=======
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	golang.org/x/net v0.16.0 // indirect
@@ -76,6 +74,5 @@ require (
 	golang.org/x/text v0.13.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
 	google.golang.org/grpc v1.60.1 // indirect
->>>>>>> 315d03f (prep)
 	google.golang.org/protobuf v1.31.0 // indirect
 )
