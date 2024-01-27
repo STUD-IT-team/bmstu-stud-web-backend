@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	cfg := appconfig.MustParseAppConfig[appconfig.APIConfig]()
+	cfg := appconfig.MustParseAppConfig[appconfig.GuardConfig]()
 
 	logger := logrus.New()
 

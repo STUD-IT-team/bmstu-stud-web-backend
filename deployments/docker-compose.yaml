@@ -17,6 +17,7 @@ services:
 
   postgres:
     container_name: postgres_container
+    hostname: postgres
     image: postgres:14.8-alpine3.18
     command:
       - "postgres"
@@ -97,6 +98,18 @@ services:
     build:
       context: ../
       dockerfile: ./migrations/Dockerfile
+    networks:
+      - postgres
+
+  guard:
+    container_name: guard_container
+    env_file:
+      - .env
+    build:
+      context: ../
+      dockerfile: ./cmd/guard/Dockerfile
+    ports:
+      - "${GUARD_PORT}:${GUARD_PORT}"
     networks:
       - postgres
 
