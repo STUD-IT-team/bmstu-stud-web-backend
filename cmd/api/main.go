@@ -16,9 +16,9 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
 	internalhttp "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/http"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
 

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"

@@ -14,10 +14,11 @@ import (
 	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type GuardServiceStorage interface {
-	GetUserID(ctx context.Context, user domain.User) (userID string, err error)
+	GetUserByEmail(_ context.Context, email string) (domain.User, error)
 }
 
 type GuardServiceCache[K comparable, V any] interface {
@@ -50,9 +51,7 @@ const sessionDurationHours = 5
 func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (res *responses.LoginResponse, err error) {
 	const op = "appGuard.Login"
 
-	userID, err := s.storage.GetUserID(ctx, domain.User{
-		Email:        req.Email,
-		HashPasswrod: req.Password})
+	user, err := s.storage.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		if errors.Is(err, domain.ErrUserNotFound) {
 			s.logger.Warn("user not found", err)
@@ -60,21 +59,27 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (r
 			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 		}
 
-		s.logger.WithError(err).Warnf("failed to get userID")
+		s.logger.WithError(err).Warnf("failed to get user")
 		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.HashPasswrod), []byte(req.Password))
+	if err != nil {
+		s.logger.Warn("invalid password", err)
+		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
 
 	sessionID := uuid.NewString()
 
 	session := domain.Session{
-		UserID:    userID,
+		UserID:    user.ID,
 		ExpireAt:  time.Now().Add(time.Hour * time.Duration(sessionDurationHours)),
 		EnteredAt: time.Now(),
 	}
 
 	s.sessionCache.Put(sessionID, session)
 
-	s.logger.WithField("op", op).Infof("user %s logged in successfully", userID)
+	s.logger.WithField("op", op).Infof("user %s logged in successfully", user.Email)
 
 	return mapper.CreateResponseLogin(sessionID, session.ExpireAt.Format(consts.GrpcTimeFormat)), nil
 }
@@ -100,10 +105,7 @@ func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (r
 	if session == nil {
 		s.logger.WithField("op", op).Info("session not found")
 
-		return &responses.CheckResponse{
-			Valid:  false,
-			UserID: "",
-		}, nil
+		return mapper.CreateResponseCheck(false, ""), nil
 	}
 
 	if session.ExpireAt.Before(time.Now()) {
@@ -111,16 +113,10 @@ func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (r
 
 		s.sessionCache.Delete(session.UserID)
 
-		return &responses.CheckResponse{
-			Valid:  false,
-			UserID: "",
-		}, nil
+		return mapper.CreateResponseCheck(false, ""), nil
 	}
 
 	s.logger.WithField("op", op).Infof("user %s is authorized", session.UserID)
 
-	return &responses.CheckResponse{
-		Valid:  true,
-		UserID: session.UserID,
-	}, nil
+	return mapper.CreateResponseCheck(true, session.UserID), nil
 }

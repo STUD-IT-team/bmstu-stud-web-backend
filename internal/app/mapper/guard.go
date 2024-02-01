@@ -39,6 +39,13 @@ func CreateRequestCheck(req *grpc2.CheckRequest) *requests.CheckRequest {
 	}
 }
 
+func CreateResponseCheck(valid bool, userID string) *responses.CheckResponse {
+	return &responses.CheckResponse{
+		Valid:  valid,
+		UserID: userID,
+	}
+}
+
 func CreateGPRCResponseCheck(res *responses.CheckResponse) *grpc2.CheckResponse {
 	return &grpc2.CheckResponse{
 		Valid:  res.Valid,
