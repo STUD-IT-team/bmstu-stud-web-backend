@@ -1,10 +1,17 @@
 version: "3.9"
+
 services:
   api:
     container_name: api_container
     build:
       context: ../
       dockerfile: ./cmd/api/Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+    networks:
+      - postgres
 
   postgres:
     container_name: postgres_container
