@@ -16,9 +16,6 @@ gen: ## run code generation on host machine
 	@$(MAKE) _gen
 .PHONY: local-gen
 
-gen_proto:
-	protoc -I internal/ports/grpc internal/ports/grpc/guard.proto --go_out=./internal/ports/grpc --go_opt=paths=source_relative --go-grpc_out=./internal/ports/grpc --go-grpc_opt=paths=source_relative
-
 $(SERVICES_RUN_TARGETS_LIST): run-%: ## run service from $(BINARIES_DIR)
 	go run ./cmd/$* --config-path=./cmd/$*/infra/$(ENV)/application.conf
 .PHONY: $(SERVICES_RUN_TARGETS_LIST)

@@ -13,6 +13,13 @@ func CreateRequestLogin(req *grpc2.LoginRequest) *requests.LoginRequest {
 	}
 }
 
+func CreateResponseLogin(token, expires string) *responses.LoginResponse {
+	return &responses.LoginResponse{
+		Token:   token,
+		Expires: expires,
+	}
+}
+
 func CreateGPRCResponseLogin(res *responses.LoginResponse) *grpc2.LoginResponse {
 	return &grpc2.LoginResponse{
 		AccessToken: res.Token,

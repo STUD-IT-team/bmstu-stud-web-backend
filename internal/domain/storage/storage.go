@@ -10,6 +10,7 @@ import (
 type Storage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
+	GetUserID(ctx context.Context, user domain.User) (userID string, err error)
 }
 
 type storage struct {
@@ -26,4 +27,9 @@ func (s *storage) GetAllFeed(ctx context.Context) ([]domain.Feed, error) {
 
 func (s *storage) GetFeed(ctx context.Context, id int) (domain.Feed, error) {
 	return s.postgres.GetFeed(ctx, id)
+}
+
+func (s *storage) GetUserID(ctx context.Context, user domain.User) (userID string, err error) {
+	userID, err = s.postgres.GetUserID(ctx, user)
+	return
 }

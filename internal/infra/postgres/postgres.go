@@ -74,11 +74,11 @@ func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 
 const getUserIDQuery = "SELECT id FROM users WHERE email =$1  AND hash_password = crypt($2, hash_password);"
 
-func (p *Postgres) GetUserID(_ context.Context, email string, password string) (string, error) {
+func (p *Postgres) GetUserID(_ context.Context, user domain.User) (string, error) {
 	const op = "postgres.GetUserID"
 
 	var userID string
-	err := p.db.QueryRow(getUserIDQuery, email, password).Scan(&userID)
+	err := p.db.QueryRow(getUserIDQuery, user.Email, user.HashPasswrod).Scan(&userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return "", fmt.Errorf("%s: %w", op, domain.ErrUserNotFound)

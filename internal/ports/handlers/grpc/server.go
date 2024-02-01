@@ -2,7 +2,9 @@ package grpc
 
 import (
 	"context"
+	"errors"
 
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
@@ -34,8 +36,12 @@ func (s *ServerAPI) Login(ctx context.Context, req *grpc2.LoginRequest) (*grpc2.
 
 	mappedReq := mapper.CreateRequestLogin(req)
 
-	res, err := s.guard.Login(context.TODO(), mappedReq)
+	res, err := s.guard.Login(ctx, mappedReq)
 	if err != nil {
+		if errors.Is(err, app.ErrInvalidCredentials) {
+			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
+		}
+
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -49,7 +55,7 @@ func (s *ServerAPI) Logout(ctx context.Context, req *grpc2.LogoutRequest) (*grpc
 
 	mappedReq := mapper.CreateRequestLogout(req)
 
-	if err := s.guard.Logout(context.TODO(), mappedReq); err != nil {
+	if err := s.guard.Logout(ctx, mappedReq); err != nil {
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 
@@ -63,7 +69,7 @@ func (s *ServerAPI) Check(ctx context.Context, req *grpc2.CheckRequest) (*grpc2.
 
 	mappedReq := mapper.CreateRequestCheck(req)
 
-	res, err := s.guard.Check(context.TODO(), mappedReq)
+	res, err := s.guard.Check(ctx, mappedReq)
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, "internal error")

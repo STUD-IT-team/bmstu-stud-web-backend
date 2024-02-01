@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/adapters/cache"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
 	serverGRPC "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/handlers/grpc"
@@ -38,26 +38,22 @@ func main() {
 		logger.Fatal(err)
 	}
 
-	storage := storage.NewGuardStorage(*postgres)
-	sessionCache := cache.NewSessionCache()
+	storage := storage.NewStorage(*postgres)
+	sessionCache := domain.NewSessionCache()
 
 	guardService := app.NewGuardService(logger, storage, sessionCache)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%s", os.Getenv("GUARD_DN"), os.Getenv("GUARD_PORT")))
+	lis, err := net.Listen("tcp", fmt.Sprintf("%s:%d", os.Getenv("GUARD_DN"), cfg.GRPC.Port))
 	if err != nil {
 		logger.WithError(err).Errorf("server can't listen and serve requests")
 	}
 
-	logger.Infof("starting server, listening on")
+	logger.Infof("starting server, listening on %d", cfg.GRPC.Port)
 
 	grpcServer := grpc.NewServer()
 	serverGRPC.Register(grpcServer, guardService)
 
 	logger.Infof("starting service Guard")
 
-	err = grpcServer.Serve(lis)
-	if err != nil {
-		panic(err)
-	}
-
+	grpcServer.Serve(lis)
 }
