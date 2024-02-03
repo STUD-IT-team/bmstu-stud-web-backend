@@ -16,6 +16,7 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/cache"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
 	internalhttp "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/http"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/storage"
@@ -56,7 +57,8 @@ func main() {
 		logger.WithError(err).Errorf("can`t connect to postgres: %s", os.Getenv("PG_CONNECT"))
 	}
 
-	storage := storage.NewStorage(*postgres)
+	sessionCache := cache.NewSessionCache()
+	storage := storage.NewStorage(*postgres, sessionCache)
 
 	// services
 	apiService := app.NewAPI(logger)

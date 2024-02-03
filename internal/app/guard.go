@@ -11,7 +11,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
+	grpc "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
@@ -19,30 +19,25 @@ import (
 
 type GuardServiceStorage interface {
 	GetUserByEmail(_ context.Context, email string) (domain.User, error)
-}
-
-type GuardServiceCache[K comparable, V any] interface {
-	Put(id K, value V)
-	Delete(id K)
-	Find(id K) *V
+	SetSessionCache(id string, value domain.Session)
+	FindSessionCache(id string) *domain.Session
+	DeleteSessionCache(id string)
 }
 
 type GuardService struct {
-	logger       *logrus.Logger
-	storage      GuardServiceStorage
-	sessionCache GuardServiceCache[string, domain.Session]
-	grpc2.UnimplementedGuardServer
+	logger  *logrus.Logger
+	storage GuardServiceStorage
+	grpc.UnimplementedGuardServer
 }
 
 var (
 	ErrInvalidCredentials = errors.New("invalid credentials")
 )
 
-func NewGuardService(log *logrus.Logger, storage GuardServiceStorage, sessionCache GuardServiceCache[string, domain.Session]) *GuardService {
+func NewGuardService(log *logrus.Logger, storage GuardServiceStorage) *GuardService {
 	return &GuardService{
-		logger:       log,
-		storage:      storage,
-		sessionCache: sessionCache,
+		logger:  log,
+		storage: storage,
 	}
 }
 
@@ -63,7 +58,7 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (r
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.HashPasswrod), []byte(req.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Passwrod), []byte(req.Password))
 	if err != nil {
 		s.logger.Warn("invalid password", err)
 		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
@@ -77,7 +72,7 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (r
 		EnteredAt: time.Now(),
 	}
 
-	s.sessionCache.Put(sessionID, session)
+	s.storage.SetSessionCache(sessionID, session)
 
 	s.logger.WithField("op", op).Infof("user %s logged in successfully", user.Email)
 
@@ -87,11 +82,9 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (r
 func (s *GuardService) Logout(ctx context.Context, req *requests.LogoutRequest) error {
 	const op = "appGuard.Logout"
 
-	accessToken := req.AccessToken
+	s.storage.DeleteSessionCache(req.AccessToken)
 
-	s.sessionCache.Delete(accessToken)
-
-	s.logger.WithField("op", op).Infof("user with session %s uccessfully logged out", accessToken)
+	s.logger.WithField("op", op).Infof("user with session %s uccessfully logged out", req.AccessToken)
 
 	return nil
 }
@@ -99,9 +92,7 @@ func (s *GuardService) Logout(ctx context.Context, req *requests.LogoutRequest) 
 func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (res *responses.CheckResponse, err error) {
 	const op = "appGuard.Logout"
 
-	accessToken := req.AccessToken
-
-	session := s.sessionCache.Find(accessToken)
+	session := s.storage.FindSessionCache(req.AccessToken)
 	if session == nil {
 		s.logger.WithField("op", op).Info("session not found")
 
@@ -111,7 +102,7 @@ func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (r
 	if session.ExpireAt.Before(time.Now()) {
 		s.logger.WithField("op", op).Info("session expired")
 
-		s.sessionCache.Delete(session.UserID)
+		s.storage.DeleteSessionCache(session.UserID)
 
 		return mapper.CreateResponseCheck(false, ""), nil
 	}
