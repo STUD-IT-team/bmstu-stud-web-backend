@@ -1,12 +1,16 @@
 FROM golang:1.21.2-alpine
 
+RUN apk add --no-cache make
+
 RUN mkdir /build
 WORKDIR /build
 
-COPY . .
+COPY ../../go.* .
 RUN go mod download
 
-WORKDIR /build/cmd/api
-RUN CGO_ENABLED=0 GOOS=linux go build -o api
+COPY ../../cmd/. cmd/
+COPY ../../Makefile .
+COPY ../../internal/. internal/
+COPY ../../pkg/. pkg/
 
-CMD ["/build/cmd/api/api"]
+CMD ["make", "run-api"]
