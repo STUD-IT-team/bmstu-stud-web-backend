@@ -8,6 +8,8 @@ services:
       dockerfile: ./cmd/api/Dockerfile
     ports:
       - "5000:5000"
+    env_file:
+      - api.env
     depends_on:
       - postgres
     networks:
