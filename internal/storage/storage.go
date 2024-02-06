@@ -2,19 +2,22 @@ package storage
 
 import (
 	"context"
+	"time"
 
 	"github.com/STUD-IT-team/bauman-legends-backend/pkg/cache"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
+	"github.com/google/uuid"
 )
 
 type Storage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
-	SetSessionCache(id string, value domain.Session)
-	FindSessionCache(id string) *domain.Session
-	DeleteSessionCache(id string)
+	SetSession(id string, value domain.Session)
+	FindSession(id string) *domain.Session
+	DeleteSession(id string)
+	SaveSessoinFromUserID(userID string) (sessionID string, session domain.Session)
 }
 
 type storage struct {
@@ -41,14 +44,32 @@ func (s *storage) GetUserByEmail(ctx context.Context, email string) (domain.User
 	return s.postgres.GetUserByEmail(ctx, email)
 }
 
-func (s *storage) SetSessionCache(id string, value domain.Session) {
+func (s *storage) SetSession(id string, value domain.Session) {
 	s.sessionCache.Put(id, value)
 }
 
-func (s *storage) FindSessionCache(id string) *domain.Session {
+func (s *storage) FindSession(id string) *domain.Session {
 	return s.sessionCache.Find(id)
 }
 
-func (s *storage) DeleteSessionCache(id string) {
+func (s *storage) DeleteSession(id string) {
 	s.sessionCache.Delete(id)
+}
+
+const sessionDuration = 5 * time.Hour
+
+func (s *storage) SaveSessoinFromUserID(userID string) (sessionID string, session domain.Session) {
+	sessionID = uuid.NewString()
+
+	loc, _ := time.LoadLocation("Europe/Moscow")
+
+	session = domain.Session{
+		UserID:    userID,
+		ExpireAt:  time.Now().In(loc).Add(time.Duration(sessionDuration)),
+		EnteredAt: time.Now().In(loc),
+	}
+
+	s.sessionCache.Put(sessionID, session)
+
+	return sessionID, session
 }

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
@@ -38,7 +38,7 @@ func (s *ServerAPI) Login(ctx context.Context, req *grpc2.LoginRequest) (*grpc2.
 
 	res, err := s.guard.Login(ctx, mappedReq)
 	if err != nil {
-		if errors.Is(err, app.ErrInvalidCredentials) {
+		if errors.Is(err, domain.ErrNotFound) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
 		}
 
@@ -72,7 +72,7 @@ func (s *ServerAPI) Check(ctx context.Context, req *grpc2.CheckRequest) (*grpc2.
 	res, err := s.guard.Check(ctx, mappedReq)
 
 	if err != nil {
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Error(codes.NotFound, "not found")
 	}
 
 	return mapper.CreateGPRCResponseCheck(res), nil

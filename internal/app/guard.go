@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/consts"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
@@ -12,79 +11,67 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	grpc "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
-	"github.com/google/uuid"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/hasher"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 )
 
-type GuardServiceStorage interface {
+type guardServiceStorage interface {
 	GetUserByEmail(_ context.Context, email string) (domain.User, error)
-	SetSessionCache(id string, value domain.Session)
-	FindSessionCache(id string) *domain.Session
-	DeleteSessionCache(id string)
+	SetSession(id string, value domain.Session)
+	FindSession(id string) *domain.Session
+	DeleteSession(id string)
+	SaveSessoinFromUserID(userID string) (sessionID string, session domain.Session)
 }
 
 type GuardService struct {
 	logger  *logrus.Logger
-	storage GuardServiceStorage
+	storage guardServiceStorage
 	grpc.UnimplementedGuardServer
 }
 
-var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-)
-
-func NewGuardService(log *logrus.Logger, storage GuardServiceStorage) *GuardService {
+func NewGuardService(log *logrus.Logger, storage guardServiceStorage) *GuardService {
 	return &GuardService{
 		logger:  log,
 		storage: storage,
 	}
 }
 
-const sessionDurationHours = 5
-
 func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (res *responses.LoginResponse, err error) {
 	const op = "appGuard.Login"
 
 	user, err := s.storage.GetUserByEmail(ctx, req.Email)
 	if err != nil {
-		if errors.Is(err, domain.ErrUserNotFound) {
-			s.logger.Warn("user not found", err)
-
-			return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		if errors.Is(err, domain.ErrNotFound) {
+			s.logger.WithError(err).Warnf("can't storage.GetUserID %s", op)
+			return nil, fmt.Errorf("can't storage.GetUserID %s: %w", op, err)
 		}
 
-		s.logger.WithError(err).Warnf("failed to get user")
-		return nil, fmt.Errorf("%s: %w", op, err)
+		s.logger.WithError(err).Warnf("can't storage.GetUserID %s", op)
+		return nil, fmt.Errorf("can't storage.GetUserID %s: %w", op, err)
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(user.Passwrod), []byte(req.Password))
+	err = hasher.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		s.logger.Warn("invalid password", err)
-		return nil, fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
+		s.logger.WithError(err).Warnf("can't hasher.CompareHashAndPassword %s", op)
+		if errors.Is(err, hasher.ErrMismatchedHashAndPassword) {
+			return nil, fmt.Errorf("can't hasher.CompareHashAndPassword %s: %w", op, err)
+		}
+
+		return nil, fmt.Errorf("can't hasher.CompareHashAndPassword %s: %w", op, err)
 	}
 
-	sessionID := uuid.NewString()
+	sessionID, session := s.storage.SaveSessoinFromUserID(user.ID)
 
-	session := domain.Session{
-		UserID:    user.ID,
-		ExpireAt:  time.Now().Add(time.Hour * time.Duration(sessionDurationHours)),
-		EnteredAt: time.Now(),
-	}
-
-	s.storage.SetSessionCache(sessionID, session)
-
-	s.logger.WithField("op", op).Infof("user %s logged in successfully", user.Email)
+	s.logger.Infof("user %s logged in successfully", user.Email)
 
 	return mapper.CreateResponseLogin(sessionID, session.ExpireAt.Format(consts.GrpcTimeFormat)), nil
 }
 
 func (s *GuardService) Logout(ctx context.Context, req *requests.LogoutRequest) error {
-	const op = "appGuard.Logout"
 
-	s.storage.DeleteSessionCache(req.AccessToken)
+	s.storage.DeleteSession(req.AccessToken)
 
-	s.logger.WithField("op", op).Infof("user with session %s uccessfully logged out", req.AccessToken)
+	s.logger.Infof("user with session %s uccessfully logged out", req.AccessToken)
 
 	return nil
 }
@@ -92,22 +79,24 @@ func (s *GuardService) Logout(ctx context.Context, req *requests.LogoutRequest) 
 func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (res *responses.CheckResponse, err error) {
 	const op = "appGuard.Logout"
 
-	session := s.storage.FindSessionCache(req.AccessToken)
+	session := s.storage.FindSession(req.AccessToken)
 	if session == nil {
-		s.logger.WithField("op", op).Info("session not found")
+		s.logger.WithError(domain.ErrNotFound).Warnf("can't storage.FindSession %s", op)
 
-		return mapper.CreateResponseCheck(false, ""), nil
+		return mapper.CreateResponseCheck(false, ""),
+			fmt.Errorf("can't storage.FindSession %s: %w", op, domain.ErrNotFound)
 	}
 
-	if session.ExpireAt.Before(time.Now()) {
-		s.logger.WithField("op", op).Info("session expired")
+	if session.IsExpired() {
+		s.logger.WithError(domain.ErrNotFound).Warnf("can't session.IsExpired %s", op)
 
-		s.storage.DeleteSessionCache(session.UserID)
+		s.storage.DeleteSession(session.UserID)
 
-		return mapper.CreateResponseCheck(false, ""), nil
+		return mapper.CreateResponseCheck(false, ""),
+			fmt.Errorf("can't session.IsExpired %s: %w", op, domain.ErrNotFound)
 	}
 
-	s.logger.WithField("op", op).Infof("user %s is authorized", session.UserID)
+	s.logger.Infof("user %s is authorized", session.UserID)
 
 	return mapper.CreateResponseCheck(true, session.UserID), nil
 }
