@@ -48,5 +48,8 @@ func main() {
 
 	logger.Infof("starting service Guard")
 
-	grpcServer.Serve(lis)
+	err = grpcServer.Serve(lis)
+	if err != nil {
+		logger.Fatal(err)
+	}
 }

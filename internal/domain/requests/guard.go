@@ -1,14 +1,14 @@
 package requests
 
 type CheckRequest struct {
-	AccessToken string
+	AccessToken string `json:"access_token"`
 }
 
 type LoginRequest struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type LogoutRequest struct {
-	AccessToken string
+	AccessToken string `json:"access_token"`
 }

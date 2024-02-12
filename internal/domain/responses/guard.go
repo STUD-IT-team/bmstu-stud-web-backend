@@ -1,11 +1,11 @@
 package responses
 
 type CheckResponse struct {
-	Valid  bool
-	UserID string
+	Valid  bool   `json:"valid"`
+	UserID string `json:"user_id"`
 }
 
 type LoginResponse struct {
-	Token   string
-	Expires string
+	Token   string `json:"token"`
+	Expires string `json:"expires"`
 }

@@ -44,7 +44,7 @@ func (s *storage) SaveSessoinFromUserID(userID string) (session domain.Session) 
 	session = domain.Session{
 		SessionID: sessionID,
 		UserID:    userID,
-		ExpireAt:  time.Now().In(loc).Add(time.Duration(sessionDuration)),
+		ExpireAt:  time.Now().In(loc).Add(sessionDuration),
 	}
 
 	s.sessionCache.Put(sessionID, session)

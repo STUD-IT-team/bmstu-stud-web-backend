@@ -49,7 +49,7 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (r
 	return mapper.CreateResponseLogin(session.SessionID, session.ExpireAt.Format(consts.GrpcTimeFormat)), nil
 }
 
-func (s *GuardService) Logout(ctx context.Context, req *requests.LogoutRequest) error {
+func (s *GuardService) Logout(_ context.Context, req *requests.LogoutRequest) error {
 	s.storage.DeleteSession(req.AccessToken)
 
 	s.logger.Infof("user with session %s uccessfully logged out", req.AccessToken)

@@ -83,9 +83,11 @@ func validateLogin(req *grpc2.LoginRequest) error {
 	if req.Email == "" {
 		return status.Error(codes.InvalidArgument, "email is required")
 	}
+
 	if req.Password == "" {
 		return status.Error(codes.InvalidArgument, "password is required")
 	}
+
 	return nil
 }
 
@@ -93,6 +95,7 @@ func validateLogout(req *grpc2.LogoutRequest) error {
 	if req.AccessToken == "" {
 		return status.Error(codes.InvalidArgument, "token is required")
 	}
+
 	return nil
 }
 
@@ -100,5 +103,6 @@ func validateCheck(req *grpc2.CheckRequest) error {
 	if req.AccessToken == "" {
 		return status.Error(codes.InvalidArgument, "token is required")
 	}
+
 	return nil
 }

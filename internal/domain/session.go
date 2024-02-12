@@ -5,9 +5,9 @@ import (
 )
 
 type Session struct {
-	SessionID string
-	UserID    string
-	ExpireAt  time.Time
+	SessionID string    `json:"session_id"`
+	UserID    string    `json:"user_id"`
+	ExpireAt  time.Time `json:"expire_at"`
 }
 
 func (s *Session) IsExpired() bool {
