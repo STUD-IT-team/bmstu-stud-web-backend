@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/times"
 	"github.com/google/uuid"
 )
 
@@ -39,12 +40,10 @@ const sessionDuration = 5 * time.Hour
 func (s *storage) SaveSessoinFromUserID(userID string) (session domain.Session) {
 	sessionID := uuid.NewString()
 
-	loc, _ := time.LoadLocation("Europe/Moscow")
-
 	session = domain.Session{
 		SessionID: sessionID,
 		UserID:    userID,
-		ExpireAt:  time.Now().In(loc).Add(sessionDuration),
+		ExpireAt:  time.Now().In(times.TZMoscow).Add(sessionDuration),
 	}
 
 	s.sessionCache.Put(sessionID, session)

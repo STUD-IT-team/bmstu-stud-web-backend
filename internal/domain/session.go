@@ -2,6 +2,8 @@ package domain
 
 import (
 	"time"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/times"
 )
 
 type Session struct {
@@ -11,7 +13,5 @@ type Session struct {
 }
 
 func (s *Session) IsExpired() bool {
-	loc, _ := time.LoadLocation("Europe/Moscow")
-
-	return s.ExpireAt.Before(time.Now().In(loc))
+	return s.ExpireAt.Before(time.Now().In(times.TZMoscow))
 }
