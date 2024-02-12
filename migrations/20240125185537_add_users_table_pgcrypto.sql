@@ -4,7 +4,7 @@
 create table IF NOT EXISTS stud_users
 (
     id            uuid not null primary key,
-    email         text  default '',
+    email         text  unique default '',
     password      text  not null
 );
 -- +goose StatementEnd

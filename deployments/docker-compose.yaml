@@ -103,6 +103,7 @@ services:
 
   guard:
     container_name: guard_container
+    restart: always
     env_file:
       - .env
     build:

@@ -5,9 +5,9 @@ import (
 )
 
 type Session struct {
+	SessionID string
 	UserID    string
 	ExpireAt  time.Time
-	EnteredAt time.Time
 }
 
 func (s *Session) IsExpired() bool {

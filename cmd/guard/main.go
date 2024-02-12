@@ -5,6 +5,9 @@ import (
 	"net"
 	"os"
 
+	"go.uber.org/automaxprocs/maxprocs"
+	"google.golang.org/grpc"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/cache"
@@ -12,9 +15,6 @@ import (
 	serverGRPC "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/handlers/grpc"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/storage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/logger"
-
-	"go.uber.org/automaxprocs/maxprocs"
-	"google.golang.org/grpc"
 )
 
 func main() {

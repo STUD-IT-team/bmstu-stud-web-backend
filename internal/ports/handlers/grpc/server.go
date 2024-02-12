@@ -9,6 +9,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/hasher"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -38,7 +39,7 @@ func (s *ServerAPI) Login(ctx context.Context, req *grpc2.LoginRequest) (*grpc2.
 
 	res, err := s.guard.Login(ctx, mappedReq)
 	if err != nil {
-		if errors.Is(err, domain.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) || errors.Is(err, hasher.ErrMismatchedHashAndPassword) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
 		}
 
