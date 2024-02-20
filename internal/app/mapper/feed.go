@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"encoding/base64"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
@@ -20,6 +21,7 @@ func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
 				UpdatedAt:       i.UpdatedAt,
 			})
 	}
+
 	return &responses.GetAllFeed{Feed: feed}
 }
 

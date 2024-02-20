@@ -3,11 +3,11 @@ package app
 import (
 	"context"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type feedServiceStorage interface {
