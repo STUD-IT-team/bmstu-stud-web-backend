@@ -11,18 +11,18 @@ create table IF NOT EXISTS members
     is_admin boolean default false
 );
 
-create table IF NOT EXISTS member_rolls
+create table IF NOT EXISTS member_roles
 (
-    roll_id   serial primary key,
-    roll_name text not null,
-    roll_spec text not null
+    role_id   serial primary key,
+    role_name text not null,
+    role_spec text not null
 );
 
 CREATE table IF NOT EXISTS posts
 (
     id         serial primary key,
     approved   boolean default false,
-    text_field text      not null,
+    description text      not null,
     media_url  text    default '',
     updated_at timestamp not null,
     created_at timestamp not null,
@@ -46,7 +46,7 @@ create table IF NOT EXISTS events
 
 -- +goose Down
 -- +goose StatementBegin
-drop table IF EXISTS member_rolls;
+drop table IF EXISTS member_roles;
 drop table IF EXISTS  members;
 drop table IF EXISTS posts;
 drop table IF EXISTS events;
