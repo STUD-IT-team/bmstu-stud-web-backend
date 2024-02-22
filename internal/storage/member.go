@@ -11,13 +11,14 @@ func (s *storage) GetMemberByLogin(ctx context.Context, login string) (domain.Me
 	return s.postgres.GetMemberByLogin(ctx, login)
 }
 
-func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error) {
+func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string, password string,
+) (domain.Member, error) {
 	user, err := s.GetMemberByLogin(ctx, login)
 	if err != nil {
 		return domain.Member{}, err
 	}
 
-	err = hasher.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	err = hasher.CompareHashAndPassword(user.Password, []byte(password))
 	if err != nil {
 		return domain.Member{}, err
 	}

@@ -33,7 +33,8 @@ func NewGuardService(log *logrus.Logger, storage guardServiceStorage) *GuardServ
 	}
 }
 
-func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (res *responses.LoginResponse, err error) {
+func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest,
+) (res *responses.LoginResponse, err error) {
 	const op = "appGuard.Login"
 
 	member, err := s.storage.GetMemberAndValidatePassword(ctx, req.Login, req.Password)
