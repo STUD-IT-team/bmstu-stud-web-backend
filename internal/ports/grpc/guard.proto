@@ -11,7 +11,7 @@ service Guard {
 }
 
 message LoginRequest {
-    string email = 1;
+    string login = 1;
     string password = 2;
 }
 
@@ -32,5 +32,5 @@ message CheckRequest {
 
 message CheckResponse {
     bool valid = 1;
-    string userID = 2;
+    int64 memberID = 2;
 }

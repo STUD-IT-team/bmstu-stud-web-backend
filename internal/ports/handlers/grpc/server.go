@@ -80,7 +80,7 @@ func (s *ServerAPI) Check(ctx context.Context, req *grpc2.CheckRequest) (*grpc2.
 }
 
 func validateLogin(req *grpc2.LoginRequest) error {
-	if req.Email == "" {
+	if req.Login == "" {
 		return status.Error(codes.InvalidArgument, "email is required")
 	}
 

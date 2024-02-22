@@ -11,12 +11,12 @@ import (
 type Storage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
-	GetUserByEmail(ctx context.Context, email string) (domain.User, error)
+	GetMemberByLogin(ctx context.Context, login string) (domain.Member, error)
 	SetSession(id string, value domain.Session)
 	FindSession(id string) *domain.Session
 	DeleteSession(id string)
-	SaveSessoinFromUserID(userID string) (session domain.Session)
-	GetUserAndValidatePassword(ctx context.Context, email string, password string) (domain.User, error)
+	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
 	CheckSession(accessToken string) (*domain.Session, error)
 }
 

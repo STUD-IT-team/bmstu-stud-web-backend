@@ -1,8 +1,8 @@
 package responses
 
 type CheckResponse struct {
-	Valid  bool   `json:"valid"`
-	UserID string `json:"user_id"`
+	Valid    bool  `json:"valid"`
+	MemberID int64 `json:"member_id"`
 }
 
 type LoginResponse struct {

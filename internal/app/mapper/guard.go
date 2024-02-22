@@ -8,7 +8,7 @@ import (
 
 func CreateRequestLogin(req *grpc.LoginRequest) *requests.LoginRequest {
 	return &requests.LoginRequest{
-		Email:    req.Email,
+		Login:    req.Login,
 		Password: req.Password,
 	}
 }
@@ -39,16 +39,16 @@ func CreateRequestCheck(req *grpc.CheckRequest) *requests.CheckRequest {
 	}
 }
 
-func CreateResponseCheck(valid bool, userID string) *responses.CheckResponse {
+func CreateResponseCheck(valid bool, memberID int64) *responses.CheckResponse {
 	return &responses.CheckResponse{
-		Valid:  valid,
-		UserID: userID,
+		Valid:    valid,
+		MemberID: memberID,
 	}
 }
 
 func CreateGPRCResponseCheck(res *responses.CheckResponse) *grpc.CheckResponse {
 	return &grpc.CheckResponse{
-		Valid:  res.Valid,
-		UserID: res.UserID,
+		Valid:    res.Valid,
+		MemberID: res.MemberID,
 	}
 }

@@ -72,20 +72,20 @@ func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 	return feed, nil
 }
 
-const getUserByEmailQuery = "SELECT id, email, password FROM stud_users WHERE email=$1;"
+const getMemberByLoginQuery = "SELECT id, login, password FROM members WHERE login=$1;"
 
-func (p *Postgres) GetUserByEmail(_ context.Context, email string) (domain.User, error) {
-	const op = "postgres.GetUserByEmail"
+func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (domain.Member, error) {
+	const op = "postgres.GetUserByLogin"
 
-	var user domain.User
+	var user domain.Member
 
-	err := p.db.QueryRow(getUserByEmailQuery, email).Scan(&user.ID, &user.Email, &user.Password)
+	err := p.db.QueryRow(getMemberByLoginQuery, login).Scan(&user.ID, &user.Login, &user.Password)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.User{}, fmt.Errorf("%s: %w", op, domain.ErrNotFound)
+			return domain.Member{}, fmt.Errorf("%s: %w", op, domain.ErrNotFound)
 		}
 
-		return domain.User{}, fmt.Errorf("%s: %w", op, err)
+		return domain.Member{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return user, nil

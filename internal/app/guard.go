@@ -15,8 +15,8 @@ import (
 
 type guardServiceStorage interface {
 	DeleteSession(id string)
-	SaveSessoinFromUserID(userID string) (session domain.Session)
-	GetUserAndValidatePassword(ctx context.Context, email string, password string) (domain.User, error)
+	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
 	CheckSession(accessToken string) (*domain.Session, error)
 }
 
@@ -36,15 +36,15 @@ func NewGuardService(log *logrus.Logger, storage guardServiceStorage) *GuardServ
 func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest) (res *responses.LoginResponse, err error) {
 	const op = "appGuard.Login"
 
-	user, err := s.storage.GetUserAndValidatePassword(ctx, req.Email, req.Password)
+	member, err := s.storage.GetMemberAndValidatePassword(ctx, req.Login, req.Password)
 	if err != nil {
 		s.logger.WithError(err).Warnf("can't storage.GetUserAndValidatePassword %s", op)
 		return nil, fmt.Errorf("can't storage.GetUserAndValidatePassword %s: %w", op, err)
 	}
 
-	session := s.storage.SaveSessoinFromUserID(user.ID)
+	session := s.storage.SaveSessoinFromMemberID(member.ID)
 
-	s.logger.Infof("user %s logged in successfully", user.Email)
+	s.logger.Infof("user %s logged in successfully", member.Login)
 
 	return mapper.CreateResponseLogin(session.SessionID, session.ExpireAt.Format(consts.GrpcTimeFormat)), nil
 }
@@ -64,11 +64,11 @@ func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (r
 	if err != nil {
 		s.logger.WithError(err).Warnf("can't storage.CheckSession %s", op)
 
-		return mapper.CreateResponseCheck(false, ""),
+		return mapper.CreateResponseCheck(false, 0),
 			fmt.Errorf("can't storage.CheckSession %s: %w", op, err)
 	}
 
-	s.logger.Infof("user %s is authorized", session.UserID)
+	s.logger.Infof("user %d is authorized", session.MemberID)
 
-	return mapper.CreateResponseCheck(true, session.UserID), nil
+	return mapper.CreateResponseCheck(true, session.MemberID), nil
 }

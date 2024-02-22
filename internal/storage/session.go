@@ -27,7 +27,7 @@ func (s *storage) CheckSession(accessToken string) (*domain.Session, error) {
 	}
 
 	if session.IsExpired() {
-		s.DeleteSession(session.UserID)
+		s.DeleteSession(session.SessionID)
 
 		return &domain.Session{}, domain.ErrIsExpired
 	}
@@ -37,12 +37,12 @@ func (s *storage) CheckSession(accessToken string) (*domain.Session, error) {
 
 const sessionDuration = 5 * time.Hour
 
-func (s *storage) SaveSessoinFromUserID(userID string) (session domain.Session) {
+func (s *storage) SaveSessoinFromMemberID(memberID int64) (session domain.Session) {
 	sessionID := uuid.NewString()
 
 	session = domain.Session{
 		SessionID: sessionID,
-		UserID:    userID,
+		MemberID:  memberID,
 		ExpireAt:  time.Now().In(times.TZMoscow).Add(sessionDuration),
 	}
 
