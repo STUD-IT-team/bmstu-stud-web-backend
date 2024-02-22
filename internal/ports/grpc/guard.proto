@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package guard;
+
+option go_package = "./internal/ports/grpc";
+
+service Guard {
+    rpc Login(LoginRequest) returns (LoginResponse) {}
+    rpc Logout(LogoutRequest) returns (EmptyResponse) {}
+    rpc Check(CheckRequest) returns (CheckResponse) {}
+}
+
+message LoginRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string accessToken = 1;
+    string expires = 2;
+}
+
+message LogoutRequest {
+    string accessToken = 1;
+}
+
+message EmptyResponse {}
+
+message CheckRequest {
+    string accessToken = 1;
+}
+
+message CheckResponse {
+    bool valid = 1;
+    int64 memberID = 2;
+}

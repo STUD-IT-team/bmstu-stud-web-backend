@@ -2,6 +2,9 @@ package postgres
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -67,4 +70,23 @@ func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 	}
 
 	return feed, nil
+}
+
+const getMemberByLoginQuery = "SELECT id, login, password FROM members WHERE login=$1;"
+
+func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (domain.Member, error) {
+	const op = "postgres.GetUserByLogin"
+
+	var user domain.Member
+
+	err := p.db.QueryRow(getMemberByLoginQuery, login).Scan(&user.ID, &user.Login, &user.Password)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return domain.Member{}, fmt.Errorf("%s: %w", op, domain.ErrNotFound)
+		}
+
+		return domain.Member{}, fmt.Errorf("%s: %w", op, err)
+	}
+
+	return user, nil
 }

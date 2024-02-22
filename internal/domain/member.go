@@ -1,7 +1,7 @@
 package domain
 
 type Member struct {
-	ID       int    `db:"id"`
+	ID       int64  `db:"id"`
 	Password []byte `db:"password"`
 	Login    string `db:"login"`
 	Telegram string `db:"telegram"`
