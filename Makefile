@@ -26,3 +26,6 @@ lint:
 
 migration-create-sql:
 	goose -dir=./migrations create $(NAME) sql
+
+swag-generate:
+	swag init -g internal/ports/http/feed.go -g cmd/api/main.go  --parseDependency --parseInternal

@@ -25,6 +25,25 @@ import (
 
 //go:generate go run ../configer --apps api --envs local,prod,dev
 
+// @title           Swagger Example API
+// @version         1.0
+// @description     This is a sample server celler server.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /bmstu-stud-web/api/
+
+// @securityDefinitions.basic  BasicAuth
+
+// @externalDocs.description  OpenAPI
+// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
 	cfg := appconfig.MustParseAppConfig[appconfig.APIConfig]()
 
@@ -62,11 +81,13 @@ func main() {
 
 	// services
 	apiService := app.NewAPI(logger)
+	feedService := app.NewFeedService(logger, storage)
 
 	// Main API router.
 	mainGroupHandler := handler.NewGroupHandler("/",
 		internalhttp.NewAPIHandler(jsonRenderer, apiService),
-		internalhttp.NewFeedHandler(jsonRenderer, storage),
+		internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+		internalhttp.NewSwagHandler(jsonRenderer),
 	)
 
 	mainHandler := handler.New(handler.MakePublicRoutes(
