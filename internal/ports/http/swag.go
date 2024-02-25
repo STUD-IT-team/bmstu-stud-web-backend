@@ -25,7 +25,7 @@ func (h *SwagHandler) BasePrefix() string {
 func (h *SwagHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/", httpSwagger.Handler())
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	return r
 }
