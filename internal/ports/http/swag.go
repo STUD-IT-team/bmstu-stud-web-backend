@@ -4,7 +4,7 @@ import (
 	"github.com/go-chi/chi"
 	httpSwagger "github.com/swaggo/http-swagger"
 
-	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/docs"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/api/docs"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
