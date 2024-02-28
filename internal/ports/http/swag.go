@@ -3,7 +3,8 @@ package http
 import (
 	"github.com/go-chi/chi"
 	httpSwagger "github.com/swaggo/http-swagger"
-	_ "github.com/swaggo/http-swagger/example/go-chi/docs"
+
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/docs"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
@@ -18,9 +19,7 @@ func NewSwagHandler(r handler.Renderer) *SwagHandler {
 	}
 }
 
-func (h *SwagHandler) BasePrefix() string {
-	return "/docs"
-}
+func (h *SwagHandler) BasePrefix() string { return "/docs" }
 
 func (h *SwagHandler) Routes() chi.Router {
 	r := chi.NewRouter()

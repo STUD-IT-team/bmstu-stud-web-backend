@@ -28,4 +28,4 @@ migration-create-sql:
 	goose -dir=./migrations create $(NAME) sql
 
 swag-generate:
-	swag init -g internal/ports/http/feed.go -g cmd/api/main.go -o cmd/api/docs/  --parseDependency --parseInternal
+	swag init --parseDependency --parseInternal  -g internal/ports/http/feed.go -g cmd/api/main.go
