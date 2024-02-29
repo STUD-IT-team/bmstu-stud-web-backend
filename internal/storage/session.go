@@ -3,9 +3,10 @@ package storage
 import (
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/times"
-	"github.com/google/uuid"
 )
 
 func (s *storage) SetSession(id string, value domain.Session) {
