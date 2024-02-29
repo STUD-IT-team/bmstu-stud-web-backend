@@ -83,12 +83,20 @@ func main() {
 	apiService := app.NewAPI(logger)
 	feedService := app.NewFeedService(logger, storage)
 
+	var mainGroupHandler *handler.GroupHandler
 	// Main API router.
-	mainGroupHandler := handler.NewGroupHandler("/",
-		internalhttp.NewAPIHandler(jsonRenderer, apiService),
-		internalhttp.NewFeedHandler(jsonRenderer, *feedService),
-		internalhttp.NewSwagHandler(jsonRenderer),
-	)
+	if cfg.Log.Level == "debug" {
+		mainGroupHandler = handler.NewGroupHandler("/",
+			internalhttp.NewAPIHandler(jsonRenderer, apiService),
+			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+			internalhttp.NewSwagHandler(jsonRenderer),
+		)
+	} else {
+		mainGroupHandler = handler.NewGroupHandler("/",
+			internalhttp.NewAPIHandler(jsonRenderer, apiService),
+			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+		)
+	}
 
 	mainHandler := handler.New(handler.MakePublicRoutes(
 		router,
