@@ -4,15 +4,16 @@ import (
 	"context"
 	"errors"
 
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/hasher"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type Guard interface {

@@ -4,8 +4,9 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/storage"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
@@ -14,10 +15,10 @@ import (
 
 type FeedHandler struct {
 	r    handler.Renderer
-	feed storage.Storage
+	feed app.FeedService
 }
 
-func NewFeedHandler(r handler.Renderer, feed storage.Storage) *FeedHandler {
+func NewFeedHandler(r handler.Renderer, feed app.FeedService) *FeedHandler {
 	return &FeedHandler{
 		r:    r,
 		feed: feed,
@@ -37,6 +38,16 @@ func (h *FeedHandler) Routes() chi.Router {
 	return r
 }
 
+// GetAllFeed get all feeds
+//
+//	@Summary      List feeds
+//	@Description  get feeds
+//	@Tags         feed
+//	@Accept       json
+//	@Produce      json
+//	@Success      200  {array}   responses.GetAllFeed
+//	@Failure      500  {object}  handler.Response
+//	@Router       /feed [get]
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler.Response {
 	res, err := h.feed.GetAllFeed(context.Background())
 	if err != nil {
@@ -47,6 +58,18 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler
 	return handler.OkResponse(res)
 }
 
+// GetFeed get feed by id
+//
+//	@Summary      feed
+//	@Description  get feed by id
+//	@Tags         feed
+//	@Accept       json
+//	@Produce      json
+//	@Param        id path string true "feed ID"
+//	@Success      200  {object}  responses.GetFeed
+//	@Failure      400  {object}  handler.Response
+//	@Failure      500  {object}  handler.Response
+//	@Router       /feed/{id} [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feedId := requests.NewGetFeed()
 	err := feedId.Bind(req)

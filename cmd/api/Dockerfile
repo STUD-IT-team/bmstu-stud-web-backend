@@ -13,4 +13,7 @@ COPY ../../Makefile .
 COPY ../../internal/. internal/
 COPY ../../pkg/. pkg/
 
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN make swag-generate-api
+
 CMD ["make", "run-api"]
