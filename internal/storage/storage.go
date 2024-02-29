@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/STUD-IT-team/bauman-legends-backend/pkg/cache"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
 )
@@ -11,6 +12,7 @@ import (
 type Storage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
+	DeleteFeed(ctx context.Context, id int) error
 	GetMemberByLogin(ctx context.Context, login string) (domain.Member, error)
 	SetSession(id string, value domain.Session)
 	FindSession(id string) *domain.Session
