@@ -13,14 +13,14 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	mock_storage "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
+	mock "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
 )
 
 type FeedServiceTestSuite struct {
 	suite.Suite
 	ctrl        *gomock.Controller
 	t           *testing.T
-	mockStorage *mock_storage.MockStorage
+	mockStorage *mock.MockfeedServiceStorage
 	feedService *FeedService
 }
 
@@ -30,7 +30,7 @@ func NewFeedServiceTestSuite(t *testing.T) *FeedServiceTestSuite {
 
 func (suite *FeedServiceTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.t)
-	suite.mockStorage = mock_storage.NewMockStorage(suite.ctrl)
+	suite.mockStorage = mock.NewMockfeedServiceStorage(suite.ctrl)
 	logger := logrus.New()
 	suite.feedService = NewFeedService(logger, suite.mockStorage)
 }
