@@ -34,7 +34,7 @@ func NewPostgres(databaseURL string) (*Postgres, error) {
 	return &Postgres{db: db}, nil
 }
 
-const getAllFeedQuery = "SELECT ID, TITLE, DESCRIPTION FROM EVENTS"
+const getAllFeedQuery = "SELECT id, title, description FROM events"
 
 func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 	var feeds []domain.Feed
@@ -59,7 +59,7 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 	return feeds, nil
 }
 
-const getFeedQuery = "SELECT ID, TITLE, DESCRIPTION, REG_URL FROM EVENTS WHERE ID=$1"
+const getFeedQuery = "SELECT id, title, description, reg_url FROM events WHERE id=$1"
 
 func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 	var feed domain.Feed
@@ -89,4 +89,15 @@ func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (domain.Mem
 	}
 
 	return user, nil
+}
+
+const deleteFeedQuery = "DELETE FROM events WHERE id=$1"
+
+func (p *Postgres) DeleteFeed(_ context.Context, id int) error {
+	_, err := p.db.Exec(deleteFeedQuery, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

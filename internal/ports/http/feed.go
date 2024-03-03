@@ -34,6 +34,7 @@ func (h *FeedHandler) Routes() chi.Router {
 
 	r.Get("/", h.r.Wrap(h.GetAllFeed))
 	r.Get("/{id}", h.r.Wrap(h.GetFeed))
+	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
 
 	return r
 }
@@ -71,7 +72,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed/{id} [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	feedId := requests.NewGetFeed()
+	feedId := &requests.GetFeed{}
 	err := feedId.Bind(req)
 
 	if err != nil {
@@ -86,4 +87,34 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 	}
 
 	return handler.OkResponse(res)
+}
+
+// DeleteFeed delete feed by id
+//
+//	@Summary      delete feed by id
+//	@Description  delete feed by id
+//	@Tags         feed
+//	@Accept       json
+//	@Produce      json
+//	@Param        id path string true "feed ID"
+//	@Success      200  {object}  handler.Response
+//	@Failure      400  {object}  handler.Response
+//	@Failure      500  {object}  handler.Response
+//	@Router       /feed/{id} [delete]
+func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
+	feedId := &requests.DeleteFeed{}
+	err := feedId.Bind(req)
+
+	if err != nil {
+		log.WithError(err).Warnf("can't service.DeleteFeed DeleteFeed")
+		return handler.BadRequestResponse()
+	}
+
+	err = h.feed.DeleteFeed(context.Background(), feedId.ID)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.DeleteFeed DeleteFeed")
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(nil)
 }

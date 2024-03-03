@@ -13,14 +13,14 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	mock_storage "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
+	mock "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
 )
 
 type FeedServiceTestSuite struct {
 	suite.Suite
 	ctrl        *gomock.Controller
 	t           *testing.T
-	mockStorage *mock_storage.MockStorage
+	mockStorage *mock.MockfeedServiceStorage
 	feedService *FeedService
 }
 
@@ -30,7 +30,7 @@ func NewFeedServiceTestSuite(t *testing.T) *FeedServiceTestSuite {
 
 func (suite *FeedServiceTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.t)
-	suite.mockStorage = mock_storage.NewMockStorage(suite.ctrl)
+	suite.mockStorage = mock.NewMockfeedServiceStorage(suite.ctrl)
 	logger := logrus.New()
 	suite.feedService = NewFeedService(logger, suite.mockStorage)
 }
@@ -128,6 +128,36 @@ func (suite *FeedServiceTestSuite) TestGetFeed() {
 		// Compare the expected and actual responses
 		assert.Equal(suite.T(), test.expectedError, actualError)
 		assert.True(suite.T(), reflect.DeepEqual(test.expectedResponse, actualResponse))
+	}
+}
+
+func (suite *FeedServiceTestSuite) TestDeleteFeed() {
+	ctx := context.Background()
+	testCase := map[int]struct {
+		nameTest      string
+		request       int
+		expectedError error
+	}{
+		1: {
+			nameTest:      "Test Ok",
+			request:       1,
+			expectedError: nil,
+		},
+		2: {
+			nameTest:      "Test Error",
+			request:       0,
+			expectedError: errors.New("storage error")},
+	}
+
+	for _, test := range testCase {
+		// Mock the storage method call
+		suite.mockStorage.EXPECT().DeleteFeed(ctx, test.request).Return(test.expectedError)
+
+		// Call the service method
+		actualError := suite.feedService.DeleteFeed(ctx, test.request)
+
+		// Compare the expected and actual responses
+		assert.Equal(suite.T(), test.expectedError, actualError)
 	}
 }
 
