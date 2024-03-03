@@ -1,8 +1,9 @@
 package requests
 
 import (
-	"fmt"
 	"github.com/go-chi/chi"
+
+	"fmt"
 	"net/http"
 	"strconv"
 )
