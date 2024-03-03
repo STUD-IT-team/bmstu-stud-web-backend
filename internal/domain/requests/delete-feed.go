@@ -11,10 +11,6 @@ type DeleteFeed struct {
 	ID int `json:"id"`
 }
 
-func NewDeleteFeed() *DeleteFeed {
-	return &DeleteFeed{}
-}
-
 func (f *DeleteFeed) Bind(req *http.Request) error {
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
 	if err != nil {

@@ -72,7 +72,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed/{id} [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	feedId := requests.NewGetFeed()
+	feedId := &requests.GetFeed{}
 	err := feedId.Bind(req)
 
 	if err != nil {
@@ -102,7 +102,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed/{id} [delete]
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	feedId := requests.NewDeleteFeed()
+	feedId := &requests.DeleteFeed{}
 	err := feedId.Bind(req)
 
 	if err != nil {
