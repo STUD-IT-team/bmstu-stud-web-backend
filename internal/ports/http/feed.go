@@ -91,7 +91,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 
 // DeleteFeed delete feed by id
 //
-//	@Summary      feed
+//	@Summary      delete feed by id
 //	@Description  delete feed by id
 //	@Tags         feed
 //	@Accept       json

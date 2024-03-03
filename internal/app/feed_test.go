@@ -131,6 +131,36 @@ func (suite *FeedServiceTestSuite) TestGetFeed() {
 	}
 }
 
+func (suite *FeedServiceTestSuite) TestDeleteFeed() {
+	ctx := context.Background()
+	testCase := map[int]struct {
+		nameTest      string
+		request       int
+		expectedError error
+	}{
+		1: {
+			nameTest:      "Test Ok",
+			request:       1,
+			expectedError: nil,
+		},
+		2: {
+			nameTest:      "Test Error",
+			request:       0,
+			expectedError: errors.New("storage error")},
+	}
+
+	for _, test := range testCase {
+		// Mock the storage method call
+		suite.mockStorage.EXPECT().DeleteFeed(ctx, test.request).Return(test.expectedError)
+
+		// Call the service method
+		actualError := suite.feedService.DeleteFeed(ctx, test.request)
+
+		// Compare the expected and actual responses
+		assert.Equal(suite.T(), test.expectedError, actualError)
+	}
+}
+
 func TestFeedService_GetAllFeed(t *testing.T) {
 	suite.Run(t, NewFeedServiceTestSuite(t))
 }
