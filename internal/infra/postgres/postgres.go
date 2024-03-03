@@ -72,7 +72,7 @@ func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 	return feed, nil
 }
 
-const getMemberByLoginQuery = "SELECT ID, LOGIN, PASSWORD FROM MEMBERS WHERE LOGIN=$1;"
+const getMemberByLoginQuery = "SELECT id, login, password FROM members WHERE login=$1;"
 
 func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (domain.Member, error) {
 	const op = "postgres.GetUserByLogin"
