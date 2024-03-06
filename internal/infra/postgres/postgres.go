@@ -102,14 +102,15 @@ func (p *Postgres) DeleteFeed(_ context.Context, id int) error {
 	return nil
 }
 
-const putFeedQuery = "UPDATE events SET title=$1, description=$2, registration_url=$3, media=$4, updated_at=NOW() WHERE id=$5"
+const putFeedQuery = "UPDATE events SET title=$1, description=$2, reg_url=$3, created_by=$4, date=$5 WHERE id=$6"
 
 func (p *Postgres) PutFeed(_ context.Context, id int, feed domain.Feed) error {
 	_, err := p.db.Exec(putFeedQuery,
 		feed.Title,
 		feed.Description,
 		feed.RegistrationURL,
-		feed.MediaUrl,
+		feed.CreatedBy,
+		feed.UpdatedAt,
 		feed.ID,
 	)
 

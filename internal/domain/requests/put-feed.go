@@ -1,6 +1,7 @@
 package requests
 
 import (
+	"encoding/json"
 	"github.com/go-chi/chi"
 
 	"encoding/base64"
@@ -21,6 +22,11 @@ type PutFeed struct {
 }
 
 func (f *PutFeed) Bind(req *http.Request) error {
+	err := json.NewDecoder(req.Body).Decode(f)
+	if err != nil {
+		return fmt.Errorf("can't json decoder on PutFeed.Bind: %w", err)
+	}
+
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
 	if err != nil {
 		return fmt.Errorf("can't Atoi id on PutFeed.Bind: %w", err)
