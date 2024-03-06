@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"encoding/base64"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
@@ -32,6 +33,17 @@ func MakeResponseFeed(f domain.Feed) *responses.GetFeed {
 		Description:     f.Description,
 		RegistrationURL: f.RegistrationURL,
 		Media:           base64.Encoding{},
+		CreatedBy:       f.CreatedBy,
+		UpdatedAt:       f.UpdatedAt,
+	}
+}
+
+func MakeRequestPutFeed(f requests.PutFeed) *domain.Feed {
+	return &domain.Feed{
+		ID:              f.ID,
+		Title:           f.Title,
+		Description:     f.Description,
+		RegistrationURL: f.RegistrationURL,
 		CreatedBy:       f.CreatedBy,
 		UpdatedAt:       f.UpdatedAt,
 	}

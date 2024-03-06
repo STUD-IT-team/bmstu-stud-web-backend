@@ -17,3 +17,7 @@ func (s *storage) GetFeed(ctx context.Context, id int) (domain.Feed, error) {
 func (s *storage) DeleteFeed(ctx context.Context, id int) error {
 	return s.postgres.DeleteFeed(ctx, id)
 }
+
+func (s *storage) PutFeed(ctx context.Context, id int, feed domain.Feed) error {
+	return s.postgres.PutFeed(ctx, id, feed)
+}
