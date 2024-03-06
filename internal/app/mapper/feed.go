@@ -2,14 +2,14 @@ package mapper
 
 import (
 	"encoding/base64"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
 func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
-	feed := []responses.Feed{}
+	var feed []responses.Feed
 	for _, i := range f {
 		feed = append(feed,
 			responses.Feed{

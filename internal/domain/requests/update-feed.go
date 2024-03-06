@@ -1,9 +1,9 @@
 package requests
 
 import (
-	"encoding/json"
 	"github.com/go-chi/chi"
 
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"

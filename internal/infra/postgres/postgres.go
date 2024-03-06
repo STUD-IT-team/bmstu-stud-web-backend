@@ -111,7 +111,7 @@ func (p *Postgres) UpdateFeed(_ context.Context, id int, feed domain.Feed) error
 		feed.RegistrationURL,
 		feed.CreatedBy,
 		feed.UpdatedAt,
-		feed.ID,
+		id,
 	)
 
 	if err != nil {
