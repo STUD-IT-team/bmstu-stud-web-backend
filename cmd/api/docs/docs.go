@@ -114,12 +114,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "requests.PutFeed data",
+                        "description": "requests.UpdateFeed data",
                         "name": "data",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.PutFeed"
+                            "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed"
                         }
                     }
                 ],
@@ -180,7 +180,7 @@ const docTemplate = `{
         "base64.Encoding": {
             "type": "object"
         },
-        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.PutFeed": {
+        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed": {
             "type": "object",
             "properties": {
                 "created_by": {
@@ -191,9 +191,6 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
-                },
-                "media": {
-                    "$ref": "#/definitions/base64.Encoding"
                 },
                 "registration_url": {
                     "type": "string"

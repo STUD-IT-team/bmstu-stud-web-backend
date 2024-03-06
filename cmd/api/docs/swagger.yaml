@@ -2,7 +2,7 @@ basePath: /bmstu-stud-web/api/
 definitions:
   base64.Encoding:
     type: object
-  github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.PutFeed:
+  github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed:
     properties:
       created_by:
         type: integer
@@ -10,8 +10,6 @@ definitions:
         type: string
       id:
         type: integer
-      media:
-        $ref: '#/definitions/base64.Encoding'
       registration_url:
         type: string
       title:
@@ -159,12 +157,12 @@ paths:
         name: id
         required: true
         type: string
-      - description: requests.PutFeed data
+      - description: requests.UpdateFeed data
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.PutFeed'
+          $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed'
       produces:
       - application/json
       responses:

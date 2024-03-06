@@ -36,7 +36,7 @@ func (h *FeedHandler) Routes() chi.Router {
 	r.Get("/", h.r.Wrap(h.GetAllFeed))
 	r.Get("/{id}", h.r.Wrap(h.GetFeed))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
-	r.Put("/{id}", h.r.Wrap(h.PutFeed))
+	r.Put("/{id}", h.r.Wrap(h.UpdateFeed))
 
 	return r
 }
@@ -121,31 +121,31 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	return handler.OkResponse(nil)
 }
 
-// PutFeed update feed by id
+// UpdateFeed update feed by id
 //
-//		@Summary      update feed by id
-//		@Description  update feed by id
-//		@Tags         feed
-//		@Accept       json
-//		@Produce      json
-//		@Param        id path string true "feed ID"
-//	    @Param 		data body requests.PutFeed true "requests.PutFeed data"
-//		@Success      200  {object}  handler.Response
-//		@Failure      400  {object}  handler.Response
-//		@Failure      500  {object}  handler.Response
-//		@Router       /feed/{id} [put]
-func (h *FeedHandler) PutFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	feed := &requests.PutFeed{}
+//	@Summary      update feed by id
+//	@Description  update feed by id
+//	@Tags         feed
+//	@Accept       json
+//	@Produce      json
+//	@Param        id path string true "feed ID"
+//	@Param 		  data body requests.UpdateFeed true "requests.UpdateFeed data"
+//	@Success      200  {object}  handler.Response
+//	@Failure      400  {object}  handler.Response
+//	@Failure      500  {object}  handler.Response
+//	@Router       /feed/{id} [put]
+func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
+	feed := &requests.UpdateFeed{}
 	err := feed.Bind(req)
 
 	if err != nil {
-		log.WithError(err).Warnf("can't service.PutFeed PutFeed")
+		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
 		return handler.BadRequestResponse()
 	}
 
 	err = h.feed.PutFeed(context.Background(), feed.ID, *mapper.MakeRequestPutFeed(*feed))
 	if err != nil {
-		log.WithError(err).Warnf("can't service.PutFeed PutFeed")
+		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
 		return handler.InternalServerErrorResponse()
 	}
 

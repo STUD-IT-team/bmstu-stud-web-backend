@@ -104,7 +104,7 @@ func (p *Postgres) DeleteFeed(_ context.Context, id int) error {
 
 const putFeedQuery = "UPDATE events SET title=$1, description=$2, reg_url=$3, created_by=$4, date=$5 WHERE id=$6"
 
-func (p *Postgres) PutFeed(_ context.Context, id int, feed domain.Feed) error {
+func (p *Postgres) UpdateFeed(_ context.Context, id int, feed domain.Feed) error {
 	_, err := p.db.Exec(putFeedQuery,
 		feed.Title,
 		feed.Description,

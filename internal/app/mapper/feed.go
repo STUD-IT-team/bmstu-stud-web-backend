@@ -38,7 +38,7 @@ func MakeResponseFeed(f domain.Feed) *responses.GetFeed {
 	}
 }
 
-func MakeRequestPutFeed(f requests.PutFeed) *domain.Feed {
+func MakeRequestPutFeed(f requests.UpdateFeed) *domain.Feed {
 	return &domain.Feed{
 		ID:              f.ID,
 		Title:           f.Title,

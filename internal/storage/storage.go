@@ -12,7 +12,7 @@ type Storage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	DeleteFeed(ctx context.Context, id int) error
-	PutFeed(_ context.Context, id int, feed domain.Feed) error
+	UpdateFeed(_ context.Context, id int, feed domain.Feed) error
 	GetMemberByLogin(ctx context.Context, login string) (domain.Member, error)
 	SetSession(id string, value domain.Session)
 	FindSession(id string) *domain.Session
