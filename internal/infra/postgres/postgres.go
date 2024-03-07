@@ -113,7 +113,6 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 		feed.UpdatedAt,
 		feed.ID,
 	)
-
 	if err != nil {
 		return fmt.Errorf("can't update feed on postgres %w", err)
 	}

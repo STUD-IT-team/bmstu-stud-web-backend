@@ -47,8 +47,7 @@ func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, 
 }
 
 func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
-	err := s.storage.DeleteFeed(ctx, id)
-	if err != nil {
+	if err := s.storage.DeleteFeed(ctx, id); err != nil {
 		log.WithError(err).Warnf("can't storage.DeleteFeed DeleteFeed")
 		return err
 	}
@@ -56,10 +55,8 @@ func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *FeedService) PutFeed(ctx context.Context, feed domain.Feed) error {
-	err := s.storage.UpdateFeed(ctx, feed)
-
-	if err != nil {
+func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
+	if err := s.storage.UpdateFeed(ctx, feed); err != nil {
 		log.WithError(err).Warnf("can't storage.UpdateFeed UpdateFeed")
 		return err
 	}

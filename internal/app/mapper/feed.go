@@ -9,7 +9,7 @@ import (
 )
 
 func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
-	var feed []responses.Feed
+	feed := make([]responses.Feed, 0, len(f))
 	for _, i := range f {
 		feed = append(feed,
 			responses.Feed{

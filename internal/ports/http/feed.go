@@ -137,13 +137,12 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feed := &requests.UpdateFeed{}
 	err := feed.Bind(req)
-
 	if err != nil {
 		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
 		return handler.BadRequestResponse()
 	}
 
-	err = h.feed.PutFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
+	err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
 	if err != nil {
 		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
 		return handler.InternalServerErrorResponse()
