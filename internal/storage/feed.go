@@ -18,6 +18,6 @@ func (s *storage) DeleteFeed(ctx context.Context, id int) error {
 	return s.postgres.DeleteFeed(ctx, id)
 }
 
-func (s *storage) UpdateFeed(ctx context.Context, id int, feed domain.Feed) error {
-	return s.postgres.UpdateFeed(ctx, id, feed)
+func (s *storage) UpdateFeed(ctx context.Context, feed domain.Feed) error {
+	return s.postgres.UpdateFeed(ctx, feed)
 }

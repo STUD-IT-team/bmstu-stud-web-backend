@@ -143,7 +143,7 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 		return handler.BadRequestResponse()
 	}
 
-	err = h.feed.PutFeed(context.Background(), feed.ID, *mapper.MakeRequestPutFeed(*feed))
+	err = h.feed.PutFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
 	if err != nil {
 		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
 		return handler.InternalServerErrorResponse()

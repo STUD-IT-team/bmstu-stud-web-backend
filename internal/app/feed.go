@@ -14,7 +14,7 @@ type feedServiceStorage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	DeleteFeed(ctx context.Context, id int) error
-	UpdateFeed(ctx context.Context, id int, feed domain.Feed) error
+	UpdateFeed(ctx context.Context, feed domain.Feed) error
 }
 
 type FeedService struct {
@@ -56,8 +56,8 @@ func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *FeedService) PutFeed(ctx context.Context, id int, feed domain.Feed) error {
-	err := s.storage.UpdateFeed(ctx, id, feed)
+func (s *FeedService) PutFeed(ctx context.Context, feed domain.Feed) error {
+	err := s.storage.UpdateFeed(ctx, feed)
 
 	if err != nil {
 		log.WithError(err).Warnf("can't storage.UpdateFeed UpdateFeed")
