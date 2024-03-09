@@ -5,16 +5,17 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
-	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	"github.com/go-chi/chi"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	grpc2 "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
 
 type GuardHandler struct {
@@ -57,7 +58,7 @@ func (h *GuardHandler) Routes() chi.Router {
 //	@Failure      401  {object}  handler.Response
 //	@Failure      500  {object}  handler.Response
 //	@Router       /guard/login [post]
-func (h *GuardHandler) Login(w http.ResponseWriter, r *http.Request) handler.Response {
+func (h *GuardHandler) Login(_ http.ResponseWriter, r *http.Request) handler.Response {
 	var req requests.LoginRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -69,11 +70,12 @@ func (h *GuardHandler) Login(w http.ResponseWriter, r *http.Request) handler.Res
 
 	resGRPC, err := h.guardClient.Login(context.Background(), reqGRPC)
 	if err != nil {
-		if status.Code(err) == codes.InvalidArgument {
+		switch status.Code(err) {
+		case codes.InvalidArgument:
 			return handler.BadRequestResponse()
-		} else if status.Code(err) == codes.NotFound {
+		case codes.NotFound:
 			return handler.UnauthorizedResponse()
-		} else {
+		default:
 			return handler.InternalServerErrorResponse()
 		}
 	}
@@ -94,7 +96,7 @@ func (h *GuardHandler) Login(w http.ResponseWriter, r *http.Request) handler.Res
 //	@Success      200  {object}  responses.LoginResponse
 //	@Failure      400  {object}  handler.Response
 //	@Router       /guard/logout [delete]
-func (h *GuardHandler) Logout(w http.ResponseWriter, r *http.Request) handler.Response {
+func (h *GuardHandler) Logout(_ http.ResponseWriter, r *http.Request) handler.Response {
 	var req requests.LogoutRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -130,7 +132,7 @@ func (h *GuardHandler) Logout(w http.ResponseWriter, r *http.Request) handler.Re
 //	@Failure      401  {object}  handler.Response
 //	@Failure      500  {object}  handler.Response
 //	@Router       /guard/login [post]
-func (h *GuardHandler) Check(w http.ResponseWriter, r *http.Request) handler.Response {
+func (h *GuardHandler) Check(_ http.ResponseWriter, r *http.Request) handler.Response {
 	var req requests.CheckRequest
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -142,11 +144,12 @@ func (h *GuardHandler) Check(w http.ResponseWriter, r *http.Request) handler.Res
 
 	resGRPC, err := h.guardClient.Check(context.Background(), reqGRPC)
 	if err != nil {
-		if status.Code(err) == codes.InvalidArgument {
+		switch status.Code(err) {
+		case codes.InvalidArgument:
 			return handler.BadRequestResponse()
-		} else if status.Code(err) == codes.NotFound {
+		case codes.NotFound:
 			return handler.NotFoundResponse()
-		} else {
+		default:
 			return handler.InternalServerErrorResponse()
 		}
 	}

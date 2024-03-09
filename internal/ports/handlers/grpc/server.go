@@ -73,10 +73,7 @@ func (s *ServerAPI) Check(ctx context.Context, req *grpc2.CheckRequest) (*grpc2.
 
 	mappedReq := mapper.CreateRequestCheck(req)
 
-	res, err := s.guard.Check(ctx, mappedReq)
-	if err != nil {
-		return mapper.CreateGPRCResponseCheck(res), nil
-	}
+	res, _ := s.guard.Check(ctx, mappedReq)
 
 	return mapper.CreateGPRCResponseCheck(res), nil
 }
