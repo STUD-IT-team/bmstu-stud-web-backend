@@ -20,6 +20,13 @@ func CreateResponseLogin(token, expires string) *responses.LoginResponse {
 	}
 }
 
+func CreateGPRCRequestLogin(req requests.LoginRequest) *grpc.LoginRequest {
+	return &grpc.LoginRequest{
+		Login:    req.Login,
+		Password: req.Password,
+	}
+}
+
 func CreateGPRCResponseLogin(res *responses.LoginResponse) *grpc.LoginResponse {
 	return &grpc.LoginResponse{
 		AccessToken: res.Token,
@@ -33,8 +40,20 @@ func CreateRequestLogout(req *grpc.LogoutRequest) *requests.LogoutRequest {
 	}
 }
 
+func CreateGPRCResponseLogout(req requests.LogoutRequest) *grpc.LogoutRequest {
+	return &grpc.LogoutRequest{
+		AccessToken: req.AccessToken,
+	}
+}
+
 func CreateRequestCheck(req *grpc.CheckRequest) *requests.CheckRequest {
 	return &requests.CheckRequest{
+		AccessToken: req.AccessToken,
+	}
+}
+
+func CreateGRPCRequestCheck(req requests.CheckRequest) *grpc.CheckRequest {
+	return &grpc.CheckRequest{
 		AccessToken: req.AccessToken,
 	}
 }

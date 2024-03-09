@@ -11,12 +11,12 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	grpc "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
 )
 
 type guardServiceStorage interface {
 	DeleteSession(id string)
-	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+	SaveSessionFromMemberID(memberID int64) (session domain.Session)
 	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
 	CheckSession(accessToken string) (*domain.Session, error)
 }
@@ -44,7 +44,7 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest,
 		return nil, fmt.Errorf("can't storage.GetUserAndValidatePassword %s: %w", op, err)
 	}
 
-	session := s.storage.SaveSessoinFromMemberID(member.ID)
+	session := s.storage.SaveSessionFromMemberID(member.ID)
 
 	s.logger.Infof("user %s logged in successfully", member.Login)
 
@@ -59,7 +59,7 @@ func (s *GuardService) Logout(_ context.Context, req *requests.LogoutRequest) er
 	return nil
 }
 
-func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (res *responses.CheckResponse, err error) {
+func (s *GuardService) Check(_ context.Context, req *requests.CheckRequest) (res *responses.CheckResponse, err error) {
 	const op = "appGuard.Check"
 
 	session, err := s.storage.CheckSession(req.AccessToken)

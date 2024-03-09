@@ -3,11 +3,13 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
@@ -33,7 +35,7 @@ func Register(gRPCServer *grpc.Server, guard Guard) {
 
 func (s *ServerAPI) Login(ctx context.Context, req *grpc2.LoginRequest) (*grpc2.LoginResponse, error) {
 	if err := validateLogin(req); err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	mappedReq := mapper.CreateRequestLogin(req)
@@ -41,7 +43,7 @@ func (s *ServerAPI) Login(ctx context.Context, req *grpc2.LoginRequest) (*grpc2.
 	res, err := s.guard.Login(ctx, mappedReq)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) || errors.Is(err, hasher.ErrMismatchedHashAndPassword) {
-			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
+			return nil, status.Error(codes.NotFound, "invalid login or password")
 		}
 
 		return nil, status.Error(codes.Internal, "internal error")
@@ -52,7 +54,7 @@ func (s *ServerAPI) Login(ctx context.Context, req *grpc2.LoginRequest) (*grpc2.
 
 func (s *ServerAPI) Logout(ctx context.Context, req *grpc2.LogoutRequest) (*grpc2.EmptyResponse, error) {
 	if err := validateLogout(req); err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	mappedReq := mapper.CreateRequestLogout(req)
@@ -66,15 +68,14 @@ func (s *ServerAPI) Logout(ctx context.Context, req *grpc2.LogoutRequest) (*grpc
 
 func (s *ServerAPI) Check(ctx context.Context, req *grpc2.CheckRequest) (*grpc2.CheckResponse, error) {
 	if err := validateCheck(req); err != nil {
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
 	mappedReq := mapper.CreateRequestCheck(req)
 
 	res, err := s.guard.Check(ctx, mappedReq)
-
 	if err != nil {
-		return nil, status.Error(codes.NotFound, "not found")
+		return mapper.CreateGPRCResponseCheck(res), nil
 	}
 
 	return mapper.CreateGPRCResponseCheck(res), nil
@@ -82,11 +83,11 @@ func (s *ServerAPI) Check(ctx context.Context, req *grpc2.CheckRequest) (*grpc2.
 
 func validateLogin(req *grpc2.LoginRequest) error {
 	if req.Login == "" {
-		return status.Error(codes.InvalidArgument, "email is required")
+		return fmt.Errorf("%w: login is required", app.ErrInvalidArgument)
 	}
 
 	if req.Password == "" {
-		return status.Error(codes.InvalidArgument, "password is required")
+		return fmt.Errorf("%w: password is required", app.ErrInvalidArgument)
 	}
 
 	return nil
@@ -94,7 +95,7 @@ func validateLogin(req *grpc2.LoginRequest) error {
 
 func validateLogout(req *grpc2.LogoutRequest) error {
 	if req.AccessToken == "" {
-		return status.Error(codes.InvalidArgument, "token is required")
+		return fmt.Errorf("%w: token is required", app.ErrInvalidArgument)
 	}
 
 	return nil
@@ -102,7 +103,7 @@ func validateLogout(req *grpc2.LogoutRequest) error {
 
 func validateCheck(req *grpc2.CheckRequest) error {
 	if req.AccessToken == "" {
-		return status.Error(codes.InvalidArgument, "token is required")
+		return fmt.Errorf("%w: token is required", app.ErrInvalidArgument)
 	}
 
 	return nil

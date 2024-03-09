@@ -15,7 +15,7 @@ type Storage interface {
 	SetSession(id string, value domain.Session)
 	FindSession(id string) *domain.Session
 	DeleteSession(id string)
-	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+	SaveSessionFromMemberID(memberID int64) (session domain.Session)
 	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
 	CheckSession(accessToken string) (*domain.Session, error)
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,6 +14,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"go.uber.org/automaxprocs/maxprocs"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
@@ -83,28 +86,38 @@ func main() {
 	apiService := app.NewAPI(logger)
 	feedService := app.NewFeedService(logger, storage)
 
+	// gRPC clients
+	grpcURl := fmt.Sprintf("%s:%s", os.Getenv("GUARD_DN"), os.Getenv("GUARD_PORT"))
+	conn, err := grpc.Dial(
+		grpcURl,
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		logger.WithError(err).Errorf("can't connect to grpc server: %s", grpcURl)
+	}
+
+	defer func(conn *grpc.ClientConn) {
+		err = conn.Close()
+		if err != nil {
+			logger.WithError(err).Errorf("can't close connection to grpc server: %s", grpcURl)
+		}
+	}(conn)
+
 	var mainGroupHandler *handler.GroupHandler
 	// Main API router.
-<<<<<<< HEAD
 	if cfg.Log.Level == "debug" {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+			internalhttp.NewGuardHandler(jsonRenderer, conn),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+			internalhttp.NewGuardHandler(jsonRenderer, conn),
 		)
 	}
-=======
-	mainGroupHandler := handler.NewGroupHandler("/",
-		internalhttp.NewAPIHandler(jsonRenderer, apiService),
-		internalhttp.NewFeedHandler(jsonRenderer, storage),
-		internalhttp.NewGuardHandler(jsonRenderer),
-	)
->>>>>>> 876b63f (prep rebase)
 
 	mainHandler := handler.New(handler.MakePublicRoutes(
 		router,
@@ -138,7 +151,7 @@ func main() {
 		go func() {
 			logger.Infof("starting server, listening on %s", srv.Addr)
 
-			if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+			if err := srv.ListenAndServe(); errors.Is(err, http.ErrServerClosed) {
 				logger.WithError(err).Errorf("server can't listen and serve requests")
 			}
 		}()
