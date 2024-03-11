@@ -58,7 +58,7 @@ func mustParseAppsEnvs(logger *logrus.Logger) ([]string, []vars.Env) {
 	appSlice := strings.Split(*apps, ",")
 	envSlice, err := vars.ParseEnvs(*envs, ",")
 	if err != nil {
-		logger.Fatalf("can't parseEnvs: %w", err)
+		logger.Fatalf("can't parseEnvs: %v", err)
 	}
 
 	if len(appSlice) == 0 || len(envSlice) == 0 {

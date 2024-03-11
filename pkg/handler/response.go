@@ -25,6 +25,10 @@ func OkResponse(data interface{}) Response {
 	return &response{body: data, code: http.StatusOK}
 }
 
+func OkEmptyResponse() Response {
+	return &response{body: nil, code: http.StatusOK}
+}
+
 func CreatedResponse(data interface{}) Response {
 	return &response{body: data, code: http.StatusCreated}
 }
@@ -39,6 +43,14 @@ func BadRequestResponse() Response {
 
 func NoContentResponse() Response {
 	return &response{body: nil, code: http.StatusNoContent}
+}
+
+func NotFoundResponse() Response {
+	return &response{body: nil, code: http.StatusNotFound}
+}
+
+func UnauthorizedResponse() Response {
+	return &response{body: nil, code: http.StatusUnauthorized}
 }
 
 func RequestCanceledResponse() Response {
