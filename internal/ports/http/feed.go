@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
@@ -35,6 +36,7 @@ func (h *FeedHandler) Routes() chi.Router {
 	r.Get("/", h.r.Wrap(h.GetAllFeed))
 	r.Get("/{id}", h.r.Wrap(h.GetFeed))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
+	r.Put("/{id}", h.r.Wrap(h.UpdateFeed))
 
 	return r
 }
@@ -113,6 +115,36 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	err = h.feed.DeleteFeed(context.Background(), feedId.ID)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.DeleteFeed DeleteFeed")
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(nil)
+}
+
+// UpdateFeed update feed by id
+//
+//	@Summary      update feed by id
+//	@Description  update feed by id
+//	@Tags         feed
+//	@Accept       json
+//	@Produce      json
+//	@Param        id path string true "feed ID"
+//	@Param 		  data body requests.UpdateFeed true "requests.UpdateFeed data"
+//	@Success      200  {object}  handler.Response
+//	@Failure      400  {object}  handler.Response
+//	@Failure      500  {object}  handler.Response
+//	@Router       /feed/{id} [put]
+func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
+	feed := &requests.UpdateFeed{}
+	err := feed.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
+		return handler.BadRequestResponse()
+	}
+
+	err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
+	if err != nil {
+		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
 		return handler.InternalServerErrorResponse()
 	}
 

@@ -93,6 +93,51 @@ const docTemplate = `{
                     }
                 }
             },
+            "put": {
+                "description": "update feed by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feed"
+                ],
+                "summary": "update feed by id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "feed ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "requests.UpdateFeed data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {}
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {}
+                    }
+                }
+            },
             "delete": {
                 "description": "delete feed by id",
                 "consumes": [
@@ -134,6 +179,29 @@ const docTemplate = `{
     "definitions": {
         "base64.Encoding": {
             "type": "object"
+        },
+        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed": {
+            "type": "object",
+            "properties": {
+                "created_by": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "registration_url": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
         },
         "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.Feed": {
             "type": "object",

@@ -2,6 +2,21 @@ basePath: /bmstu-stud-web/api/
 definitions:
   base64.Encoding:
     type: object
+  github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed:
+    properties:
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      registration_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
   github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.Feed:
     properties:
       created_by:
@@ -130,6 +145,37 @@ paths:
           description: Internal Server Error
           schema: {}
       summary: feed
+      tags:
+      - feed
+    put:
+      consumes:
+      - application/json
+      description: update feed by id
+      parameters:
+      - description: feed ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: requests.UpdateFeed data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: update feed by id
       tags:
       - feed
 securityDefinitions:

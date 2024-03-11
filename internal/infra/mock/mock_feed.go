@@ -78,3 +78,17 @@ func (mr *MockfeedServiceStorageMockRecorder) GetFeed(ctx, id interface{}) *gomo
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeed", reflect.TypeOf((*MockfeedServiceStorage)(nil).GetFeed), ctx, id)
 }
+
+// UpdateFeed mocks base method.
+func (m *MockfeedServiceStorage) UpdateFeed(ctx context.Context, feed domain.Feed) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateFeed", ctx, feed)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateFeed indicates an expected call of UpdateFeed.
+func (mr *MockfeedServiceStorageMockRecorder) UpdateFeed(ctx, feed interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFeed", reflect.TypeOf((*MockfeedServiceStorage)(nil).UpdateFeed), ctx, feed)
+}
