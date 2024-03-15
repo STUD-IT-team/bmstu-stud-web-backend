@@ -13,6 +13,7 @@ type Storage interface {
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(_ context.Context, id int, feed domain.Feed) error
+	GetLimitNOffsetKFeed(ctx context.Context, n, lastId int) ([]domain.Feed, error)
 	GetMemberByLogin(ctx context.Context, login string) (domain.Member, error)
 	SetSession(id string, value domain.Session)
 	FindSession(id string) *domain.Session

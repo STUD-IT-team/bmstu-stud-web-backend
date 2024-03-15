@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
@@ -51,8 +52,24 @@ func (h *FeedHandler) Routes() chi.Router {
 //	@Success      200  {array}   responses.GetAllFeed
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed [get]
-func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler.Response {
-	res, err := h.feed.GetAllFeed(context.Background())
+func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
+	param := &requests.GetAllFeed{}
+	err := param.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
+		return handler.BadRequestResponse()
+	}
+
+	var res *responses.GetAllFeed
+	if err = param.GetNFeedStartLastId(); err == nil {
+		res, err = h.feed.GetLimitNOffsetKFeed(context.Background(), param.NFeed, param.LastId)
+		if err != nil {
+			log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
+			return handler.InternalServerErrorResponse()
+		}
+	}
+
+	res, err = h.feed.GetAllFeed(context.Background())
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
 		return handler.InternalServerErrorResponse()
@@ -76,7 +93,6 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, _ *http.Request) handler
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feedId := &requests.GetFeed{}
 	err := feedId.Bind(req)
-
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
 		return handler.BadRequestResponse()
@@ -106,7 +122,6 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feedId := &requests.DeleteFeed{}
 	err := feedId.Bind(req)
-
 	if err != nil {
 		log.WithError(err).Warnf("can't service.DeleteFeed DeleteFeed")
 		return handler.BadRequestResponse()

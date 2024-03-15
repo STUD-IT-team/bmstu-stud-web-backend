@@ -119,3 +119,28 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 
 	return nil
 }
+
+const getLimitNOffsetKFeedQuery = "SELECT id, title, description, registration_url, created_at, created_by FROM events ORDER BY id LIMIT $1 OFFSET $2"
+
+func (p *Postgres) GetLimitNOffsetKFeed(_ context.Context, n, lastId int) ([]domain.Feed, error) {
+	var feeds []domain.Feed
+
+	rows, err := p.db.Query(getLimitNOffsetKFeedQuery, n, lastId)
+	if err != nil {
+		return []domain.Feed{}, err
+	}
+
+	for rows.Next() {
+		var feed domain.Feed
+
+		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description, &feed.RegistrationURL, &feed.CreatedAt, &feed.CreatedBy)
+
+		if err != nil {
+			return []domain.Feed{}, err
+		}
+
+		feeds = append(feeds, feed)
+	}
+
+	return feeds, nil
+}
