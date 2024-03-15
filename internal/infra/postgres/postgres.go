@@ -120,7 +120,8 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 	return nil
 }
 
-const getLimitNOffsetKFeedQuery = "SELECT id, title, description, registration_url, created_at, created_by FROM events ORDER BY id LIMIT $1 OFFSET $2"
+const getLimitNOffsetKFeedQuery = "SELECT id, title, description, registration_url, created_at, created_by " +
+	"FROM events ORDER BY id LIMIT $1 OFFSET $2"
 
 func (p *Postgres) GetLimitNOffsetKFeed(_ context.Context, n, lastId int) ([]domain.Feed, error) {
 	var feeds []domain.Feed

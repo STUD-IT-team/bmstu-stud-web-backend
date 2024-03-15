@@ -80,6 +80,17 @@ paths:
       consumes:
       - application/json
       description: get feeds
+      parameters:
+      - description: int limit
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: int offset
+        in: query
+        minimum: 1
+        name: offset
+        type: integer
       produces:
       - application/json
       responses:
@@ -89,6 +100,9 @@ paths:
             items:
               $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed'
             type: array
+        "400":
+          description: Bad Request
+          schema: {}
         "500":
           description: Internal Server Error
           schema: {}

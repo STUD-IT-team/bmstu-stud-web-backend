@@ -7,35 +7,36 @@ import (
 )
 
 type GetAllFeed struct {
-	LastId int
-	NFeed  int
+	Offset int
+	Limit  int
 }
 
 func (f *GetAllFeed) Bind(req *http.Request) error {
 	query := req.URL.Query()
-	lastId, err := strconv.Atoi(query.Get("last_id"))
+
+	offset, err := strconv.Atoi(query.Get("offset"))
 	if err != nil {
-		return fmt.Errorf("can't Atoi last_id on GetAllFeed.Bind: %w", err)
+		return fmt.Errorf("can't Atoi offset on GetAllFeed.Bind: %w", err)
 	}
 
-	nFeed, err := strconv.Atoi(query.Get("n"))
+	limit, err := strconv.Atoi(query.Get("limit"))
 	if err != nil {
-		return fmt.Errorf("can't Atoi n on GetAllFeed.Bind: %w", err)
+		return fmt.Errorf("can't Atoi limit on GetAllFeed.Bind: %w", err)
 	}
 
-	f.LastId = lastId
-	f.NFeed = nFeed
+	f.Offset = offset
+	f.Limit = limit
 
 	return nil
 }
 
-func (f *GetAllFeed) GetNFeedStartLastId() error {
-	if f.LastId <= 0 {
-		return fmt.Errorf("require: last_id")
+func (f *GetAllFeed) GetLimitOffset() error {
+	if f.Offset <= 0 {
+		return fmt.Errorf("require: offset")
 	}
 
-	if f.NFeed <= 0 {
-		return fmt.Errorf("require: n_feed")
+	if f.Limit <= 0 {
+		return fmt.Errorf("require: limit")
 	}
 
 	return nil

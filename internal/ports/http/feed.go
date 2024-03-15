@@ -2,13 +2,12 @@ package http
 
 import (
 	"context"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
-	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
@@ -49,11 +48,15 @@ func (h *FeedHandler) Routes() chi.Router {
 //	@Tags         feed
 //	@Accept       json
 //	@Produce      json
+//	@Param   limit         query     int        false  "int limit"          minimum(1)
+//	@Param   offset         query     int        false  "int offset"          minimum(1)
 //	@Success      200  {array}   responses.GetAllFeed
+//	@Failure      400  {object}  handler.Response
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed [get]
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	param := &requests.GetAllFeed{}
+
 	err := param.Bind(req)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
@@ -61,18 +64,18 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 	}
 
 	var res *responses.GetAllFeed
-	if err = param.GetNFeedStartLastId(); err == nil {
-		res, err = h.feed.GetLimitNOffsetKFeed(context.Background(), param.NFeed, param.LastId)
+	if err = param.GetLimitOffset(); err == nil {
+		res, err = h.feed.GetLimitNOffsetKFeed(context.Background(), param.Limit, param.Offset)
 		if err != nil {
 			log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
 			return handler.InternalServerErrorResponse()
 		}
-	}
-
-	res, err = h.feed.GetAllFeed(context.Background())
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
-		return handler.InternalServerErrorResponse()
+	} else {
+		res, err = h.feed.GetAllFeed(context.Background())
+		if err != nil {
+			log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	return handler.OkResponse(res)
@@ -92,6 +95,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Router       /feed/{id} [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feedId := &requests.GetFeed{}
+
 	err := feedId.Bind(req)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
@@ -121,6 +125,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 //	@Router       /feed/{id} [delete]
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feedId := &requests.DeleteFeed{}
+
 	err := feedId.Bind(req)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.DeleteFeed DeleteFeed")
@@ -151,6 +156,7 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Router       /feed/{id} [put]
 func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feed := &requests.UpdateFeed{}
+
 	err := feed.Bind(req)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
