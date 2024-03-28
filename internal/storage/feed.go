@@ -22,6 +22,6 @@ func (s *storage) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 	return s.postgres.UpdateFeed(ctx, feed)
 }
 
-func (s *storage) GetLimitNOffsetKFeed(ctx context.Context, n, lastId int) ([]domain.Feed, error) {
-	return s.postgres.GetLimitNOffsetKFeed(ctx, n, lastId)
+func (s *storage) GetLimitNOffsetKFeed(ctx context.Context, limit, offset int) ([]domain.Feed, error) {
+	return s.postgres.GetLimitNOffsetKFeed(ctx, limit, offset)
 }
