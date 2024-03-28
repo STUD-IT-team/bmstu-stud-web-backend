@@ -92,3 +92,18 @@ func (mr *MockfeedServiceStorageMockRecorder) UpdateFeed(ctx, feed interface{}) 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateFeed", reflect.TypeOf((*MockfeedServiceStorage)(nil).UpdateFeed), ctx, feed)
 }
+
+// GetLimitNOffsetKFeed mocks base method.
+func (m *MockfeedServiceStorage) GetLimitNOffsetKFeed(ctx context.Context, limit, offset int) ([]domain.Feed, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetLimitNOffsetKFeed", ctx, limit, offset)
+	ret0, _ := ret[0].([]domain.Feed)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetLimitNOffsetKFeed indicates an expected call of GetLimitNOffsetKFeed.
+func (mr *MockfeedServiceStorageMockRecorder) GetLimitNOffsetKFeed(ctx, limit, offset interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLimitNOffsetKFeed", reflect.TypeOf((*MockfeedServiceStorage)(nil).GetLimitNOffsetKFeed), ctx, limit, offset)
+}
