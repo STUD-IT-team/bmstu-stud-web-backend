@@ -15,7 +15,7 @@ type feedServiceStorage interface {
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed domain.Feed) error
-	GetLimitNOffsetKFeed(ctx context.Context, n, lastId int) ([]domain.Feed, error)
+	GetLimitNOffsetKFeed(ctx context.Context, limit, offset int) ([]domain.Feed, error)
 }
 
 type FeedService struct {
@@ -65,8 +65,8 @@ func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 	return nil
 }
 
-func (s *FeedService) GetLimitNOffsetKFeed(ctx context.Context, n, lastId int) (*responses.GetAllFeed, error) {
-	res, err := s.storage.GetLimitNOffsetKFeed(ctx, n, lastId)
+func (s *FeedService) GetLimitNOffsetKFeed(ctx context.Context, limit, offset int) (*responses.GetAllFeed, error) {
+	res, err := s.storage.GetLimitNOffsetKFeed(ctx, limit, offset)
 	if err != nil {
 		log.WithError(err).Warnf("can't storage.GetLimitNOffsetKFeed GetLimitNOffsetKFeed")
 		return nil, err
