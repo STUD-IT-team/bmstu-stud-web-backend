@@ -32,11 +32,11 @@ func (f *GetAllFeed) Bind(req *http.Request) error {
 
 func (f *GetAllFeed) GetLimitOffset() error {
 	if f.Offset <= 0 {
-		return fmt.Errorf("require: offset")
+		return fmt.Errorf("require: offset <= 0")
 	}
 
 	if f.Limit <= 0 {
-		return fmt.Errorf("require: limit")
+		return fmt.Errorf("require: limit <= 0")
 	}
 
 	return nil
