@@ -65,7 +65,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 
 	var res *responses.GetAllFeed
 	if err = param.GetLimitOffset(); err == nil {
-		res, err = h.feed.GetLimitNOffsetKFeed(context.Background(), param.Limit, param.Offset)
+		res, err = h.feed.GetFeedByFilter(context.Background(), param.Limit, param.Offset)
 		if err != nil {
 			log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
 			return handler.InternalServerErrorResponse()
