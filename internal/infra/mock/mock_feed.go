@@ -94,16 +94,16 @@ func (mr *MockfeedServiceStorageMockRecorder) UpdateFeed(ctx, feed interface{}) 
 }
 
 // GetFeedByFilter mocks base method.
-func (m *MockfeedServiceStorage) GetFeedByFilter(ctx context.Context, limit, offset int) ([]domain.Feed, error) {
+func (m *MockfeedServiceStorage) GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetFeedByFilter", ctx, limit, offset)
+	ret := m.ctrl.Call(m, "GetFeedByFilterLimitAndOffset", ctx, limit, offset)
 	ret0, _ := ret[0].([]domain.Feed)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetFeedByFilter indicates an expected call of GetFeedByFilter.
+// GetFeedByFilterLimitAndOffset indicates an expected call of GetFeedByFilterLimitAndOffset.
 func (mr *MockfeedServiceStorageMockRecorder) GetLimitNOffsetKFeed(ctx, limit, offset interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedByFilter", reflect.TypeOf((*MockfeedServiceStorage)(nil).GetFeedByFilter), ctx, limit, offset)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedByFilterLimitAndOffset", reflect.TypeOf((*MockfeedServiceStorage)(nil).GetFeedByFilterLimitAndOffset), ctx, limit, offset)
 }

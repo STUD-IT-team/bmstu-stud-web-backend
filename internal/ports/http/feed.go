@@ -55,16 +55,16 @@ func (h *FeedHandler) Routes() chi.Router {
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed [get]
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	param := &requests.GetFeedByFilter{}
+	filter := &requests.GetFeedByFilter{}
 
-	err := param.Bind(req)
+	err := filter.Bind(req)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
 		return handler.BadRequestResponse()
 	}
 
 	var res *responses.GetAllFeed
-	res, err = h.feed.GetAllFeed(context.Background(), param.Limit, param.Offset)
+	res, err = h.feed.GetAllFeed(context.Background(), *filter)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
 		return handler.InternalServerErrorResponse()
