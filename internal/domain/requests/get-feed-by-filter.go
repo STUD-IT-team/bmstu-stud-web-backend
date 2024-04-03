@@ -12,15 +12,17 @@ type GetFeedByFilter struct {
 }
 
 func (f *GetFeedByFilter) Bind(req *http.Request) error {
+	query := req.URL.Query()
+
 	var limit, offset int
 	var err error
-	query := req.URL.Query()
 
 	if query.Has("offset") {
 		offset, err = strconv.Atoi(query.Get("offset"))
 		if err != nil {
 			return fmt.Errorf("can't Atoi offset on GetAllFeed.Bind: %w", err)
 		}
+
 		if offset < 0 {
 			return fmt.Errorf("require: offset < 0")
 		}
@@ -31,6 +33,7 @@ func (f *GetFeedByFilter) Bind(req *http.Request) error {
 		if err != nil {
 			return fmt.Errorf("can't Atoi limit on GetAllFeed.Bind: %w", err)
 		}
+
 		if limit < 0 {
 			return fmt.Errorf("require: limit < 0")
 		}

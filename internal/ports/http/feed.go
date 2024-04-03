@@ -64,6 +64,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 	}
 
 	var res *responses.GetAllFeed
+
 	res, err = h.feed.GetAllFeed(context.Background(), *filter)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")

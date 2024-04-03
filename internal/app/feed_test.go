@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"errors"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"reflect"
 	"testing"
 
@@ -43,12 +44,17 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 	ctx := context.Background()
 	testCase := map[int]struct {
 		nameTest         string
+		filter           *requests.GetFeedByFilter
 		request          []domain.Feed
 		expectedResponse *responses.GetAllFeed
 		expectedError    error
 	}{
 		1: {
 			nameTest: "Test Ok",
+			filter: &requests.GetFeedByFilter{
+				Offset: 0,
+				Limit:  0,
+			},
 			expectedResponse: &responses.GetAllFeed{
 				Feed: []responses.Feed{
 					{
@@ -68,6 +74,7 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 		},
 		2: {
 			nameTest:         "Test Error",
+			filter:           &requests.GetFeedByFilter{},
 			expectedResponse: nil,
 			request:          []domain.Feed{},
 			expectedError:    errors.New("storage error")},
@@ -76,9 +83,10 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 	for _, test := range testCase {
 		// Mock the storage method call
 		suite.mockStorage.EXPECT().GetAllFeed(ctx).Return(test.request, test.expectedError)
+		//suite.mockStorage.EXPECT().GetFeedByFilterLimitAndOffset(ctx, test.filter.Limit, test.filter.Offset).Return(test.request, test.expectedError)
 
 		// Call the service method
-		actualResponse, actualError := suite.feedService.GetAllFeed(ctx)
+		actualResponse, actualError := suite.feedService.GetAllFeed(ctx, *test.filter)
 
 		// Compare the expected and actual responses
 		assert.Equal(suite.T(), test.expectedError, actualError)
