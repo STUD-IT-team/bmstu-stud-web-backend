@@ -27,11 +27,22 @@ func NewFeedService(logger *log.Logger, storage feedServiceStorage) *FeedService
 	return &FeedService{logger: logger, storage: storage}
 }
 
-func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, error) {
-	res, err := s.storage.GetAllFeed(ctx)
-	if err != nil {
-		log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
-		return nil, err
+func (s *FeedService) GetAllFeed(ctx context.Context, limit, offset int) (*responses.GetAllFeed, error) {
+	var res []domain.Feed
+	var err error
+
+	if (limit != 0) && (offset != 0) {
+		res, err = s.storage.GetFeedByFilter(ctx, limit, offset)
+		if err != nil {
+			log.WithError(err).Warnf("can't storage.GetFeedByFilter GetFeedByFilter")
+			return nil, err
+		}
+	} else {
+		res, err = s.storage.GetAllFeed(ctx)
+		if err != nil {
+			log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
+			return nil, err
+		}
 	}
 
 	return mapper.MakeResponseAllFeed(res), nil
@@ -63,14 +74,4 @@ func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 	}
 
 	return nil
-}
-
-func (s *FeedService) GetFeedByFilter(ctx context.Context, limit, offset int) (*responses.GetAllFeed, error) {
-	res, err := s.storage.GetFeedByFilter(ctx, limit, offset)
-	if err != nil {
-		log.WithError(err).Warnf("can't storage.GetFeedByFilter GetFeedByFilter")
-		return nil, err
-	}
-
-	return mapper.MakeResponseAllFeed(res), nil
 }
