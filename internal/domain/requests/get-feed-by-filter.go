@@ -9,8 +9,8 @@ import (
 )
 
 type GetFeedByFilter struct {
-	Offset int
-	Limit  int
+	Offset mo.Option[int]
+	Limit  mo.Option[int]
 }
 
 func (f *GetFeedByFilter) Bind(req *http.Request) error {
@@ -19,36 +19,35 @@ func (f *GetFeedByFilter) Bind(req *http.Request) error {
 	var limit, offset int
 	var err error
 
-	stringOffset := query.Get("offset")
-	if optionOffset := mo.TupleToOption(stringOffset, stringOffset != ""); optionOffset.IsPresent() {
-		offset, err = strconv.Atoi(optionOffset.MustGet())
+	if query.Has("offset") {
+		offset, err = strconv.Atoi(query.Get("offset"))
 		if err != nil {
 			return fmt.Errorf("can't Atoi offset on GetAllFeed.Bind: %w", err)
 		}
+
+		f.Offset = mo.Some(offset)
 	}
 
-	stringLimit := query.Get("limit")
-	if optionLimit := mo.TupleToOption(stringLimit, stringLimit != ""); optionLimit.IsPresent() {
-		limit, err = strconv.Atoi(optionLimit.MustGet())
+	if query.Has("limit") {
+		limit, err = strconv.Atoi(query.Get("limit"))
 		if err != nil {
 			return fmt.Errorf("can't Atoi limit on GetAllFeed.Bind: %w", err)
 		}
+
+		f.Limit = mo.Some(limit)
 	}
 
-	f.Offset = offset
-	f.Limit = limit
-
-	return f.GetLimitOffset()
+	return f.ParseQueryParam()
 }
 
-func (f *GetFeedByFilter) GetLimitOffset() error {
-	if f.Offset < 0 {
-		return fmt.Errorf("require: offset <= 0")
+func (f *GetFeedByFilter) ParseQueryParam() error {
+	if f.Limit.IsPresent() && f.Offset.IsPresent() { // get feeds with filters: limit, offset
+		return nil
 	}
 
-	if f.Limit < 0 {
-		return fmt.Errorf("require: limit <= 0")
+	if f.Limit.IsAbsent() && f.Offset.IsAbsent() { // get all feeds
+		return nil
 	}
 
-	return nil
+	return fmt.Errorf("request doesnt exist")
 }

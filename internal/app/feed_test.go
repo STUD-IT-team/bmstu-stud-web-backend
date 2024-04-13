@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"errors"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"reflect"
 	"testing"
 
@@ -13,6 +12,7 @@ import (
 	"github.com/stretchr/testify/suite"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	mock "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
 )

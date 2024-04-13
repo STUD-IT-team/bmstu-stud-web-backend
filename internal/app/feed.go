@@ -32,13 +32,13 @@ func (s *FeedService) GetAllFeed(ctx context.Context, filter requests.GetFeedByF
 	var res []domain.Feed
 	var err error
 
-	if (filter.Limit != 0) && (filter.Offset != 0) {
-		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit, filter.Offset)
+	if filter.Limit.IsPresent() && filter.Offset.IsPresent() {
+		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit.MustGet(), filter.Offset.MustGet())
 		if err != nil {
 			log.WithError(err).Warnf("can't storage.GetFeedByFilterLimitAndOffset GetFeedByFilterLimitAndOffset")
 			return nil, err
 		}
-	} else {
+	} else if filter.Limit.IsAbsent() && filter.Offset.IsAbsent() {
 		res, err = s.storage.GetAllFeed(ctx)
 		if err != nil {
 			log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
