@@ -59,7 +59,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed"
+                                "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeedByFilter"
                             }
                         }
                     },
@@ -249,7 +249,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed": {
+        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeedByFilter": {
             "type": "object",
             "properties": {
                 "feed": {

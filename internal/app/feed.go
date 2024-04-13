@@ -2,13 +2,13 @@ package app
 
 import (
 	"context"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type feedServiceStorage interface {
@@ -28,7 +28,10 @@ func NewFeedService(logger *log.Logger, storage feedServiceStorage) *FeedService
 	return &FeedService{logger: logger, storage: storage}
 }
 
-func (s *FeedService) GetAllFeed(ctx context.Context, filter requests.GetFeedByFilter) (*responses.GetAllFeed, error) {
+func (s *FeedService) GetFeedByFilter(
+	ctx context.Context,
+	filter requests.GetFeedByFilter,
+) (*responses.GetAllFeed, error) {
 	var res []domain.Feed
 	var err error
 

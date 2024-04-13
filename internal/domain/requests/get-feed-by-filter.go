@@ -19,7 +19,7 @@ func (f *GetFeedByFilter) Bind(req *http.Request) error {
 	if query.Has("offset") {
 		offset, err := strconv.Atoi(query.Get("offset"))
 		if err != nil {
-			return fmt.Errorf("can't Atoi offset on GetAllFeed.Bind: %w", err)
+			return fmt.Errorf("can't Atoi offset on GetFeedByFilter.Bind: %w", err)
 		}
 
 		f.Offset = mo.Some(offset)
@@ -28,7 +28,7 @@ func (f *GetFeedByFilter) Bind(req *http.Request) error {
 	if query.Has("limit") {
 		limit, err := strconv.Atoi(query.Get("limit"))
 		if err != nil {
-			return fmt.Errorf("can't Atoi limit on GetAllFeed.Bind: %w", err)
+			return fmt.Errorf("can't Atoi limit on GetFeedByFilter.Bind: %w", err)
 		}
 
 		f.Limit = mo.Some(limit)

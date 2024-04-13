@@ -86,7 +86,7 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 		suite.mockStorage.EXPECT().GetAllFeed(ctx).Return(test.request, test.expectedError)
 
 		// Call the service method
-		actualResponse, actualError := suite.feedService.GetAllFeed(ctx, *test.filter)
+		actualResponse, actualError := suite.feedService.GetFeedByFilter(ctx, *test.filter)
 
 		// Compare the expected and actual responses
 		assert.Equal(suite.T(), test.expectedError, actualError)

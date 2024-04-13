@@ -52,7 +52,7 @@ func (mr *MockfeedServiceStorageMockRecorder) DeleteFeed(ctx, id interface{}) *g
 // GetAllFeed mocks base method.
 func (m *MockfeedServiceStorage) GetAllFeed(ctx context.Context) ([]domain.Feed, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetAllFeed", ctx)
+	ret := m.ctrl.Call(m, "GetFeedByFilter", ctx)
 	ret0, _ := ret[0].([]domain.Feed)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
@@ -61,7 +61,7 @@ func (m *MockfeedServiceStorage) GetAllFeed(ctx context.Context) ([]domain.Feed,
 // GetAllFeed indicates an expected call of GetAllFeed.
 func (mr *MockfeedServiceStorageMockRecorder) GetAllFeed(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllFeed", reflect.TypeOf((*MockfeedServiceStorage)(nil).GetAllFeed), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFeedByFilter", reflect.TypeOf((*MockfeedServiceStorage)(nil).GetAllFeed), ctx)
 }
 
 // GetFeed mocks base method.

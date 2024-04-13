@@ -50,7 +50,7 @@ func (h *FeedHandler) Routes() chi.Router {
 //	@Produce      json
 //	@Param   limit         query     int        false  "int limit"          minimum(1)
 //	@Param   offset         query     int        false  "int offset"          minimum(1)
-//	@Success      200  {array}   responses.GetAllFeed
+//	@Success      200  {array}   responses.GetFeedByFilter
 //	@Failure      400  {object}  handler.Response
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed [get]
@@ -59,15 +59,15 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 
 	err := filter.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
+		log.WithError(err).Warnf("can't service.GetFeedByFilter GetFeedByFilter")
 		return handler.BadRequestResponse()
 	}
 
 	var res *responses.GetAllFeed
 
-	res, err = h.feed.GetAllFeed(context.Background(), *filter)
+	res, err = h.feed.GetFeedByFilter(context.Background(), *filter)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
+		log.WithError(err).Warnf("can't service.GetFeedByFilter GetFeedByFilter")
 		return handler.InternalServerErrorResponse()
 	}
 
