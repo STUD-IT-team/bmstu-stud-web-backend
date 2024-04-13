@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/samber/mo"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
@@ -52,8 +53,8 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 		1: {
 			nameTest: "Test Ok",
 			filter: &requests.GetFeedByFilter{
-				Offset: 0,
-				Limit:  0,
+				Offset: mo.None[int](),
+				Limit:  mo.None[int](),
 			},
 			expectedResponse: &responses.GetAllFeed{
 				Feed: []responses.Feed{
@@ -83,7 +84,6 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 	for _, test := range testCase {
 		// Mock the storage method call
 		suite.mockStorage.EXPECT().GetAllFeed(ctx).Return(test.request, test.expectedError)
-		//suite.mockStorage.EXPECT().GetFeedByFilterLimitAndOffset(ctx, test.filter.Limit, test.filter.Offset).Return(test.request, test.expectedError)
 
 		// Call the service method
 		actualResponse, actualError := suite.feedService.GetAllFeed(ctx, *test.filter)

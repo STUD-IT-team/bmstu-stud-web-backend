@@ -38,7 +38,7 @@ func (s *FeedService) GetAllFeed(ctx context.Context, filter requests.GetFeedByF
 			log.WithError(err).Warnf("can't storage.GetFeedByFilterLimitAndOffset GetFeedByFilterLimitAndOffset")
 			return nil, err
 		}
-	} else if filter.Limit.IsAbsent() && filter.Offset.IsAbsent() {
+	} else {
 		res, err = s.storage.GetAllFeed(ctx)
 		if err != nil {
 			log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
