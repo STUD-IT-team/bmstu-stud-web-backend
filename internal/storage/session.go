@@ -38,7 +38,7 @@ func (s *storage) CheckSession(accessToken string) (*domain.Session, error) {
 
 const sessionDuration = 5 * time.Hour
 
-func (s *storage) SaveSessoinFromMemberID(memberID int64) (session domain.Session) {
+func (s *storage) SaveSessionFromMemberID(memberID int64) (session domain.Session) {
 	sessionID := uuid.NewString()
 
 	session = domain.Session{
