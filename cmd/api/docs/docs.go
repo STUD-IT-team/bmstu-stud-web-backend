@@ -37,15 +37,35 @@ const docTemplate = `{
                     "feed"
                 ],
                 "summary": "List feeds",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "int limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "int offset",
+                        "name": "offset",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed"
+                                "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeedByFilter"
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {}
                     },
                     "500": {
                         "description": "Internal Server Error",
@@ -229,7 +249,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed": {
+        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeedByFilter": {
             "type": "object",
             "properties": {
                 "feed": {

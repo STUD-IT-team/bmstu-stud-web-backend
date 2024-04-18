@@ -21,3 +21,7 @@ func (s *storage) DeleteFeed(ctx context.Context, id int) error {
 func (s *storage) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 	return s.postgres.UpdateFeed(ctx, feed)
 }
+
+func (s *storage) GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error) {
+	return s.postgres.GetFeedByFilterLimitAndOffset(ctx, limit, offset)
+}

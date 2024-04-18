@@ -7,11 +7,13 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/samber/mo"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	mock "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
 )
@@ -43,12 +45,17 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 	ctx := context.Background()
 	testCase := map[int]struct {
 		nameTest         string
+		filter           *requests.GetFeedByFilter
 		request          []domain.Feed
 		expectedResponse *responses.GetAllFeed
 		expectedError    error
 	}{
 		1: {
 			nameTest: "Test Ok",
+			filter: &requests.GetFeedByFilter{
+				Offset: mo.None[int](),
+				Limit:  mo.None[int](),
+			},
 			expectedResponse: &responses.GetAllFeed{
 				Feed: []responses.Feed{
 					{
@@ -68,6 +75,7 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 		},
 		2: {
 			nameTest:         "Test Error",
+			filter:           &requests.GetFeedByFilter{},
 			expectedResponse: nil,
 			request:          []domain.Feed{},
 			expectedError:    errors.New("storage error")},
@@ -78,7 +86,7 @@ func (suite *FeedServiceTestSuite) TestGetAllFeed() {
 		suite.mockStorage.EXPECT().GetAllFeed(ctx).Return(test.request, test.expectedError)
 
 		// Call the service method
-		actualResponse, actualError := suite.feedService.GetAllFeed(ctx)
+		actualResponse, actualError := suite.feedService.GetFeedByFilter(ctx, *test.filter)
 
 		// Compare the expected and actual responses
 		assert.Equal(suite.T(), test.expectedError, actualError)

@@ -3,11 +3,12 @@ package app
 import (
 	"context"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type feedServiceStorage interface {
@@ -15,6 +16,7 @@ type feedServiceStorage interface {
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed domain.Feed) error
+	GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
 }
 
 type FeedService struct {
@@ -26,11 +28,25 @@ func NewFeedService(logger *log.Logger, storage feedServiceStorage) *FeedService
 	return &FeedService{logger: logger, storage: storage}
 }
 
-func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, error) {
-	res, err := s.storage.GetAllFeed(ctx)
-	if err != nil {
-		log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
-		return nil, err
+func (s *FeedService) GetFeedByFilter(
+	ctx context.Context,
+	filter requests.GetFeedByFilter,
+) (*responses.GetAllFeed, error) {
+	var res []domain.Feed
+	var err error
+
+	if filter.Limit.IsPresent() && filter.Offset.IsPresent() {
+		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit.MustGet(), filter.Offset.MustGet())
+		if err != nil {
+			log.WithError(err).Warnf("can't storage.GetFeedByFilterLimitAndOffset GetFeedByFilterLimitAndOffset")
+			return nil, err
+		}
+	} else {
+		res, err = s.storage.GetAllFeed(ctx)
+		if err != nil {
+			log.WithError(err).Warnf("can't storage.GetAllFeed GetAllFeed")
+			return nil, err
+		}
 	}
 
 	return mapper.MakeResponseAllFeed(res), nil
