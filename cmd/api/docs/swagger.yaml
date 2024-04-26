@@ -91,6 +91,11 @@ paths:
         minimum: 1
         name: offset
         type: integer
+      - description: int id_last
+        in: query
+        minimum: 1
+        name: id_last
+        type: integer
       produces:
       - application/json
       responses:

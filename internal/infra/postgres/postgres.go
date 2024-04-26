@@ -144,3 +144,28 @@ func (p *Postgres) GetFeedByFilterLimitAndOffset(_ context.Context, limit, offse
 
 	return feeds, nil
 }
+
+const getFeedByFilterIdLastAndOffsetQuery = `SELECT id, title, description, reg_url, created_at, created_by 
+											FROM events  WHERE id > $1 ORDER BY id LIMIT $2`
+
+func (p *Postgres) GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error) {
+	var feeds []domain.Feed
+
+	rows, err := p.db.Query(getFeedByFilterIdLastAndOffsetQuery, idLast, offset)
+	if err != nil {
+		return []domain.Feed{}, err
+	}
+
+	for rows.Next() {
+		var feed domain.Feed
+
+		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description, &feed.RegistrationURL, &feed.CreatedAt, &feed.CreatedBy)
+		if err != nil {
+			return []domain.Feed{}, err
+		}
+
+		feeds = append(feeds, feed)
+	}
+
+	return feeds, nil
+}

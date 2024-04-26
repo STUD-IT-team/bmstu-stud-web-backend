@@ -45,6 +45,13 @@
                         "description": "int offset",
                         "name": "offset",
                         "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "int id_last",
+                        "name": "id_last",
+                        "in": "query"
                     }
                 ],
                 "responses": {

@@ -50,7 +50,8 @@ func (h *FeedHandler) Routes() chi.Router {
 //	@Produce      json
 //	@Param   limit         query     int        false  "int limit"          minimum(1)
 //	@Param   offset         query     int        false  "int offset"          minimum(1)
-//	@Success      200  {array}   responses.GetFeedByFilter
+//	@Param   id_last         query     int        false  "int id_last"          minimum(1)
+//	@Success      200  {array}   responses.GetAllFeed
 //	@Failure      400  {object}  handler.Response
 //	@Failure      500  {object}  handler.Response
 //	@Router       /feed [get]

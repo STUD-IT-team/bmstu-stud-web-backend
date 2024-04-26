@@ -17,6 +17,7 @@ type feedServiceStorage interface {
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed domain.Feed) error
 	GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
+	GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
 }
 
 type FeedService struct {
@@ -39,6 +40,12 @@ func (s *FeedService) GetFeedByFilter(
 		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit.MustGet(), filter.Offset.MustGet())
 		if err != nil {
 			log.WithError(err).Warnf("can't storage.GetFeedByFilterLimitAndOffset GetFeedByFilterLimitAndOffset")
+			return nil, err
+		}
+	} else if filter.IdLast.IsPresent() && filter.Offset.IsPresent() {
+		res, err = s.storage.GetFeedByFilterIdLastAndOffset(ctx, filter.IdLast.MustGet(), filter.Offset.MustGet())
+		if err != nil {
+			log.WithError(err).Warnf("can't storage.GetFeedByFilterIdLastAndOffset GetFeedByFilterIdLastAndOffset")
 			return nil, err
 		}
 	} else {

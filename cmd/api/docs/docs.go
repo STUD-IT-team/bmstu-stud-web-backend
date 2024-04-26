@@ -51,6 +51,13 @@ const docTemplate = `{
                         "description": "int offset",
                         "name": "offset",
                         "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "description": "int id_last",
+                        "name": "id_last",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -59,7 +66,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeedByFilter"
+                                "$ref": "#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed"
                             }
                         }
                     },
@@ -249,7 +256,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeedByFilter": {
+        "github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed": {
             "type": "object",
             "properties": {
                 "feed": {

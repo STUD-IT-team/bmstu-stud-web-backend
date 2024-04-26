@@ -21,6 +21,7 @@ type Storage interface {
 	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
 	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
 	CheckSession(accessToken string) (*domain.Session, error)
+	GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
 }
 
 type storage struct {

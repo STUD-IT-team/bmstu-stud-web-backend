@@ -25,3 +25,7 @@ func (s *storage) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 func (s *storage) GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error) {
 	return s.postgres.GetFeedByFilterLimitAndOffset(ctx, limit, offset)
 }
+
+func (s *storage) GetFeedByFilterIdLastAndOffset(ctx context.Context, idLast, offset int) ([]domain.Feed, error) {
+	return s.postgres.GetFeedByFilterIdLastAndOffset(ctx, idLast, offset)
+}
