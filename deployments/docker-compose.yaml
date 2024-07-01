@@ -105,7 +105,7 @@ services:
     container_name: guard_container
     restart: always
     env_file:
-      - .env
+      - guard.env
     build:
       context: ../
       dockerfile: ./cmd/guard/Dockerfile
