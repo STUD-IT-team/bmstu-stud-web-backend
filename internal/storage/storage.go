@@ -9,7 +9,7 @@ import (
 type Storage interface {
 	feedStorage
 	memberStorage
-	sessionStorage
+	guardStorage
 }
 
 type storage struct {

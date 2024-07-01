@@ -1,20 +1,36 @@
 package storage
 
 import (
+	"context"
 	"time"
 
-	"github.com/google/uuid"
-
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/hasher"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/times"
+	"github.com/google/uuid"
 )
 
-type sessionStorage interface {
+type guardStorage interface {
+	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
 	SetSession(id string, value domain.Session)
 	FindSession(id string) *domain.Session
 	DeleteSession(id string)
 	CheckSession(accessToken string) (*domain.Session, error)
 	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+}
+
+func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error) {
+	user, err := s.GetMemberByLogin(ctx, login)
+	if err != nil {
+		return domain.Member{}, err
+	}
+
+	err = hasher.CompareHashAndPassword(user.Password, []byte(password))
+	if err != nil {
+		return domain.Member{}, err
+	}
+
+	return user, nil
 }
 
 func (s *storage) SetSession(id string, value domain.Session) {
