@@ -7,6 +7,11 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/hasher"
 )
 
+type memberStorage interface {
+	GetMemberByLogin(ctx context.Context, login string) (domain.Member, error)
+	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
+}
+
 func (s *storage) GetMemberByLogin(ctx context.Context, login string) (domain.Member, error) {
 	return s.postgres.GetMemberByLogin(ctx, login)
 }

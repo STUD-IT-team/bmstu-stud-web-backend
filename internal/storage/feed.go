@@ -6,6 +6,15 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
+type feedStorage interface {
+	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
+	GetFeed(ctx context.Context, id int) (domain.Feed, error)
+	DeleteFeed(ctx context.Context, id int) error
+	UpdateFeed(_ context.Context, id int, feed domain.Feed) error
+	GetFeedByFilter(ctx context.Context, limit, offset int) ([]domain.Feed, error)
+	GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
+}
+
 func (s *storage) GetAllFeed(ctx context.Context) ([]domain.Feed, error) {
 	return s.postgres.GetAllFeed(ctx)
 }

@@ -9,6 +9,14 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/times"
 )
 
+type sessionStorage interface {
+	SetSession(id string, value domain.Session)
+	FindSession(id string) *domain.Session
+	DeleteSession(id string)
+	CheckSession(accessToken string) (*domain.Session, error)
+	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+}
+
 func (s *storage) SetSession(id string, value domain.Session) {
 	s.sessionCache.Put(id, value)
 }
