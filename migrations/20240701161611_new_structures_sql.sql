@@ -30,5 +30,7 @@ create table if not exists club_org (
 
 -- +goose Down
 -- +goose StatementBegin
-SELECT 'down SQL query';
+drop table if exists encounter
+drop table if exists club_photo
+drop table if exists club_org
 -- +goose StatementEnd
