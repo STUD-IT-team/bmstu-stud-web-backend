@@ -7,7 +7,6 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
@@ -35,38 +34,25 @@ func (h *FeedHandler) Routes() chi.Router {
 
 	r.Get("/", h.r.Wrap(h.GetAllFeed))
 	r.Get("/{id}", h.r.Wrap(h.GetFeed))
+	r.Get("/encounters/", h.r.Wrap(h.GetAllFeedEncounters))
+	r.Get("/{type}", h.r.Wrap(h.GetFeedByType))
+	r.Post("/{feed}", h.r.Wrap(h.PostFeed))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
 	r.Put("/{id}", h.r.Wrap(h.UpdateFeed))
 
 	return r
 }
 
-// GetAllFeed get all feeds
-//
-//	@Summary      List feeds
-//	@Description  get feeds
-//	@Tags         feed
-//	@Accept       json
-//	@Produce      json
-//	@Param   limit         query     int        false  "int limit"          minimum(1)
-//	@Param   offset         query     int        false  "int offset"          minimum(1)
-//	@Param   id_last         query     int        false  "int id_last"          minimum(1)
-//	@Success      200  {array}   responses.GetAllFeed
-//	@Failure      400  {object}  handler.Response
-//	@Failure      500  {object}  handler.Response
-//	@Router       /feed [get]
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	filter := &requests.GetFeedByFilter{}
 
 	err := filter.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetFeedByFilter GetFeedByFilter")
+		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
 		return handler.BadRequestResponse()
 	}
 
-	var res *responses.GetAllFeed
-
-	res, err = h.feed.GetFeedByFilter(context.Background(), *filter)
+	res, err := h.feed.GetFeedByFilter(context.Background(), *filter)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetFeedByFilter GetFeedByFilter")
 		return handler.InternalServerErrorResponse()
@@ -75,18 +61,6 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 	return handler.OkResponse(res)
 }
 
-// GetFeed get feed by id
-//
-//	@Summary      feed
-//	@Description  get feed by id
-//	@Tags         feed
-//	@Accept       json
-//	@Produce      json
-//	@Param        id path string true "feed ID"
-//	@Success      200  {object}  responses.GetFeed
-//	@Failure      400  {object}  handler.Response
-//	@Failure      500  {object}  handler.Response
-//	@Router       /feed/{id} [get]
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feedId := &requests.GetFeed{}
 
@@ -105,18 +79,52 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 	return handler.OkResponse(res)
 }
 
-// DeleteFeed delete feed by id
-//
-//	@Summary      delete feed by id
-//	@Description  delete feed by id
-//	@Tags         feed
-//	@Accept       json
-//	@Produce      json
-//	@Param        id path string true "feed ID"
-//	@Success      200  {object}  handler.Response
-//	@Failure      400  {object}  handler.Response
-//	@Failure      500  {object}  handler.Response
-//	@Router       /feed/{id} [delete]
+func (h *FeedHandler) GetAllFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
+	feedId := &requests.GetFeed{}
+
+	err := feedId.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetAllFeedEncounters GetAllFeedEncounters")
+		return handler.BadRequestResponse()
+	}
+
+	res, err := h.feed.GetAllFeedEncounters(context.Background())
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetAllFeedEncounters GetFeedEncounters")
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(res)
+}
+
+func (h *FeedHandler) GetFeedByType(w http.ResponseWriter, req *http.Request) handler.Response {
+	res, err := h.feed.GetFeedByType(context.Background())
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetFeedByType GetFeedByType")
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(res)
+}
+
+func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler.Response {
+	feed := &requests.PostFeed{}
+
+	err := feed.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.PostFeed PostFeed")
+		return handler.BadRequestResponse()
+	}
+
+	err = h.feed.PostFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
+	if err != nil {
+		log.WithError(err).Warnf("can't service.PostFeed PostFeed")
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(nil)
+}
+
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feedId := &requests.DeleteFeed{}
 
@@ -135,19 +143,6 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	return handler.OkResponse(nil)
 }
 
-// UpdateFeed update feed by id
-//
-//	@Summary      update feed by id
-//	@Description  update feed by id
-//	@Tags         feed
-//	@Accept       json
-//	@Produce      json
-//	@Param        id path string true "feed ID"
-//	@Param 		  data body requests.UpdateFeed true "requests.UpdateFeed data"
-//	@Success      200  {object}  handler.Response
-//	@Failure      400  {object}  handler.Response
-//	@Failure      500  {object}  handler.Response
-//	@Router       /feed/{id} [put]
 func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	feed := &requests.UpdateFeed{}
 

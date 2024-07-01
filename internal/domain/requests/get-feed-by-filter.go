@@ -14,6 +14,7 @@ type GetFeedByFilter struct {
 	IdLast mo.Option[int]
 }
 
+// TODO: rewrite filter
 func (f *GetFeedByFilter) Bind(req *http.Request) error {
 	query := req.URL.Query()
 
