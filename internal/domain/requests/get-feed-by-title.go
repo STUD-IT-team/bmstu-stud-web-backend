@@ -7,7 +7,7 @@ import (
 )
 
 type GetFeedByTitle struct {
-	Search string
+	Search string `json:"title"`
 }
 
 func (f *GetFeedByTitle) Bind(req *http.Request) error {

@@ -12,7 +12,7 @@ import (
 
 type feedServiceStorage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
-	GetAllFeedEncounters(ctx context.Context) ([]domain.Encounter, error)
+	GetFeedEncounters(ctx context.Context, id int) ([]domain.Encounter, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	GetFeedByTitle(ctx context.Context, title string) ([]domain.Feed, error)
 	DeleteFeed(ctx context.Context, id int) error
@@ -41,16 +41,16 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 	return mapper.MakeResponseAllFeed(res), nil
 }
 
-func (s *FeedService) GetAllFeedEncounters(ctx context.Context) (*responses.GetAllFeedEncounters, error) {
+func (s *FeedService) GetFeedEncounters(ctx context.Context, id int) (*responses.GetFeedEncounters, error) {
 	var res []domain.Encounter
 	var err error
 
-	res, err = s.storage.GetAllFeedEncounters(ctx)
+	res, err = s.storage.GetFeedEncounters(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetAllFeedEncounters GetAllFeedEncounters")
+		return nil, fmt.Errorf("can't storage.GetFeedEncounters GetFeedEncounters")
 	}
 
-	return mapper.MakeResponseAllFeedEncounters(res), nil
+	return mapper.MakeResponseFeedEncounters(res), nil
 }
 
 func (s *FeedService) GetFeedByTitle(

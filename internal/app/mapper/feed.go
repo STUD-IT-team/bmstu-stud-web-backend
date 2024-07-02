@@ -25,7 +25,7 @@ func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
 	return &responses.GetAllFeed{Feed: feed}
 }
 
-func MakeResponseAllFeedEncounters(f []domain.Encounter) *responses.GetAllFeedEncounters {
+func MakeResponseFeedEncounters(f []domain.Encounter) *responses.GetFeedEncounters {
 	encounters := make([]responses.Encounter, 0, len(f))
 	for _, v := range f {
 		encounters = append(encounters,
@@ -37,7 +37,7 @@ func MakeResponseAllFeedEncounters(f []domain.Encounter) *responses.GetAllFeedEn
 			})
 	}
 
-	return &responses.GetAllFeedEncounters{Encounters: encounters}
+	return &responses.GetFeedEncounters{Encounters: encounters}
 }
 
 func MakeResponseFeedByTitle(f []domain.Feed) *responses.GetAllFeedByTitle {

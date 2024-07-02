@@ -32,12 +32,12 @@ func (h *FeedHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
 	r.Get("/", h.r.Wrap(h.GetAllFeed))
-	r.Get("/{feed_id}", h.r.Wrap(h.GetFeed))
-	r.Get("/encounters/{id}", h.r.Wrap(h.GetAllFeedEncounters))
-	r.Get("/{type}", h.r.Wrap(h.GetFeedByTitle))
+	r.Get("/{id}", h.r.Wrap(h.GetFeed))
+	r.Get("/encounters/{id}", h.r.Wrap(h.GetFeedEncounters))
+	r.Get("/search/{type}", h.r.Wrap(h.GetFeedByTitle))
 	r.Post("/", h.r.Wrap(h.PostFeed))
-	r.Delete("/{feed_id}", h.r.Wrap(h.DeleteFeed))
-	r.Put("/{feed_id}", h.r.Wrap(h.UpdateFeed))
+	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
+	r.Put("/{id}", h.r.Wrap(h.UpdateFeed))
 
 	return r
 }
@@ -70,10 +70,18 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 	return handler.OkResponse(res)
 }
 
-func (h *FeedHandler) GetAllFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
-	res, err := h.feed.GetAllFeedEncounters(context.Background())
+func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
+	feedId := &requests.GetFeedEncounters{}
+
+	err := feedId.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllFeedEncounters GetFeedEncounters")
+		log.WithError(err).Warnf("can't service.GetFeedEncounters GetFeedEncounters")
+		return handler.BadRequestResponse()
+	}
+
+	res, err := h.feed.GetFeedEncounters(context.Background(), feedId.ID)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetFeedEncounters GetFeedEncounters")
 		return handler.InternalServerErrorResponse()
 	}
 

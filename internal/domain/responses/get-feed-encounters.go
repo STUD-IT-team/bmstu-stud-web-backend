@@ -1,6 +1,6 @@
 package responses
 
-type GetAllFeedEncounters struct {
+type GetFeedEncounters struct {
 	Encounters []Encounter `json:"encounter"`
 }
 

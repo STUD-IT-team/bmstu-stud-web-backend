@@ -45,12 +45,12 @@ func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 	return feed, nil
 }
 
-const getAllFeedEncountersQuery = "SELECT id, count, description, club_id FROM encounter"
+const getFeedEncountersQuery = "SELECT id, count, description, club_id FROM encounter WHERE club_id=$1"
 
-func (p *Postgres) GetAllFeedEncounters(_ context.Context) ([]domain.Encounter, error) {
+func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encounter, error) {
 	var encs []domain.Encounter
 
-	rows, err := p.db.Query(getAllFeedEncountersQuery)
+	rows, err := p.db.Query(getFeedEncountersQuery, id)
 	if err != nil {
 		return []domain.Encounter{}, err
 	}
