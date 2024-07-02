@@ -46,15 +46,17 @@ func (h *ClubsHandler) Routes() chi.Router {
 }
 
 func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) handler.Response {
-	// filter := &requests.GetAllClubs{}
+	h.logger.Info("ClubsHandler: got getAllClub request")
 
-	// res, err := h.clubs.GetClubs(context.Background(), *filter)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetAllClubs GetAllClubs")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	res, err := h.clubs.GetAllClubs()
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetAllClubs GetAllClubs")
+		return handler.InternalServerErrorResponse()
+	}
 
-	return handler.OkResponse(nil)
+	h.logger.Info("ClubsHandler: request done")
+
+	return handler.OkResponse(res)
 }
 
 func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler.Response {
