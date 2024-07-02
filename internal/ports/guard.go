@@ -1,15 +1,12 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
-	log "github.com/sirupsen/logrus"
 )
 
 type GuardHandler struct {
@@ -38,37 +35,37 @@ func (h *GuardHandler) Routes() chi.Router {
 }
 
 func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handler.Response {
-	lreq := &requests.LoginRequest{}
+	// lreq := &requests.LoginRequest{}
 
-	err := lreq.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.LoginUser LoginUser")
-		return handler.BadRequestResponse()
-	}
+	// err := lreq.Bind(req)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.LoginUser LoginUser")
+	// 	return handler.BadRequestResponse()
+	// }
 
-	res, err := h.guard.Login(context.Background(), lreq)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.LoginUser LoginUser")
-		return handler.InternalServerErrorResponse()
-	}
+	// res, err := h.guard.Login(context.Background(), lreq)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.LoginUser LoginUser")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
-	return res
+	return handler.OkResponse(nil)
 }
 
 func (h *GuardHandler) LogoutUser(w http.ResponseWriter, req *http.Request) handler.Response {
-	lreq := &requests.LogoutRequest{}
+	// lreq := &requests.LogoutRequest{}
 
-	err := lreq.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.LoginUser LoginUser")
-		return handler.BadRequestResponse()
-	}
+	// err := lreq.Bind(req)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.LoginUser LoginUser")
+	// 	return handler.BadRequestResponse()
+	// }
 
-	res, err := h.guard.Login(context.Background(), lreq)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.LogoutUser LogoutUser")
-		return handler.InternalServerErrorResponse()
-	}
+	// res, err := h.guard.Login(context.Background(), lreq)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.LogoutUser LogoutUser")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
-	return res
+	return handler.OkResponse(nil)
 }

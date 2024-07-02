@@ -1,16 +1,12 @@
 package http
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
-	log "github.com/sirupsen/logrus"
 )
 
 type UsersHandler struct {
@@ -43,103 +39,103 @@ func (h *UsersHandler) Routes() chi.Router {
 }
 
 func (h *UsersHandler) GetAllUsers(w http.ResponseWriter, req *http.Request) handler.Response {
-	filter := &requests.GetAllUsers{}
+	// filter := &requests.GetAllUsers{}
 
-	res, err := h.users.GetAllUsers(context.Background(), *filter)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllUsers GetAllUsers")
-		return handler.InternalServerErrorResponse()
-	}
+	// res, err := h.users.GetAllUsers(context.Background(), *filter)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.GetAllUsers GetAllUsers")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
-	return handler.OkResponse(res)
+	return handler.OkResponse(nil)
 }
 
 func (h *UsersHandler) GetUser(w http.ResponseWriter, req *http.Request) handler.Response {
-	userId := &requests.GetUser{}
+	// userId := &requests.GetUser{}
 
-	err := userId.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetUser GetUser")
-		return handler.BadRequestResponse()
-	}
+	// err := userId.Bind(req)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.GetUser GetUser")
+	// 	return handler.BadRequestResponse()
+	// }
 
-	res, err := h.users.GetUser(context.Background(), userId.ID)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetUser GetUser")
-		return handler.InternalServerErrorResponse()
-	}
+	// res, err := h.users.GetUser(context.Background(), userId.ID)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.GetUser GetUser")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
-	return handler.OkResponse(res)
+	return handler.OkResponse(nil)
 }
 
 func (h *UsersHandler) GetUsers(w http.ResponseWriter, req *http.Request) handler.Response {
-	filter := &requests.GetUsers{}
+	// filter := &requests.GetUsers{}
 
-	err := filter.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetUsers GetUsers")
-		return handler.BadRequestResponse()
-	}
+	// err := filter.Bind(req)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.GetUsers GetUsers")
+	// 	return handler.BadRequestResponse()
+	// }
 
-	res, err := h.users.GetUsers(context.Background(), filter)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetUsers GetUsers")
-		return handler.InternalServerErrorResponse()
-	}
+	// res, err := h.users.GetUsers(context.Background(), filter)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.GetUsers GetUsers")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
-	return handler.OkResponse(res)
+	return handler.OkResponse(nil)
 }
 
 func (h *UsersHandler) PostUser(w http.ResponseWriter, req *http.Request) handler.Response {
-	user := &requests.PostUser{}
+	// user := &requests.PostUser{}
 
-	err := user.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.PostUser PostUser")
-		return handler.BadRequestResponse()
-	}
+	// err := user.Bind(req)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.PostUser PostUser")
+	// 	return handler.BadRequestResponse()
+	// }
 
-	err = h.users.PostUsers(context.Background(), user)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.PostUser PostUser")
-		return handler.InternalServerErrorResponse()
-	}
+	// err = h.users.PostUsers(context.Background(), user)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.PostUser PostUser")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
 	return handler.OkResponse(nil)
 }
 
 func (h *UsersHandler) DeleteUser(w http.ResponseWriter, req *http.Request) handler.Response {
-	user := &requests.DeleteUser{}
+	// user := &requests.DeleteUser{}
 
-	err := user.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.DeleteUser DeleteUser")
-		return handler.BadRequestResponse()
-	}
+	// err := user.Bind(req)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.DeleteUser DeleteUser")
+	// 	return handler.BadRequestResponse()
+	// }
 
-	err = h.users.DeleteUser(context.Background(), user.ID)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.DeleteUser DeleteUser")
-		return handler.InternalServerErrorResponse()
-	}
+	// err = h.users.DeleteUser(context.Background(), user.ID)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.DeleteUser DeleteUser")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
 	return handler.OkResponse(nil)
 }
 
 func (h *UsersHandler) UpdateUser(w http.ResponseWriter, req *http.Request) handler.Response {
-	user := &requests.UpdateUser{}
+	// user := &requests.UpdateUser{}
 
-	err := user.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.UpdateUser UpdateUser")
-		return handler.BadRequestResponse()
-	}
+	// err := user.Bind(req)
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.UpdateUser UpdateUser")
+	// 	return handler.BadRequestResponse()
+	// }
 
-	err = h.users.UpdateUser(context.Background(), *mapper.MakeRequestPutUser(*user))
-	if err != nil {
-		log.WithError(err).Warnf("can't service.UpdateUser UpdateUser")
-		return handler.InternalServerErrorResponse()
-	}
+	// err = h.users.UpdateUser(context.Background(), *mapper.MakeRequestPutUser(*user))
+	// if err != nil {
+	// 	log.WithError(err).Warnf("can't service.UpdateUser UpdateUser")
+	// 	return handler.InternalServerErrorResponse()
+	// }
 
 	return handler.OkResponse(nil)
 }

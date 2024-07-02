@@ -1,4 +1,8 @@
-package domain
+package responses
+
+type GetAllFeedEncounters struct {
+	Encounters []Encounter `json:"encounter"`
+}
 
 type Encounter struct {
 	ID          string `db:"id"`

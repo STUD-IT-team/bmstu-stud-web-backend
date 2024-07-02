@@ -8,6 +8,8 @@ import (
 
 type feedStorage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
+	GetAllFeedEncounters(ctx context.Context) ([]domain.Encounter, error)
+	GetFeedByTitle(ctx context.Context, title string) ([]domain.Feed, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(_ context.Context, id int, feed domain.Feed) error
@@ -21,6 +23,14 @@ func (s *storage) GetAllFeed(ctx context.Context) ([]domain.Feed, error) {
 
 func (s *storage) GetFeed(ctx context.Context, id int) (domain.Feed, error) {
 	return s.postgres.GetFeed(ctx, id)
+}
+
+func (s *storage) GetAllFeedEncounters(ctx context.Context) ([]domain.Encounter, error) {
+	return s.postgres.GetAllFeedEncounters(ctx)
+}
+
+func (s *storage) GetFeedByTitle(ctx context.Context, title string) ([]domain.Feed, error) {
+	return s.postgres.GetFeedByTitle(ctx, title)
 }
 
 func (s *storage) DeleteFeed(ctx context.Context, id int) error {

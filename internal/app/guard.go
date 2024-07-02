@@ -11,7 +11,6 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	grpc "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
 )
 
 type guardServiceStorage interface {
@@ -24,7 +23,6 @@ type guardServiceStorage interface {
 type GuardService struct {
 	logger  *logrus.Logger
 	storage guardServiceStorage
-	grpc.UnimplementedGuardServer
 }
 
 func NewGuardService(log *logrus.Logger, storage guardServiceStorage) *GuardService {
@@ -44,7 +42,7 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest,
 		return nil, fmt.Errorf("can't storage.GetUserAndValidatePassword %s: %w", op, err)
 	}
 
-	session := s.storage.SaveSessoinFromMemberID(member.ID)
+	session := s.storage.SaveSessoinFromMemberID(int64(member.ID))
 
 	s.logger.Infof("user %s logged in successfully", member.Login)
 
