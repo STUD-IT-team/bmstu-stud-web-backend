@@ -34,5 +34,5 @@ func (s *ClubService) GetClub(id int) (*responses.GetClub, error) {
 		return nil, err
 	}
 
-	return mapper.MakeResponseClub(res, &im.Image), nil
+	return mapper.MakeResponseClub(res, im), nil
 }

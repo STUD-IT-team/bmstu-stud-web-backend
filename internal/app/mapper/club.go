@@ -5,7 +5,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-func MakeResponseClub(club *domain.Club, logo *[]byte) *responses.GetClub {
+func MakeResponseClub(club *domain.Club, logo *domain.MediaFile) *responses.GetClub {
 	return &responses.GetClub{
 		ID:          club.ID,
 		Name:        club.Name,
