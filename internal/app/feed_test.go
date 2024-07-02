@@ -8,14 +8,13 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/samber/mo"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	mock "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/mock"
+	mock "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/mock"
 )
 
 type FeedServiceTestSuite struct {
@@ -33,8 +32,8 @@ func NewFeedServiceTestSuite(t *testing.T) *FeedServiceTestSuite {
 func (suite *FeedServiceTestSuite) SetupTest() {
 	suite.ctrl = gomock.NewController(suite.t)
 	suite.mockStorage = mock.NewMockfeedServiceStorage(suite.ctrl)
-	logger := logrus.New()
-	suite.feedService = NewFeedService(logger, suite.mockStorage)
+	// logger := logrus.New()
+	// suite.feedService = NewFeedService(logger, suite.mockStorage)
 }
 
 func (suite *FeedServiceTestSuite) TearDownTest() {
@@ -105,17 +104,15 @@ func (suite *FeedServiceTestSuite) TestGetFeed() {
 		1: {
 			nameTest: "Test Ok",
 			expectedResponse: &responses.GetFeed{
-				ID:              1,
-				Title:           "testAll",
-				RegistrationURL: "testURL",
-				Description:     "testAbout",
+				ID:          1,
+				Title:       "testAll",
+				Description: "testAbout",
 			},
 			request: domain.Feed{
 				ID:    1,
 				Title: "testAll",
 
-				RegistrationURL: "testURL",
-				Description:     "testAbout",
+				Description: "testAbout",
 			},
 			expectedError: nil,
 		},

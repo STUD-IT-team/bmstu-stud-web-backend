@@ -11,8 +11,10 @@ import (
 type GetFeedByFilter struct {
 	Offset mo.Option[int]
 	Limit  mo.Option[int]
+	IdLast mo.Option[int]
 }
 
+// TODO: rewrite filter
 func (f *GetFeedByFilter) Bind(req *http.Request) error {
 	query := req.URL.Query()
 
@@ -34,6 +36,15 @@ func (f *GetFeedByFilter) Bind(req *http.Request) error {
 		f.Limit = mo.Some(limit)
 	}
 
+	if query.Has("id_last") {
+		idLast, err := strconv.Atoi(query.Get("id_last"))
+		if err != nil {
+			return fmt.Errorf("can't Atoi id_last on GetFeedByFilter.Bind: %w", err)
+		}
+
+		f.IdLast = mo.Some(idLast)
+	}
+
 	return f.ParseQueryParam()
 }
 
@@ -42,7 +53,11 @@ func (f *GetFeedByFilter) ParseQueryParam() error {
 		return nil
 	}
 
-	if f.Limit.IsAbsent() && f.Offset.IsAbsent() { // get all feeds
+	if f.Limit.IsAbsent() && f.Offset.IsAbsent() && f.IdLast.IsAbsent() { // get all feeds
+		return nil
+	}
+
+	if f.IdLast.IsPresent() && f.Limit.IsPresent() {
 		return nil
 	}
 

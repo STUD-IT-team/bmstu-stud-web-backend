@@ -12,12 +12,16 @@ type API interface {
 }
 
 type apiService struct {
-	logger *logrus.Logger
+	logger       *logrus.Logger
+	feedService  *FeedService
+	guardService *GuardService
 }
 
-func NewAPI(logger *logrus.Logger) API {
+func NewAPI(logger *logrus.Logger, feed *FeedService, guard *GuardService) API {
 	return &apiService{
-		logger: logger,
+		logger:       logger,
+		feedService:  feed,
+		guardService: guard,
 	}
 }
 

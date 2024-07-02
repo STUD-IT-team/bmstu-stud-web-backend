@@ -3,7 +3,7 @@ FROM alpine:3.17.0
 RUN apk update && \
     apk upgrade && \
     apk add bash && \
-    rm -rf /var/cache/apk/* \
+    rm -rf /var/cache/apk/*
 
 RUN mkdir /migrations
 WORKDIR /migrations

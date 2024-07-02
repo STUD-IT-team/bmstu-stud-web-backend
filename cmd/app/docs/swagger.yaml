@@ -1,0 +1,203 @@
+basePath: /bmstu-stud-web/api/
+definitions:
+  base64.Encoding:
+    type: object
+  github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed:
+    properties:
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      registration_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.Feed:
+    properties:
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      media:
+        $ref: '#/definitions/base64.Encoding'
+      registration_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed:
+    properties:
+      feed:
+        items:
+          $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.Feed'
+        type: array
+    type: object
+  github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeed:
+    properties:
+      created_by:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      media:
+        $ref: '#/definitions/base64.Encoding'
+      registration_url:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Example API
+  version: "1.0"
+paths:
+  /feed:
+    get:
+      consumes:
+      - application/json
+      description: get feeds
+      parameters:
+      - description: int limit
+        in: query
+        minimum: 1
+        name: limit
+        type: integer
+      - description: int offset
+        in: query
+        minimum: 1
+        name: offset
+        type: integer
+      - description: int id_last
+        in: query
+        minimum: 1
+        name: id_last
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetAllFeed'
+            type: array
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: List feeds
+      tags:
+      - feed
+  /feed/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete feed by id
+      parameters:
+      - description: feed ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: delete feed by id
+      tags:
+      - feed
+    get:
+      consumes:
+      - application/json
+      description: get feed by id
+      parameters:
+      - description: feed ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_responses.GetFeed'
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: feed
+      tags:
+      - feed
+    put:
+      consumes:
+      - application/json
+      description: update feed by id
+      parameters:
+      - description: feed ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: requests.UpdateFeed data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_STUD-IT-team_bmstu-stud-web-backend_internal_domain_requests.UpdateFeed'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema: {}
+        "400":
+          description: Bad Request
+          schema: {}
+        "500":
+          description: Internal Server Error
+          schema: {}
+      summary: update feed by id
+      tags:
+      - feed
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
