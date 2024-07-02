@@ -1,15 +1,15 @@
 version: "3.9"
 
 services:
-  api:
-    container_name: api_container
+  app:
+    container_name: app_container
     build:
       context: ../
-      dockerfile: ./cmd/api/Dockerfile
+      dockerfile: ./cmd/app/Dockerfile
     ports:
       - "5000:5000"
     env_file:
-      - api.env
+      - app.env
     depends_on:
       - postgres
     networks:
@@ -100,20 +100,6 @@ services:
       dockerfile: ./migrations/Dockerfile
     networks:
       - postgres
-
-  guard:
-    container_name: guard_container
-    restart: always
-    env_file:
-      - guard.env
-    build:
-      context: ../
-      dockerfile: ./cmd/guard/Dockerfile
-    ports:
-      - "${GUARD_PORT}:${GUARD_PORT}"
-    networks:
-      - postgres
-
 
 volumes:
   SWB_DB-data:
