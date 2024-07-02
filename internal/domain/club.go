@@ -1,8 +1,8 @@
 package domain
 
 type Club struct {
-	ID          int    `"db:"id"`
-	Name        string `"db:"name"`
+	ID          int    `"db:id"`
+	Name        string `"db:name"`
 	ShortName   string `"db:short_name"`
 	Description string `"db:description"`
 	Type        string `"db:"type"`
