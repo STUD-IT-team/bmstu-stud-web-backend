@@ -3,7 +3,7 @@
 
 create table if not exists encounter (
     id serial primary key,
-    count int default 0,
+    count text default '',
     descriptions text default '',
     club_id int not null
 );
