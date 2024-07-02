@@ -35,8 +35,7 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 
 	res, err = s.storage.GetAllFeed(ctx)
 	if err != nil {
-		fmt.Errorf("can't storage.GetAllFeed GetAllFeed")
-		return nil, err
+		return nil, fmt.Errorf("can't storage.GetAllFeed GetAllFeed")
 	}
 
 	return mapper.MakeResponseAllFeed(res), nil
@@ -48,8 +47,7 @@ func (s *FeedService) GetAllFeedEncounters(ctx context.Context) (*responses.GetA
 
 	res, err = s.storage.GetAllFeedEncounters(ctx)
 	if err != nil {
-		fmt.Errorf("can't storage.GetAllFeedEncounters GetAllFeedEncounters")
-		return nil, err
+		return nil, fmt.Errorf("can't storage.GetAllFeedEncounters GetAllFeedEncounters")
 	}
 
 	return mapper.MakeResponseAllFeedEncounters(res), nil
@@ -64,8 +62,7 @@ func (s *FeedService) GetFeedByTitle(
 
 	res, err = s.storage.GetFeedByTitle(ctx, filter.Search)
 	if err != nil {
-		fmt.Errorf("can't storage.GetFeedByTitle GetFeedByTitle")
-		return nil, err
+		return nil, fmt.Errorf("can't storage.GetFeedByTitle GetFeedByTitle")
 	}
 
 	return mapper.MakeResponseFeedByTitle(res), nil
@@ -81,8 +78,7 @@ func (s *FeedService) GetFeedByFilter(
 	if filter.Limit.IsPresent() && filter.Offset.IsPresent() {
 		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit.MustGet(), filter.Offset.MustGet())
 		if err != nil {
-			fmt.Errorf("can't storage.GetFeedByFilterLimitAndOffset GetFeedByFilterLimitAndOffset")
-			return nil, err
+			return nil, fmt.Errorf("can't storage.GetFeedByFilterLimitAndOffset GetFeedByFilterLimitAndOffset")
 		}
 	} else if filter.IdLast.IsPresent() && filter.Offset.IsPresent() {
 		res, err = s.storage.GetFeedByFilterIdLastAndOffset(ctx, filter.IdLast.MustGet(), filter.Offset.MustGet())
@@ -102,8 +98,7 @@ func (s *FeedService) GetFeedByFilter(
 func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, error) {
 	res, err := s.storage.GetFeed(ctx, id)
 	if err != nil {
-		fmt.Errorf("can't storage.GetFeed GetFeed")
-		return nil, err
+		return nil, fmt.Errorf("can't storage.GetFeed GetFeed")
 	}
 
 	return mapper.MakeResponseFeed(res), nil
@@ -111,8 +106,7 @@ func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, 
 
 func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 	if err := s.storage.DeleteFeed(ctx, id); err != nil {
-		fmt.Errorf("can't storage.DeleteFeed DeleteFeed")
-		return err
+		return fmt.Errorf("can't storage.DeleteFeed DeleteFeed")
 	}
 
 	return nil
@@ -120,8 +114,7 @@ func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 
 func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 	if err := s.storage.UpdateFeed(ctx, feed); err != nil {
-		fmt.Errorf("can't storage.UpdateFeed UpdateFeed")
-		return err
+		return fmt.Errorf("can't storage.UpdateFeed UpdateFeed")
 	}
 
 	return nil
