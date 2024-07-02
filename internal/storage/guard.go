@@ -25,7 +25,7 @@ func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string
 		return domain.Member{}, err
 	}
 
-	err = hasher.CompareHashAndPassword(user.Password, []byte(password))
+	err = hasher.CompareHashAndPassword(user.HashPassword, []byte(password))
 	if err != nil {
 		return domain.Member{}, err
 	}
