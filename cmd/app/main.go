@@ -79,6 +79,7 @@ func main() {
 	appStorage := storage.NewStorage(*appPostgres, sessionCache)
 
 	// services
+	clubService := app.NewClubService(appStorage)
 	feedService := app.NewFeedService(appStorage)
 	guardService := app.NewGuardService(logger, appStorage)
 	apiService := app.NewAPI(logger, feedService, guardService)
@@ -89,12 +90,14 @@ func main() {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger),
 		)
 	}
 

@@ -29,6 +29,10 @@ func CreatedResponse(data interface{}) Response {
 	return &response{body: data, code: http.StatusCreated}
 }
 
+func NotFoundResponse() Response {
+	return &response{body: nil, code: http.StatusNotFound}
+}
+
 func InternalServerErrorResponse() Response {
 	return &response{body: nil, code: http.StatusInternalServerError}
 }

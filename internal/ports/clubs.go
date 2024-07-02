@@ -12,14 +12,16 @@ import (
 )
 
 type ClubsHandler struct {
-	r     handler.Renderer
-	clubs app.ClubService
+	r      handler.Renderer
+	clubs  app.ClubService
+	logger *log.Logger
 }
 
-func NewClubsHandler(r handler.Renderer, clubs app.ClubService) *ClubsHandler {
+func NewClubsHandler(r handler.Renderer, clubs app.ClubService, logger *log.Logger) *ClubsHandler {
 	return &ClubsHandler{
-		r:     r,
-		clubs: clubs,
+		r:      r,
+		clubs:  clubs,
+		logger: logger,
 	}
 }
 
@@ -32,7 +34,7 @@ func (h *ClubsHandler) Routes() chi.Router {
 
 	r.Get("/", h.r.Wrap(h.GetAllClubs))
 	r.Get("/{club_id}", h.r.Wrap(h.GetClub))
-	r.Get("/{type}", h.r.Wrap(h.GetClubsByType))
+	r.Get("/type={type}", h.r.Wrap(h.GetClubsByType))
 	r.Get("/search/{name}", h.r.Wrap(h.GetClubsByName))
 	r.Get("/members/{club_id}", h.r.Wrap(h.GetClubMembers))
 	r.Get("/media/{club_id}", h.r.Wrap(h.GetClubMedia))
@@ -56,19 +58,25 @@ func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) han
 }
 
 func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got getClub request")
+
 	clubId := &requests.GetClub{}
 
 	err := clubId.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't requests.Bind GetClub: %v", err)
+		h.logger.Warnf("can't requests.Bind GetClub: %v", err)
 		return handler.BadRequestResponse()
 	}
 
+	h.logger.Infof("ClubsHandler: parse request: %v", clubId)
+
 	res, err := h.clubs.GetClub(clubId.ID)
 	if err != nil {
-		log.WithError(err).Warnf("can't ClubService.GetClub: %v", err)
-		return handler.InternalServerErrorResponse()
+		h.logger.Warnf("can't ClubService.GetClub: %v", err)
+		return handler.NotFoundResponse()
 	}
+
+	h.logger.Info("ClubsHandler: request done")
 
 	return handler.OkResponse(res)
 }

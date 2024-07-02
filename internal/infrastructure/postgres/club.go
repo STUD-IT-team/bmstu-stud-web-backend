@@ -8,8 +8,8 @@ const getClub = `SELECT
  description,
  type,
  logo,
- vk_url,
- tg_url,
+ vk_url, 
+ tg_url
  FROM club WHERE id = $1
 `
 
@@ -25,8 +25,9 @@ func (pgs *Postgres) GetClub(id int) (*domain.Club, error) {
 		&c.TgUrl,
 	)
 	c.ID = id
-	if err == nil {
-		return &c, nil
+
+	if err != nil {
+		return nil, err
 	}
-	return nil, err
+	return &c, nil
 }
