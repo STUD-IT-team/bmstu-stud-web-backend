@@ -65,11 +65,10 @@ func main() {
 	// HTTP servers.
 	jsonRenderer := handler.NewJSONRenderer()
 
-	servers := make([]*http.Server, 0)
 	router := chi.NewRouter()
 
 	// Storage
-	postgres, err := postgres.NewPostgres(
+	appPostgres, err := postgres.NewPostgres(
 		os.Getenv("PG_CONNECT"),
 	)
 	if err != nil {
@@ -77,11 +76,11 @@ func main() {
 	}
 
 	sessionCache := cache.NewSessionCache()
-	storage := storage.NewStorage(*postgres, sessionCache)
+	appStorage := storage.NewStorage(*appPostgres, sessionCache)
 
 	// services
-	feedService := app.NewFeedService(logger, storage)
-	guardService := app.NewGuardService(logger, storage)
+	feedService := app.NewFeedService(appStorage)
+	guardService := app.NewGuardService(logger, appStorage)
 	apiService := app.NewAPI(logger, feedService, guardService)
 
 	var mainGroupHandler *handler.GroupHandler
@@ -173,10 +172,8 @@ func main() {
 	timeoutCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
 	defer cancel()
 
-	for _, srv := range servers {
-		if err := srv.Shutdown(timeoutCtx); err != nil {
-			logger.WithError(err).Fatalf("can't close server listening on '%s'", srv.Addr)
-		}
+	if err := server.Shutdown(timeoutCtx); err != nil {
+		logger.WithError(err).Fatalf("can't close server listening on '%s'", server.Addr)
 	}
 
 	logger.Info("app has been terminated")

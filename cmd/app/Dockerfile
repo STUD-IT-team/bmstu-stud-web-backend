@@ -14,6 +14,6 @@ COPY ../../internal/. internal/
 COPY ../../pkg/. pkg/
 
 RUN go install github.com/swaggo/swag/cmd/swag@latest
-RUN make swag-generate-api
+RUN make swag-generate-app
 
-CMD ["make", "run-api"]
+CMD ["make", "run-app"]

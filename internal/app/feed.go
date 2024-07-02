@@ -87,14 +87,12 @@ func (s *FeedService) GetFeedByFilter(
 	} else if filter.IdLast.IsPresent() && filter.Offset.IsPresent() {
 		res, err = s.storage.GetFeedByFilterIdLastAndOffset(ctx, filter.IdLast.MustGet(), filter.Offset.MustGet())
 		if err != nil {
-			fmt.Errorf("can't storage.GetFeedByFilterIdLastAndOffset GetFeedByFilterIdLastAndOffset")
-			return nil, err
+			return nil, fmt.Errorf("can't storage.GetFeedByFilterIdLastAndOffset GetFeedByFilterIdLastAndOffset")
 		}
 	} else {
 		res, err = s.storage.GetAllFeed(ctx)
 		if err != nil {
-			fmt.Errorf("can't storage.GetAllFeed GetAllFeed")
-			return nil, err
+			return nil, fmt.Errorf("can't storage.GetAllFeed GetAllFeed")
 		}
 	}
 
