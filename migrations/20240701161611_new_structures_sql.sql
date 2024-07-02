@@ -8,6 +8,17 @@ create table if not exists encounter (
     club_id int not null
 );
 
+create table if not exists club (
+    id serial primary key,
+    name text default '',
+    short_name text default '',
+    description text default '',
+    type text default '',
+    logo int not null,
+    vk_url text default '',
+    tg_url text default ''
+)
+
 
 -- TODO in domain
 create table if not exists club_photo (
@@ -33,4 +44,5 @@ create table if not exists club_org (
 drop table if exists encounter
 drop table if exists club_photo
 drop table if exists club_org
+drop table if exists club
 -- +goose StatementEnd
