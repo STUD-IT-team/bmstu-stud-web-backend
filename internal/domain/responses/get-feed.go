@@ -1,15 +1,18 @@
 package responses
 
 import (
-	"encoding/base64"
 	"time"
 )
 
 type GetFeed struct {
-	ID          int             `json:"id"`
-	Title       string          `json:"title"`
-	Description string          `json:"description"`
-	Media       base64.Encoding `json:"media"`
-	CreatedBy   int             `json:"created_by"`
-	UpdatedAt   time.Time       `json:"updated_at"`
+	ID          int       `db:"id"`
+	Title       string    `db:"title"`
+	Description string    `db:"description"`
+	Approved    bool      `db:"approved"`
+	MediaID     int       `db:"media_id"`
+	VkPostUrl   string    `db:"vk_post_url"`
+	UpdatedAt   time.Time `db:"updated_at"`
+	CreatedAt   time.Time `db:"created_at"`
+	CreatedBy   int       `db:"created_by"`
+	Views       int       `db:"views"`
 }

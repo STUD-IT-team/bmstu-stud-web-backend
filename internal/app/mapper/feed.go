@@ -1,8 +1,6 @@
 package mapper
 
 import (
-	"encoding/base64"
-
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
@@ -16,9 +14,13 @@ func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
 				ID:          v.ID,
 				Title:       v.Title,
 				Description: v.Description,
-				Media:       base64.Encoding{},
-				CreatedBy:   v.CreatedBy,
+				Approved:    v.Approved,
+				MediaID:     v.MediaID,
+				VkPostUrl:   v.VkPostUrl,
 				UpdatedAt:   v.UpdatedAt,
+				CreatedAt:   v.CreatedAt,
+				CreatedBy:   v.CreatedBy,
+				Views:       v.Views,
 			})
 	}
 
@@ -48,6 +50,13 @@ func MakeResponseFeedByTitle(f []domain.Feed) *responses.GetAllFeedByTitle {
 				ID:          v.ID,
 				Title:       v.Title,
 				Description: v.Description,
+				Approved:    v.Approved,
+				MediaID:     v.MediaID,
+				VkPostUrl:   v.VkPostUrl,
+				UpdatedAt:   v.UpdatedAt,
+				CreatedAt:   v.CreatedAt,
+				CreatedBy:   v.CreatedBy,
+				Views:       v.Views,
 			})
 	}
 
@@ -59,9 +68,13 @@ func MakeResponseFeed(f domain.Feed) *responses.GetFeed {
 		ID:          f.ID,
 		Title:       f.Title,
 		Description: f.Description,
-		Media:       base64.Encoding{},
-		CreatedBy:   f.CreatedBy,
+		Approved:    f.Approved,
+		MediaID:     f.MediaID,
+		VkPostUrl:   f.VkPostUrl,
 		UpdatedAt:   f.UpdatedAt,
+		CreatedAt:   f.CreatedAt,
+		CreatedBy:   f.CreatedBy,
+		Views:       f.Views,
 	}
 }
 

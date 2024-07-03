@@ -7,7 +7,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
-const getAllFeedQuery = "SELECT id, title, description FROM feed"
+const getAllFeedQuery = "SELECT id, title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by FROM feed"
 
 func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 	var feeds []domain.Feed
@@ -20,7 +20,9 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 	for rows.Next() {
 		var feed domain.Feed
 
-		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description)
+		err = rows.Scan(&feed.ID, &feed.Title, &feed.Approved,
+			&feed.Description, &feed.MediaID, &feed.VkPostUrl,
+			&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 
 		if err != nil {
 			return []domain.Feed{}, err
@@ -32,12 +34,14 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 	return feeds, nil
 }
 
-const getFeedQuery = "SELECT id, title, description FROM feed WHERE id=$1"
+const getFeedQuery = "SELECT id, title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by FROM feed WHERE id=$1"
 
 func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
 	var feed domain.Feed
 
-	err := p.db.QueryRow(getFeedQuery, id).Scan(&feed.ID, &feed.Title, &feed.Description)
+	err := p.db.QueryRow(getFeedQuery, id).Scan(&feed.ID, &feed.Title, &feed.Approved,
+		&feed.Description, &feed.MediaID, &feed.VkPostUrl,
+		&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 	if err != nil {
 		return domain.Feed{}, err
 	}
@@ -70,7 +74,7 @@ func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encoun
 	return encs, nil
 }
 
-const getFeedByTitleQuery = "SELECT id, title, description FROM feed WHERE title ILIKE $1"
+const getFeedByTitleQuery = "SELECT id, title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by FROM feed WHERE title ILIKE $1"
 
 func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Feed, error) {
 	var feeds []domain.Feed
@@ -83,7 +87,9 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 	for rows.Next() {
 		var feed domain.Feed
 
-		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description)
+		err = rows.Scan(&feed.ID, &feed.Title, &feed.Approved,
+			&feed.Description, &feed.MediaID, &feed.VkPostUrl,
+			&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 
 		if err != nil {
 			return []domain.Feed{}, err
