@@ -4,7 +4,7 @@
 create table if not exists encounter (
     id serial primary key,
     count text default '',
-    descriptions text default '',
+    description text default '',
     club_id int not null
 );
 
