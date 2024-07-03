@@ -89,14 +89,14 @@ func main() {
 	if cfg.Log.Level == "debug" {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
-			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
-			internalhttp.NewFeedHandler(jsonRenderer, *feedService),
+			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger),
 		)
 	}

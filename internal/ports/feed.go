@@ -13,14 +13,16 @@ import (
 )
 
 type FeedHandler struct {
-	r    handler.Renderer
-	feed app.FeedService
+	r      handler.Renderer
+	feed   app.FeedService
+	logger *log.Logger
 }
 
-func NewFeedHandler(r handler.Renderer, feed app.FeedService) *FeedHandler {
+func NewFeedHandler(r handler.Renderer, feed app.FeedService, logger *log.Logger) *FeedHandler {
 	return &FeedHandler{
-		r:    r,
-		feed: feed,
+		r:      r,
+		feed:   feed,
+		logger: logger,
 	}
 }
 
@@ -43,9 +45,11 @@ func (h *FeedHandler) Routes() chi.Router {
 }
 
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got GetAllFeed request")
+
 	res, err := h.feed.GetAllFeed(context.Background())
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllFeed GetAllFeed")
+		h.logger.Warnf("can't FeedService.GetAllFeed: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -53,17 +57,21 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 }
 
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got GetFeed request")
+
 	feedId := &requests.GetFeed{}
 
 	err := feedId.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
+		h.logger.Warnf("can't requests.Bind: %v", err)
 		return handler.BadRequestResponse()
 	}
 
+	h.logger.Infof("FeedHandler: parse request GetFeed: %v", feedId)
+
 	res, err := h.feed.GetFeed(context.Background(), feedId.ID)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetFeed GetFeed")
+		h.logger.Warnf("can't FeedService.GetFeed: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -71,17 +79,21 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 }
 
 func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got GetFeedEncounters request")
+
 	feedId := &requests.GetFeedEncounters{}
 
 	err := feedId.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetFeedEncounters GetFeedEncounters")
+		h.logger.Warnf("can't requests.Bind GetFeedEncounters: %v", err)
 		return handler.BadRequestResponse()
 	}
 
+	h.logger.Infof("FeedHandler: parse request GetFeedEncounters: %v", feedId)
+
 	res, err := h.feed.GetFeedEncounters(context.Background(), feedId.ID)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetFeedEncounters GetFeedEncounters")
+		h.logger.Warnf("can't FeedService.GetFeedEncounters: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -89,17 +101,21 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 }
 
 func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got GetFeedByTitle request")
+
 	filter := &requests.GetFeedByTitle{}
 
 	err := filter.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetFeedByTitle GetFeedByTitle")
+		h.logger.Warnf("can't requests.Bind GetFeedByTitle: %v", err)
 		return handler.BadRequestResponse()
 	}
 
+	h.logger.Infof("FeedHandler: parse request GetFeedByTitle: %v", filter)
+
 	res, err := h.feed.GetFeedByTitle(context.Background(), *filter)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetFeedByTitle GetFeedByTitle")
+		h.logger.Warnf("can't FeedService.GetFeedByTitle: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -111,13 +127,13 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 
 	// err := feed.Bind(req)
 	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.PostFeed PostFeed")
+	// 	h.logger.Warnf("can't service.PostFeed PostFeed")
 	// 	return handler.BadRequestResponse()
 	// }
 
 	// err = h.feed.PostFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
 	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.PostFeed PostFeed")
+	// 	h.logger.Warnf("can't service.PostFeed PostFeed")
 	// 	return handler.InternalServerErrorResponse()
 	// }
 
@@ -129,13 +145,13 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 
 	// err := feedId.Bind(req)
 	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.DeleteFeed DeleteFeed")
+	// 	h.logger.Warnf("can't service.DeleteFeed DeleteFeed")
 	// 	return handler.BadRequestResponse()
 	// }
 
 	// err = h.feed.DeleteFeed(context.Background(), feedId.ID)
 	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.DeleteFeed DeleteFeed")
+	// 	h.logger.Warnf("can't service.DeleteFeed DeleteFeed")
 	// 	return handler.InternalServerErrorResponse()
 	// }
 
@@ -147,13 +163,13 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 
 	// err := feed.Bind(req)
 	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
+	// 	h.logger.Warnf("can't service.UpdateFeed UpdateFeed")
 	// 	return handler.BadRequestResponse()
 	// }
 
 	// err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
 	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.UpdateFeed UpdateFeed")
+	// 	h.logger.Warnf("can't service.UpdateFeed UpdateFeed")
 	// 	return handler.InternalServerErrorResponse()
 	// }
 
