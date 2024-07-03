@@ -15,6 +15,7 @@ type feedServiceStorage interface {
 	GetFeedEncounters(ctx context.Context, id int) ([]domain.Encounter, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	GetFeedByTitle(ctx context.Context, title string) ([]domain.Feed, error)
+	PostFeed(ctx context.Context, feed domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed domain.Feed) error
 	GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
@@ -102,6 +103,15 @@ func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, 
 	}
 
 	return mapper.MakeResponseFeed(res), nil
+}
+
+func (s *FeedService) PostFeed(ctx context.Context, feed domain.Feed) error {
+	err := s.storage.PostFeed(ctx, feed)
+	if err != nil {
+		return fmt.Errorf("can't storage.PostFeed: %v", err)
+	}
+
+	return nil
 }
 
 func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {

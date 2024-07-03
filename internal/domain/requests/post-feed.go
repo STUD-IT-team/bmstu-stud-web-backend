@@ -1,7 +1,6 @@
 package requests
 
 import (
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -9,19 +8,28 @@ import (
 )
 
 type PostFeed struct {
-	ID              int             `json:"id"`
-	Title           string          `json:"title"`
-	Description     string          `json:"description"`
-	RegistrationURL string          `json:"registration_url"`
-	Media           base64.Encoding `json:"media"`
-	CreatedBy       int             `json:"created_by"`
-	UpdatedAt       time.Time       `json:"updated_at"`
+	Title       string    `db:"title"`
+	Description string    `db:"description"`
+	Approved    bool      `db:"approved"`
+	MediaID     int       `db:"media_id"`
+	VkPostUrl   string    `db:"vk_post_url"`
+	UpdatedAt   time.Time `db:"updated_at"`
+	CreatedAt   time.Time `db:"created_at"`
+	CreatedBy   int       `db:"created_by"`
+	Views       int       `db:"views"`
 }
 
 func (f *PostFeed) Bind(req *http.Request) error {
-	err := json.NewDecoder(req.Body).Decode(f)
+	decoder := json.NewDecoder(req.Body)
+	decoder.DisallowUnknownFields()
+
+	err := decoder.Decode(f)
 	if err != nil {
-		return fmt.Errorf("can't json decoder on PostFeed.Bind: %w", err)
+		return fmt.Errorf("can't json decoder on UpdateFeed.Bind: %v", err)
+	}
+
+	if decoder.More() {
+		return fmt.Errorf("extraneous data after JSON object")
 	}
 
 	return nil

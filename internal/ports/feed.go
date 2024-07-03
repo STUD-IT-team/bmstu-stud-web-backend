@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
@@ -16,6 +17,7 @@ type FeedHandler struct {
 	r      handler.Renderer
 	feed   app.FeedService
 	logger *log.Logger
+	guard  *app.GuardService
 }
 
 func NewFeedHandler(r handler.Renderer, feed app.FeedService, logger *log.Logger) *FeedHandler {
@@ -123,21 +125,38 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 }
 
 func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	// feed := &requests.PostFeed{}
+	h.logger.Info("FeedHandler: got PostFeed request")
 
-	// err := feed.Bind(req)
-	// if err != nil {
-	// 	h.logger.Warnf("can't service.PostFeed PostFeed")
-	// 	return handler.BadRequestResponse()
-	// }
+	c, err := req.Cookie("AccessToken")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			h.logger.Warnf("cookie is not set PostFeed: %v", err)
+			return handler.BadRequestResponse()
+		}
+		h.logger.Warnf("cookie error PostFeed: %v", err)
+		return handler.BadRequestResponse()
+	}
+	accessToken := c.Value
 
-	// err = h.feed.PostFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
-	// if err != nil {
-	// 	h.logger.Warnf("can't service.PostFeed PostFeed")
-	// 	return handler.NotFoundResponse()
-	// }
+	h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
 
-	return handler.OkResponse(nil)
+	feed := &requests.PostFeed{}
+
+	err = feed.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind PostFeed: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("FeedHandler: parse request PostFeed: %v", feed)
+
+	err = h.feed.PostFeed(context.Background(), *mapper.MakeRequestPostFeed(*feed))
+	if err != nil {
+		h.logger.Warnf("can't FeedService.PostFeed: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	return handler.CreatedResponse(nil)
 }
 
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {

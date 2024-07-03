@@ -113,6 +113,29 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 	return feeds, nil
 }
 
+const postFeedQuery = `INSERT INTO feed (title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+
+func (p *Postgres) PostFeed(_ context.Context, feed domain.Feed) error {
+	_, err := p.db.Exec(postFeedQuery,
+		feed.Title,
+		feed.Approved,
+		feed.Description,
+		feed.MediaID,
+		feed.VkPostUrl,
+		feed.UpdatedAt,
+		feed.CreatedAt,
+		feed.Views,
+		feed.CreatedBy,
+	)
+
+	if err != nil {
+		return fmt.Errorf("can't insert feed into postgres %w", err)
+	}
+
+	return nil
+}
+
 const deleteFeedQuery = "DELETE FROM feed WHERE id=$1"
 
 func (p *Postgres) DeleteFeed(_ context.Context, id int) error {
