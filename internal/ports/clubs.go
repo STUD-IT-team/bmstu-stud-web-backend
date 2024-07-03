@@ -51,7 +51,7 @@ func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) han
 	res, err := h.clubs.GetAllClubs()
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetAllClubs GetAllClubs")
-		return handler.InternalServerErrorResponse()
+		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("ClubsHandler: request done")

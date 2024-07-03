@@ -13,6 +13,9 @@ type clubStorage interface {
 	GetAllClub() ([]domain.Club, error)
 	GetMediaFile(id int) (*domain.MediaFile, error)
 	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
+	GetClubOrgs(clubID int) ([]domain.ClubOrg, error)
+	GetClubSubOrgs(clubID int) ([]domain.ClubOrg, error)
+	GetAllClubOrgs() ([]domain.ClubOrg, error)
 }
 
 type ClubService struct {
@@ -24,19 +27,40 @@ func NewClubService(storage clubStorage) *ClubService {
 }
 
 func (s *ClubService) GetClub(id int) (*responses.GetClub, error) {
-	res, err := s.storage.GetClub(id)
+	club, err := s.storage.GetClub(id)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClub: %v", err)
 		return nil, err
 	}
 
-	im, err := s.storage.GetMediaFile(res.LogoId)
+	mainOrgs, err := s.storage.GetClubOrgs(id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetMediaFile: %v", err)
+		err = fmt.Errorf("can't storage.GetClubOrgs: %v", err)
 		return nil, err
 	}
 
-	return mapper.MakeResponseClub(res, im), nil
+	subOrgs, err := s.storage.GetClubSubOrgs(id)
+	if err != nil {
+		err = fmt.Errorf("can't storage.GetClubSubOrgs: %v", err)
+		return nil, err
+	}
+
+	ids := make([]int, 0, len(mainOrgs)+len(subOrgs)+1)
+	for _, org := range mainOrgs {
+		ids = append(ids, org.MediaID)
+	}
+	for _, org := range subOrgs {
+		ids = append(ids, org.MediaID)
+	}
+	ids = append(ids, club.LogoId)
+
+	ims, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		err = fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+		return nil, err
+	}
+
+	return mapper.MakeResponseClub(club, &mainOrgs, &subOrgs, &ims)
 }
 
 func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
@@ -45,6 +69,10 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClub: %v", err)
 		return nil, err
+	}
+
+	if len(res) == 0 {
+		return nil, fmt.Errorf("no club found")
 	}
 
 	ids := make([]int, 0, len(res))
@@ -57,5 +85,11 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 		err = fmt.Errorf("can't storage.GetMediaFiles: %v", err)
 		return nil, err
 	}
-	return mapper.MakeResponseAllClub(res, logos)
+
+	orgs, err := s.storage.GetAllClubOrgs()
+	if err != nil {
+		err = fmt.Errorf("can't storage.GetAllClubOrgs: %v", err)
+		return nil, err
+	}
+	return mapper.MakeResponseAllClub(res, logos, orgs)
 }

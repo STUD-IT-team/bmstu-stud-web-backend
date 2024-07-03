@@ -36,7 +36,6 @@ create table if not exists club_org (
     role_spec text default ''
 );
 
-
 -- +goose StatementEnd
 
 -- +goose Down

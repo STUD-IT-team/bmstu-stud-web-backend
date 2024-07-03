@@ -72,3 +72,218 @@ func (s *Postgres) GetAllClub() ([]domain.Club, error) {
 
 	return carr, nil
 }
+
+const getClubOrgs = `
+SELECT
+	role_name,
+	role_spec,
+	mem.id,
+	mem.hash_password,
+	mem.login,
+	mem.media_id,
+	mem.telegram,
+	mem.vk,
+	mem.name,
+	mem.role_id,
+	mem.is_admin,
+	clubs.name as club_name
+FROM club_org
+JOIN
+(
+	SELECT
+		id,
+		hash_password,
+		login,
+		media_id,
+		telegram,
+		vk,
+		name,
+		role_id,
+		is_admin
+		FROM member
+) mem
+ON (mem.id = club_org.member_id)
+JOIN 
+(
+	SELECT
+	    id,
+        name
+    FROM club
+) as clubs
+ON (club_org.club_id = clubs.id)
+WHERE club_id = $1
+`
+
+func (s *Postgres) GetClubOrgs(clubID int) ([]domain.ClubOrg, error) {
+	oarr := []domain.ClubOrg{}
+	rows, err := s.db.Query(getClubOrgs, clubID)
+	if err != nil {
+		return []domain.ClubOrg{}, err
+	}
+	for rows.Next() {
+		c := domain.ClubOrg{}
+		err = rows.Scan(
+			&c.RoleName,
+			&c.RoleSpec,
+			&c.ID,
+			&c.HashPassword,
+			&c.Login,
+			&c.MediaID,
+			&c.Telegram,
+			&c.Vk,
+			&c.Name,
+			&c.RoleID,
+			&c.IsAdmin,
+			&c.ClubName,
+		)
+		if err != nil {
+			return []domain.ClubOrg{}, err
+		}
+		oarr = append(oarr, c)
+	}
+	return oarr, nil
+}
+
+const getClubSubOrgs = `
+SELECT
+	role_name,
+	role_spec,
+	mem.id,
+	mem.hash_password,
+	mem.login,
+	mem.media_id,
+	mem.telegram,
+	mem.vk,
+	mem.name,
+	mem.role_id,
+	mem.is_admin,
+	clubs.name as club_name
+FROM club_org
+JOIN
+(
+	SELECT
+		id,
+		hash_password,
+		login,
+		media_id,
+		telegram,
+		vk,
+		name,
+		role_id,
+		is_admin
+		FROM member
+) mem
+ON (mem.id = club_org.member_id)
+JOIN 
+(
+	SELECT
+	    id,
+        name
+    FROM club
+) as clubs
+ON (club_org.club_id = clubs.id)
+WHERE club_id = ANY((SELECT id FROM club WHERE parent_id = $1))
+`
+
+func (s *Postgres) GetClubSubOrgs(clubID int) ([]domain.ClubOrg, error) {
+	oarr := []domain.ClubOrg{}
+	rows, err := s.db.Query(getClubSubOrgs, clubID)
+	if err != nil {
+		return []domain.ClubOrg{}, err
+	}
+	for rows.Next() {
+		c := domain.ClubOrg{}
+		err = rows.Scan(
+			&c.RoleName,
+			&c.RoleSpec,
+			&c.ID,
+			&c.HashPassword,
+			&c.Login,
+			&c.MediaID,
+			&c.Telegram,
+			&c.Vk,
+			&c.Name,
+			&c.RoleID,
+			&c.IsAdmin,
+			&c.ClubName,
+		)
+		if err != nil {
+			return []domain.ClubOrg{}, err
+		}
+		c.ClubID = clubID
+		oarr = append(oarr, c)
+	}
+	return oarr, nil
+}
+
+const getAllClubOrgs = `
+SELECT
+	role_name,
+	role_spec,
+	member_id,
+	club_id,
+	mem.hash_password,
+	mem.login,
+	mem.media_id,
+	mem.telegram,
+	mem.vk,
+	mem.name,
+	mem.role_id,
+	mem.is_admin,
+	clubs.name as club_name
+FROM club_org
+JOIN
+(
+	SELECT
+		id,
+		hash_password,
+		login,
+		media_id,
+		telegram,
+		vk,
+		name,
+		role_id,
+		is_admin
+		FROM member
+) mem
+ON (mem.id = club_org.member_id)
+JOIN 
+(
+	SELECT
+	    id,
+        name
+    FROM club
+) as clubs
+ON (club_org.club_id = clubs.id)
+`
+
+func (s *Postgres) GetAllClubOrgs() ([]domain.ClubOrg, error) {
+	oarr := []domain.ClubOrg{}
+	rows, err := s.db.Query(getAllClubOrgs)
+	if err != nil {
+		return []domain.ClubOrg{}, err
+	}
+	for rows.Next() {
+		c := domain.ClubOrg{}
+		err = rows.Scan(
+			&c.RoleName,
+			&c.RoleSpec,
+			&c.ID,
+			&c.ClubID,
+			&c.HashPassword,
+			&c.Login,
+			&c.MediaID,
+			&c.Telegram,
+			&c.Vk,
+			&c.Name,
+			&c.RoleID,
+			&c.IsAdmin,
+			&c.ClubName,
+		)
+		if err != nil {
+			return []domain.ClubOrg{}, err
+		}
+		oarr = append(oarr, c)
+	}
+	return oarr, nil
+}

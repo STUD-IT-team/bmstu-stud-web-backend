@@ -13,5 +13,25 @@ type GetClub struct {
 	Logo        domain.MediaFile `"json:"logo"`
 	VkUrl       string           `"json:"vk_url"`
 	TgUrl       string           `"json:"tg_url"`
-	Orgs        []domain.ClubOrg
+	MainOrgs    []MainOrg        `"json:"main_orgs"`
+	SubOrgs     []SubClubOrg     `"json:"sub_orgs"`
+}
+
+type SubClubOrg struct {
+	ID          int              `"json:id"`
+	Name        string           `"json:name"`
+	SubClubName string           `"json:sub_club_name"`
+	VkUrl       string           `"json:"vk_url"`
+	TgUrl       string           `"json:"tg_url"`
+	Spec        string           `"json:"spec"`
+	Image       domain.MediaFile `"json:"image"`
+}
+
+type MainOrg struct {
+	ID    int              `"json:id"`
+	Name  string           `"json:name"`
+	VkUrl string           `"json:"vk_url"`
+	TgUrl string           `"json:"tg_url"`
+	Spec  string           `"json:"spec"`
+	Image domain.MediaFile `"json:"image"`
 }

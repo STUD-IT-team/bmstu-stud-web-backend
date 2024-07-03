@@ -9,11 +9,12 @@ type Club struct {
 	LogoId      int    `"db:"logo"`
 	VkUrl       string `"db:"vk_url"`
 	TgUrl       string `"db:"tg_url"`
-	Orgs        []ClubOrg
 }
 
 type ClubOrg struct {
 	Member
 	RoleName string `"db:"role_name"`
 	RoleSpec string `"db:"role_spec"`
+	ClubName string `"db:"club_name"`
+	ClubID   int    `"db:"club_id"`
 }
