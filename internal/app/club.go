@@ -1,10 +1,12 @@
 package app
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
@@ -16,6 +18,8 @@ type clubStorage interface {
 	GetClubOrgs(clubID int) ([]domain.ClubOrg, error)
 	GetClubSubOrgs(clubID int) ([]domain.ClubOrg, error)
 	GetAllClubOrgs() ([]domain.ClubOrg, error)
+	AddClub(c *domain.Club) (int, error)
+	AddOrgs(orgs []domain.ClubOrg) error
 }
 
 type ClubService struct {
@@ -92,4 +96,26 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 		return nil, err
 	}
 	return mapper.MakeResponseAllClub(res, logos, orgs)
+}
+
+func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) error {
+	club, orgs, err := mapper.ParsePostClub(req)
+	if err != nil {
+		return fmt.Errorf("can't mapper.PostClub: %v", err)
+	}
+	clubID, err := s.storage.AddClub(club)
+	if err != nil {
+		return fmt.Errorf("can't storage.AddClub: %v", err)
+	}
+
+	for i := range orgs {
+		orgs[i].ClubID = clubID
+	}
+
+	err = s.storage.AddOrgs(orgs)
+	if err != nil {
+		return fmt.Errorf("can't storage.AddOrgs: %v", err)
+	}
+
+	return nil
 }

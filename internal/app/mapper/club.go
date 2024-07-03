@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
@@ -105,4 +106,31 @@ func MakeResponseAllClub(clubs []domain.Club, logos map[int]domain.MediaFile, or
 			})
 	}
 	return r, nil
+}
+
+func ParsePostClub(req *requests.PostClub) (*domain.Club, []domain.ClubOrg, error) {
+	c := &domain.Club{}
+
+	c.Name = req.Name
+	c.ShortName = req.ShortName
+	c.Description = req.Description
+	c.LogoId = req.LogoId
+	c.Type = req.Type
+	c.VkUrl = req.VkUrl
+	c.TgUrl = req.TgUrl
+	c.ParentID = req.ParentID
+	// c.Orgs = req.Orgs
+
+	oarr := []domain.ClubOrg{}
+	for _, org := range req.Orgs {
+		o := domain.ClubOrg{}
+		o.ID = org.MemberID
+		o.RoleName = org.RoleName
+		o.RoleSpec = org.RoleSpec
+		// o.ClubID = c.ID
+		oarr = append(oarr, o)
+	}
+
+	return c, oarr, nil
+
 }

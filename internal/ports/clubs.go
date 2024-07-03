@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
@@ -38,7 +39,7 @@ func (h *ClubsHandler) Routes() chi.Router {
 	r.Get("/search/{name}", h.r.Wrap(h.GetClubsByName))
 	r.Get("/members/{club_id}", h.r.Wrap(h.GetClubMembers))
 	r.Get("/media/{club_id}", h.r.Wrap(h.GetClubMedia))
-	r.Post("/{club_id}", h.r.Wrap(h.PostClub))
+	r.Post("/", h.r.Wrap(h.PostClub))
 	r.Delete("/{club_id}", h.r.Wrap(h.DeleteClub))
 	r.Put("/{club_id}", h.r.Wrap(h.UpdateClub))
 
@@ -151,20 +152,25 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 }
 
 func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handler.Response {
-	// club := &requests.PostClub{}
+	club := &requests.PostClub{}
 
-	// err := club.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.PostClub PostClub")
-	// 	return handler.BadRequestResponse()
-	// }
+	h.logger.Info("ClubsHandler: got PostClub request")
 
-	// err = h.clubs.PostClub(context.Background(), club)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.PostClub PostClub")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	err := club.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't service.PostClub %v", err)
+		return handler.BadRequestResponse()
+	}
 
+	h.logger.Infof("ClubsHandler: parse request: %v", club)
+
+	err = h.clubs.PostClub(context.Background(), club)
+	if err != nil {
+		h.logger.Warnf("can't service.PostClub %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	h.logger.Info("ClubsHandler: request done")
 	return handler.OkResponse(nil)
 }
 

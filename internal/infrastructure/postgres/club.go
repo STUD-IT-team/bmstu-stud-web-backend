@@ -8,6 +8,7 @@ const getClub = `SELECT
  description,
  type,
  logo,
+ parent_id,
  vk_url, 
  tg_url
  FROM club WHERE id = $1
@@ -21,6 +22,7 @@ func (pgs *Postgres) GetClub(id int) (*domain.Club, error) {
 		&c.Description,
 		&c.Type,
 		&c.LogoId,
+		&c.ParentID,
 		&c.VkUrl,
 		&c.TgUrl,
 	)
@@ -39,6 +41,7 @@ const getAllClub = `SELECT
  description,
  type,
  logo,
+ parent_id,
  vk_url, 
  tg_url
 FROM club
@@ -61,6 +64,7 @@ func (s *Postgres) GetAllClub() ([]domain.Club, error) {
 			&c.Description,
 			&c.Type,
 			&c.LogoId,
+			&c.ParentID,
 			&c.VkUrl,
 			&c.TgUrl,
 		)
@@ -286,4 +290,64 @@ func (s *Postgres) GetAllClubOrgs() ([]domain.ClubOrg, error) {
 		oarr = append(oarr, c)
 	}
 	return oarr, nil
+}
+
+const addClub = `
+INSERT INTO club (
+    name,
+    short_name,
+    description,
+    type,
+	logo,
+    parent_id,
+    vk_url, 
+    tg_url
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id
+`
+
+func (s *Postgres) AddClub(c *domain.Club) (int, error) {
+	row := s.db.QueryRow(addClub,
+		c.Name,
+		c.ShortName,
+		c.Description,
+		c.Type,
+		c.LogoId,
+		c.ParentID,
+		c.VkUrl,
+		c.TgUrl,
+	)
+
+	var id int
+	err := row.Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
+const addOrgs = `
+INSERT INTO club_org (
+	role_name,
+    role_spec,
+    member_id,
+    club_id
+) VALUES ($1, $2, $3, $4)
+`
+
+func (s *Postgres) AddOrgs(orgs []domain.ClubOrg) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, org := range orgs {
+		_, err = tx.Exec(addOrgs, org.RoleName, org.RoleSpec, org.ID, org.ClubID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit()
 }

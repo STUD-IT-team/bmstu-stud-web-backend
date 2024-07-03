@@ -7,6 +7,7 @@ type Club struct {
 	Description string `"db:description"`
 	Type        string `"db:"type"`
 	LogoId      int    `"db:"logo"`
+	ParentID    int    `"db:"parent_id"`
 	VkUrl       string `"db:"vk_url"`
 	TgUrl       string `"db:"tg_url"`
 }
