@@ -21,18 +21,18 @@ func MakeResponseClub(club *domain.Club, logo *domain.MediaFile) *responses.GetC
 	}
 }
 
-func MakeResponseAllClub(clubs []domain.Club, logos []domain.MediaFile) (*responses.GetAllClubs, error) {
-	if len(clubs) != len(logos) {
-		return nil, fmt.Errorf("length of club list must equal logos: %v != %v", len(clubs), len(logos))
-	}
+func MakeResponseAllClub(clubs []domain.Club, logos map[int]domain.MediaFile) (*responses.GetAllClubs, error) {
 	r := &responses.GetAllClubs{}
-	for i, club := range clubs {
+	for _, club := range clubs {
+		if _, ok := logos[club.LogoId]; !ok {
+			return nil, fmt.Errorf("can't find logo for club id %v", logos)
+		}
 		r.Clubs = append(r.Clubs,
 			responses.Club{
 				ID:          club.ID,
 				Name:        club.Name,
 				ShortName:   club.ShortName,
-				Logo:        logos[i],
+				Logo:        logos[club.LogoId],
 				Description: club.Description,
 				Type:        club.Type,
 				VkUrl:       club.VkUrl,

@@ -12,6 +12,7 @@ type clubStorage interface {
 	GetClub(id int) (*domain.Club, error)
 	GetAllClub() ([]domain.Club, error)
 	GetMediaFile(id int) (*domain.MediaFile, error)
+	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
 }
 
 type ClubService struct {
@@ -46,14 +47,15 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 		return nil, err
 	}
 
-	logos := make([]domain.MediaFile, 0, len(res))
+	ids := make([]int, 0, len(res))
 	for _, club := range res {
-		logo, err := s.storage.GetMediaFile(club.LogoId)
-		if err != nil {
-			err = fmt.Errorf("can't storage.GetMediaFile for club %v: %v", club.ID, err)
-			return nil, err
-		}
-		logos = append(logos, *logo)
+		ids = append(ids, club.LogoId)
+	}
+
+	logos, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		err = fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+		return nil, err
 	}
 	return mapper.MakeResponseAllClub(res, logos)
 }

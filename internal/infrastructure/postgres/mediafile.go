@@ -10,5 +10,25 @@ func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	if err == nil {
 		return &f, nil
 	}
+	f.ID = id
 	return nil, err
+}
+
+const getMediaFiles = "SELECT id, name, image FROM mediafile WHERE id = ANY($1)"
+
+func (p *Postgres) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
+	m := make(map[int]domain.MediaFile)
+	rows, err := p.db.Query(getMediaFiles, ids)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		media := domain.MediaFile{}
+		err := rows.Scan(&media.ID, &media.Name, &media.Image)
+		if err != nil {
+			return nil, err
+		}
+		m[media.ID] = media
+	}
+	return m, nil
 }
