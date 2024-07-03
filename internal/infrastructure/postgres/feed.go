@@ -58,7 +58,7 @@ func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encoun
 	for rows.Next() {
 		var enc domain.Encounter
 
-		err = rows.Scan(&enc.ID, &enc.Count, &enc.Description, &enc.ClubID)
+		err = rows.Scan(&enc.ClubID, &enc.Count, &enc.Description, &enc.ClubID)
 
 		if err != nil {
 			return []domain.Encounter{}, err
@@ -70,12 +70,12 @@ func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encoun
 	return encs, nil
 }
 
-const getFeedByTitleQuery = "SELECT id, title, description FROM feed WHERE title LIKE $1"
+const getFeedByTitleQuery = "SELECT id, title, description FROM feed WHERE title ILIKE $1"
 
 func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Feed, error) {
 	var feeds []domain.Feed
 
-	rows, err := p.db.Query(getFeedByTitleQuery, title)
+	rows, err := p.db.Query(getFeedByTitleQuery, "%"+title+"%")
 	if err != nil {
 		return []domain.Feed{}, err
 	}

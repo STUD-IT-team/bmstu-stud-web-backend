@@ -36,7 +36,7 @@ func (h *FeedHandler) Routes() chi.Router {
 	r.Get("/", h.r.Wrap(h.GetAllFeed))
 	r.Get("/{id}", h.r.Wrap(h.GetFeed))
 	r.Get("/encounters/{id}", h.r.Wrap(h.GetFeedEncounters))
-	r.Get("/search/{type}", h.r.Wrap(h.GetFeedByTitle))
+	r.Get("/search/{title}", h.r.Wrap(h.GetFeedByTitle))
 	r.Post("/", h.r.Wrap(h.PostFeed))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
 	r.Put("/{id}", h.r.Wrap(h.UpdateFeed))
