@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 
-ALTER TABLE club ADD COLUMN parent_id not null;
+ALTER TABLE club ADD COLUMN parent_id int default null;
 
 -- +goose StatementEnd
 

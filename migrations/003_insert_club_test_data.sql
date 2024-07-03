@@ -21,6 +21,6 @@ VALUES
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE * FROM club;
-DELETE * FROM mediafile;
+DELETE FROM club;
+DELETE FROM mediafile;
 -- +goose StatementEnd
