@@ -31,6 +31,10 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 		feeds = append(feeds, feed)
 	}
 
+	if len(feeds) == 0 {
+		return []domain.Feed{}, fmt.Errorf("no feeds found")
+	}
+
 	return feeds, nil
 }
 
@@ -71,6 +75,10 @@ func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encoun
 		encs = append(encs, enc)
 	}
 
+	if len(encs) == 0 {
+		return []domain.Encounter{}, fmt.Errorf("no encounters found")
+	}
+
 	return encs, nil
 }
 
@@ -96,6 +104,10 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 		}
 
 		feeds = append(feeds, feed)
+	}
+
+	if len(feeds) == 0 {
+		return []domain.Feed{}, fmt.Errorf("no feeds found")
 	}
 
 	return feeds, nil

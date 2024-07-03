@@ -50,7 +50,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 	res, err := h.feed.GetAllFeed(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetAllFeed: %v", err)
-		return handler.InternalServerErrorResponse()
+		return handler.NotFoundResponse()
 	}
 
 	return handler.OkResponse(res)
@@ -72,7 +72,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 	res, err := h.feed.GetFeed(context.Background(), feedId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeed: %v", err)
-		return handler.InternalServerErrorResponse()
+		return handler.NotFoundResponse()
 	}
 
 	return handler.OkResponse(res)
@@ -94,7 +94,7 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 	res, err := h.feed.GetFeedEncounters(context.Background(), feedId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeedEncounters: %v", err)
-		return handler.InternalServerErrorResponse()
+		return handler.NotFoundResponse()
 	}
 
 	return handler.OkResponse(res)
@@ -116,7 +116,7 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 	res, err := h.feed.GetFeedByTitle(context.Background(), *filter)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeedByTitle: %v", err)
-		return handler.InternalServerErrorResponse()
+		return handler.NotFoundResponse()
 	}
 
 	return handler.OkResponse(res)
@@ -134,7 +134,7 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 	// err = h.feed.PostFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
 	// if err != nil {
 	// 	h.logger.Warnf("can't service.PostFeed PostFeed")
-	// 	return handler.InternalServerErrorResponse()
+	// 	return handler.NotFoundResponse()
 	// }
 
 	return handler.OkResponse(nil)
@@ -152,7 +152,7 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	// err = h.feed.DeleteFeed(context.Background(), feedId.ID)
 	// if err != nil {
 	// 	h.logger.Warnf("can't service.DeleteFeed DeleteFeed")
-	// 	return handler.InternalServerErrorResponse()
+	// 	return handler.NotFoundResponse()
 	// }
 
 	return handler.OkResponse(nil)
@@ -170,7 +170,7 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 	// err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
 	// if err != nil {
 	// 	h.logger.Warnf("can't service.UpdateFeed UpdateFeed")
-	// 	return handler.InternalServerErrorResponse()
+	// 	return handler.NotFoundResponse()
 	// }
 
 	return handler.OkResponse(nil)
