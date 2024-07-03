@@ -4,9 +4,10 @@ create table IF NOT EXISTS member
 (
     id       serial primary key,
     hash_password bytea not null,
-    login    text  not null unique,
-    media_id int not null,
+    login    text    not null unique,
+    media_id int     not null,
     telegram text    default '',
+    vk       text    default '',
     name     text    default '',
     role_id  int     default 0,
     is_admin boolean default false

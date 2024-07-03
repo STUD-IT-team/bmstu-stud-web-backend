@@ -18,5 +18,5 @@ VALUES
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE * FROM feed;
+DELETE FROM feed;
 -- +goose StatementEnd
