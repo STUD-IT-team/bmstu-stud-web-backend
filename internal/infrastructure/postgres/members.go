@@ -45,3 +45,30 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 
 	return members, nil
 }
+
+const getMemberQuery = "SELECT id, hash_password, login, media_id, telegram, vk, name, role_id, is_admin FROM member WHERE id=$1"
+
+func (p *Postgres) GetMember(ctx context.Context, id int) (domain.Member, error) {
+	var member domain.Member
+
+	err := p.db.QueryRow(
+		getMemberQuery,
+		id,
+	).Scan(
+		&member.ID,
+		&member.HashPassword,
+		&member.Login,
+		&member.MediaID,
+		&member.Telegram,
+		&member.Vk,
+		&member.Name,
+		&member.RoleID,
+		&member.IsAdmin,
+	)
+
+	if err != nil {
+		return domain.Member{}, err
+	}
+
+	return member, nil
+}

@@ -9,6 +9,7 @@ import (
 type memberStorage interface {
 	GetMemberByLogin(ctx context.Context, login string) (domain.Member, error)
 	GetAllMembers(ctx context.Context) ([]domain.Member, error)
+	GetMember(ctx context.Context, id int) (domain.Member, error)
 }
 
 func (s *storage) GetMemberByLogin(ctx context.Context, login string) (domain.Member, error) {
@@ -17,4 +18,8 @@ func (s *storage) GetMemberByLogin(ctx context.Context, login string) (domain.Me
 
 func (s *storage) GetAllMembers(ctx context.Context) ([]domain.Member, error) {
 	return s.postgres.GetAllMembers(ctx)
+}
+
+func (s *storage) GetMember(ctx context.Context, id int) (domain.Member, error) {
+	return s.postgres.GetMember(ctx, id)
 }

@@ -11,6 +11,7 @@ import (
 
 type membersServiceStorage interface {
 	GetAllMembers(ctx context.Context) ([]domain.Member, error)
+	GetMember(ctx context.Context, id int) (domain.Member, error)
 }
 
 type MembersService struct {
@@ -31,4 +32,13 @@ func (s *MembersService) GetAllMembers(ctx context.Context) (*responses.GetAllMe
 	}
 
 	return mapper.MakeResponseAllMembers(res), nil
+}
+
+func (s *MembersService) GetMember(ctx context.Context, id int) (*responses.GetMember, error) {
+	res, err := s.storage.GetMember(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetMember: %v", err)
+	}
+
+	return mapper.MakeResponseMember(res), nil
 }

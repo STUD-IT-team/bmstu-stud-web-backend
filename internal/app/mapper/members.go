@@ -24,3 +24,17 @@ func MakeResponseAllMembers(f []domain.Member) *responses.GetAllMembers {
 
 	return &responses.GetAllMembers{Members: members}
 }
+
+func MakeResponseMember(f domain.Member) *responses.GetMember {
+	return &responses.GetMember{
+		ID:           f.ID,
+		HashPassword: f.HashPassword,
+		Login:        f.Login,
+		MediaID:      f.MediaID,
+		Telegram:     f.Telegram,
+		Vk:           f.Vk,
+		Name:         f.Name,
+		RoleID:       f.RoleID,
+		IsAdmin:      f.IsAdmin,
+	}
+}

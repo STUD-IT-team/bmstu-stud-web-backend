@@ -42,6 +42,15 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 	return mapper.MakeResponseAllFeed(res), nil
 }
 
+func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, error) {
+	res, err := s.storage.GetFeed(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetFeed: %v", err)
+	}
+
+	return mapper.MakeResponseFeed(res), nil
+}
+
 func (s *FeedService) GetFeedEncounters(ctx context.Context, id int) (*responses.GetFeedEncounters, error) {
 	var res []domain.Encounter
 	var err error
@@ -67,15 +76,6 @@ func (s *FeedService) GetFeedByTitle(
 	}
 
 	return mapper.MakeResponseFeedByTitle(res), nil
-}
-
-func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, error) {
-	res, err := s.storage.GetFeed(ctx, id)
-	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeed: %v", err)
-	}
-
-	return mapper.MakeResponseFeed(res), nil
 }
 
 func (s *FeedService) PostFeed(ctx context.Context, feed domain.Feed) error {
