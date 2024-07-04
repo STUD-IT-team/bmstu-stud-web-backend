@@ -1,7 +1,7 @@
 package responses
 
 type GetAllMembers struct {
-	Members []Member `json:"users"`
+	Members []Member `json:"members"`
 }
 
 type Member struct {

@@ -66,7 +66,7 @@ func (s *FeedService) GetFeedEncounters(ctx context.Context, id int) (*responses
 func (s *FeedService) GetFeedByTitle(
 	ctx context.Context,
 	filter requests.GetFeedByTitle,
-) (*responses.GetAllFeedByTitle, error) {
+) (*responses.GetFeedByTitle, error) {
 	var res []domain.Feed
 	var err error
 

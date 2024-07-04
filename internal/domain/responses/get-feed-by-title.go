@@ -1,5 +1,5 @@
 package responses
 
-type GetAllFeedByTitle struct {
+type GetFeedByTitle struct {
 	Feed []Feed `json:"feed"`
 }
