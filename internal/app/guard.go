@@ -58,17 +58,19 @@ func (s *GuardService) Logout(_ context.Context, req *requests.LogoutRequest) er
 }
 
 func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (res *responses.CheckResponse, err error) {
-	const op = "appGuard.Check"
+	// const op = "appGuard.Check"
 
-	session, err := s.storage.CheckSession(req.AccessToken)
-	if err != nil {
-		s.logger.WithError(err).Warnf("can't storage.CheckSession %s", op)
+	// session, err := s.storage.CheckSession(req.AccessToken)
+	// if err != nil {
+	// 	s.logger.WithError(err).Warnf("can't storage.CheckSession %s", op)
 
-		return mapper.CreateResponseCheck(false, 0),
-			fmt.Errorf("can't storage.CheckSession %s: %w", op, err)
-	}
+	// 	return mapper.CreateResponseCheck(false, 0),
+	// 		fmt.Errorf("can't storage.CheckSession %s: %w", op, err)
+	// }
 
-	s.logger.Infof("user %d is authorized", session.MemberID)
+	// s.logger.Infof("user %d is authorized", session.MemberID)
 
-	return mapper.CreateResponseCheck(true, session.MemberID), nil
+	// return mapper.CreateResponseCheck(true, session.MemberID), nil
+
+	return nil, nil
 }

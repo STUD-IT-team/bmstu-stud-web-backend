@@ -130,10 +130,16 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 	accessToken, err := getAccessToken(req)
 	if err != nil {
 		h.logger.Warnf("can't get access token PostFeed: %v", err)
-		return handler.BadRequestResponse()
+		return handler.UnauthorizedResponse()
 	}
 
-	h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	_, err = h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil {
+		h.logger.Warnf("can't GuardService.Check: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Info("FeedHandler: PostFeed request authenticated")
 
 	feed := &requests.PostFeed{}
 

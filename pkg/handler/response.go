@@ -41,6 +41,10 @@ func BadRequestResponse() Response {
 	return &response{body: nil, code: http.StatusBadRequest}
 }
 
+func UnauthorizedResponse() Response {
+	return &response{body: nil, code: http.StatusUnauthorized}
+}
+
 func NoContentResponse() Response {
 	return &response{body: nil, code: http.StatusNoContent}
 }
