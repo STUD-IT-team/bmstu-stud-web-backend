@@ -176,6 +176,10 @@ func (s *ClubService) GetClubMembers(clubID int) (*responses.GetClubMembers, err
 		return nil, fmt.Errorf("can't storage.GetClubSubOrgs: %v", err)
 	}
 
+	if len(orgs)+len(subOrgs) == 0 {
+		return nil, fmt.Errorf("no club members found")
+	}
+
 	ids := make([]int, 0, len(orgs)+len(subOrgs))
 	for _, org := range orgs {
 		ids = append(ids, org.MediaID)
