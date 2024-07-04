@@ -108,6 +108,29 @@ func MakeResponseAllClub(clubs []domain.Club, logos map[int]domain.MediaFile, or
 	return r, nil
 }
 
+func MakeResponseClubMembers(clubID int, mainOrgs []domain.ClubOrg, subOrgs []domain.ClubOrg, images map[int]domain.MediaFile) (*responses.GetClubMembers, error) {
+	r := &responses.GetClubMembers{
+		ID: clubID,
+	}
+
+	for _, org := range mainOrgs {
+		m, err := MakeMainOrg(&org, &images)
+		if err != nil {
+			return nil, err
+		}
+		r.MainOrgs = append(r.MainOrgs, *m)
+	}
+
+	for _, org := range subOrgs {
+		s, err := MakeSubOrg(&org, &images)
+		if err != nil {
+			return nil, err
+		}
+		r.SubOrgs = append(r.SubOrgs, *s)
+	}
+	return r, nil
+}
+
 func ParsePostClub(req *requests.PostClub) (*domain.Club, []domain.ClubOrg, error) {
 	c := &domain.Club{}
 

@@ -19,11 +19,12 @@ type ClubsHandler struct {
 	guard  *app.GuardService
 }
 
-func NewClubsHandler(r handler.Renderer, clubs app.ClubService, logger *log.Logger) *ClubsHandler {
+func NewClubsHandler(r handler.Renderer, clubs app.ClubService, logger *log.Logger, guard *app.GuardService) *ClubsHandler {
 	return &ClubsHandler{
 		r:      r,
 		clubs:  clubs,
 		logger: logger,
+		guard:  guard,
 	}
 }
 
