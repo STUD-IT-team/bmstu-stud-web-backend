@@ -8,14 +8,14 @@ import (
 	"strconv"
 )
 
-type DeleteFeed struct {
+type DeleteMember struct {
 	ID int `json:"id"`
 }
 
-func (f *DeleteFeed) Bind(req *http.Request) error {
+func (f *DeleteMember) Bind(req *http.Request) error {
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
 	if err != nil {
-		return fmt.Errorf("can't Atoi id on DeleteFeed.Bind: %w", err)
+		return fmt.Errorf("can't Atoi id on DeleteMember.Bind: %w", err)
 	}
 
 	f.ID = id
@@ -23,7 +23,7 @@ func (f *DeleteFeed) Bind(req *http.Request) error {
 	return f.validate()
 }
 
-func (f *DeleteFeed) validate() error {
+func (f *DeleteMember) validate() error {
 	if f.ID == 0 {
 		return fmt.Errorf("require: id")
 	}

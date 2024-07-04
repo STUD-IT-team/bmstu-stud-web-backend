@@ -13,6 +13,9 @@ type membersServiceStorage interface {
 	GetAllMembers(ctx context.Context) ([]domain.Member, error)
 	GetMember(ctx context.Context, id int) (domain.Member, error)
 	GetMembersByName(ctx context.Context, name string) ([]domain.Member, error)
+	PostMember(ctx context.Context, member domain.Member) error
+	DeleteMember(ctx context.Context, id int) error
+	UpdateMember(ctx context.Context, member domain.Member) error
 }
 
 type MembersService struct {
@@ -51,4 +54,31 @@ func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*re
 	}
 
 	return mapper.MakeResponseMembersByName(res), nil
+}
+
+func (s *MembersService) PostMember(ctx context.Context, member domain.Member) error {
+	err := s.storage.PostMember(ctx, member)
+	if err != nil {
+		return fmt.Errorf("can't storage.PostMember: %v", err)
+	}
+
+	return nil
+}
+
+func (s *MembersService) DeleteMember(ctx context.Context, id int) error {
+	err := s.storage.DeleteMember(ctx, id)
+	if err != nil {
+		return fmt.Errorf("can't storage.DeleteMember: %v", err)
+	}
+
+	return nil
+}
+
+func (s *MembersService) UpdateMember(ctx context.Context, member domain.Member) error {
+	err := s.storage.UpdateMember(ctx, member)
+	if err != nil {
+		return fmt.Errorf("can't storage.UpdateMember: %v", err)
+	}
+
+	return nil
 }

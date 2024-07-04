@@ -111,3 +111,75 @@ func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Me
 
 	return members, nil
 }
+
+const postMemberQuery = `INSERT INTO member 
+	(hash_password, login, media_id, telegram, vk, name, role_id, is_admin) 
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+
+func (p *Postgres) PostMember(ctx context.Context, member domain.Member) error {
+	_, err := p.db.Exec(
+		postMemberQuery,
+		member.HashPassword,
+		member.Login,
+		member.MediaID,
+		member.Telegram,
+		member.Vk,
+		member.Name,
+		member.RoleID,
+		member.IsAdmin,
+	)
+
+	if err != nil {
+		return fmt.Errorf("can't insert member into postgres %w", err)
+	}
+
+	return nil
+}
+
+const deleteMemberQuery = "DELETE FROM member WHERE id=$1"
+
+func (p *Postgres) DeleteMember(ctx context.Context, id int) error {
+	_, err := p.db.Exec(
+		deleteMemberQuery,
+		id,
+	)
+
+	if err != nil {
+		return fmt.Errorf("can't delete member on postgres %w", err)
+	}
+
+	return nil
+}
+
+const updateMemberQuery = `
+UPDATE member SET
+hash_password=$1, 
+login=$2, 
+media_id=$3, 
+telegram=$4, 
+vk=$5, 
+name=$6, 
+role_id=$7, 
+is_admin=$8
+WHERE id=$9`
+
+func (p *Postgres) UpdateMember(ctx context.Context, member domain.Member) error {
+	_, err := p.db.Exec(
+		updateMemberQuery,
+		member.HashPassword,
+		member.Login,
+		member.MediaID,
+		member.Telegram,
+		member.Vk,
+		member.Name,
+		member.RoleID,
+		member.IsAdmin,
+		member.ID,
+	)
+
+	if err != nil {
+		return fmt.Errorf("can't update member on postgres %w", err)
+	}
+
+	return nil
+}

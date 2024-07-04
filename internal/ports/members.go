@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	log "github.com/sirupsen/logrus"
@@ -116,17 +117,17 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 
 	accessToken, err := getAccessToken(req)
 	if err != nil {
-		h.logger.Warnf("can't get access token GetAllMembers: %v", err)
+		h.logger.Warnf("can't get access token GetMembersByName: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
 	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
 	if err != nil || !resp.Valid {
-		h.logger.Warnf("can't GuardService.Check on GetAllMembers: %v", err)
+		h.logger.Warnf("can't GuardService.Check on GetMembersByName: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("MembersHandler: GetAllMembers Authenticated: %v", resp.MemberID)
+	h.logger.Infof("MembersHandler: GetMembersByName Authenticated: %v", resp.MemberID)
 
 	name := &requests.GetMembersByName{}
 
@@ -150,55 +151,116 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 }
 
 func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
-	// member := &requests.PostMember{}
+	h.logger.Info("MembersHandler: got PostMember request")
 
-	// err := member.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.PostMember PostMember")
-	// 	return handler.BadRequestResponse()
-	// }
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token PostMember: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	// err = h.members.PostMembers(context.Background(), member)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.PostMember PostMember")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on PostMember: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	return handler.OkResponse(nil)
+	h.logger.Infof("MembersHandler: PostMember Authenticated: %v", resp.MemberID)
+
+	member := &requests.PostMember{}
+
+	err = member.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind PostMember: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("MembersHandler: parse request PostMember: %v", member)
+
+	err = h.members.PostMember(context.Background(), *mapper.MakeRequestPostMember(*member))
+	if err != nil {
+		h.logger.Warnf("can't MembersService.PostMember: %v", err)
+		return handler.NotFoundResponse()
+	}
+	handler.NotFoundResponse()
+
+	h.logger.Info("MembersHandler: request PostMember done")
+
+	return handler.CreatedResponse(nil)
 }
 
 func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) handler.Response {
-	// member := &requests.DeleteMember{}
+	h.logger.Info("MembersHandler: got DeleteMember request")
 
-	// err := member.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.DeleteMember DeleteMember")
-	// 	return handler.BadRequestResponse()
-	// }
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token DeleteMember: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	// err = h.members.DeleteMember(context.Background(), member.ID)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.DeleteMember DeleteMember")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on DeleteMember: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("MembersHandler: DeleteMember Authenticated: %v", resp.MemberID)
+
+	memberId := &requests.DeleteMember{}
+
+	err = memberId.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind DeleteMember: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("MembersHandler: parse request DeleteMember: %v", memberId)
+
+	err = h.members.DeleteMember(context.Background(), memberId.ID)
+	if err != nil {
+		h.logger.Warnf("can't MembersService.DeleteMember: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("MembersHandler: request DeleteMember done")
 
 	return handler.OkResponse(nil)
 }
 
 func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) handler.Response {
-	// member := &requests.UpdateMember{}
+	h.logger.Info("MembersHandler: got UpdateMember request")
 
-	// err := member.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.UpdateMember UpdateMember")
-	// 	return handler.BadRequestResponse()
-	// }
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token UpdateMember: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	// err = h.members.UpdateMember(context.Background(), *mapper.MakeRequestPutMember(*member))
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.UpdateMember UpdateMember")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on DeleteMember: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("MembersHandler: UpdateMember Authenticated: %v", resp.MemberID)
+
+	member := &requests.UpdateMember{}
+
+	err = member.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind UpdateMember: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("MembersHandler: parse request UpdateMember: %v", member)
+
+	err = h.members.UpdateMember(context.Background(), *mapper.MakeRequestUpdateMember(*member))
+	if err != nil {
+		h.logger.Warnf("can't MemberService.UpdateMember: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("MembersHandler: request UpdateMember done")
 
 	return handler.OkResponse(nil)
 }

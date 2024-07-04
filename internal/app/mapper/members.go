@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
@@ -57,4 +58,31 @@ func MakeResponseMembersByName(f []domain.Member) *responses.GetMembersByName {
 	}
 
 	return &responses.GetMembersByName{Members: members}
+}
+
+func MakeRequestPostMember(f requests.PostMember) *domain.Member {
+	return &domain.Member{
+		HashPassword: f.HashPassword,
+		Login:        f.Login,
+		MediaID:      f.MediaID,
+		Telegram:     f.Telegram,
+		Vk:           f.Vk,
+		Name:         f.Name,
+		RoleID:       f.RoleID,
+		IsAdmin:      f.IsAdmin,
+	}
+}
+
+func MakeRequestUpdateMember(f requests.UpdateMember) *domain.Member {
+	return &domain.Member{
+		ID:           f.ID,
+		HashPassword: f.HashPassword,
+		Login:        f.Login,
+		MediaID:      f.MediaID,
+		Telegram:     f.Telegram,
+		Vk:           f.Vk,
+		Name:         f.Name,
+		RoleID:       f.RoleID,
+		IsAdmin:      f.IsAdmin,
+	}
 }

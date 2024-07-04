@@ -141,13 +141,14 @@ const deleteFeedQuery = "DELETE FROM feed WHERE id=$1"
 func (p *Postgres) DeleteFeed(_ context.Context, id int) error {
 	_, err := p.db.Exec(deleteFeedQuery, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("can't delete feed on postgres %w", err)
 	}
 
 	return nil
 }
 
-const updateFeedQuery = `UPDATE feed SET 
+const updateFeedQuery = `
+UPDATE feed SET 
 title=$1, 
 approved=$2, 
 description=$3, 
