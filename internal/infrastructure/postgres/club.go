@@ -33,15 +33,14 @@ func (pgs *Postgres) GetClub(id int) (*domain.Club, error) {
 		&c.VkUrl,
 		&c.TgUrl,
 	)
+	if err != nil {
+		return nil, err
+	}
 	c.ID = id
 	if parentID.Valid {
 		c.ParentID = int(parentID.Int64)
 	} else {
 		c.ParentID = NoParentClubID
-	}
-
-	if err != nil {
-		return nil, err
 	}
 	return &c, nil
 }
@@ -82,16 +81,92 @@ func (s *Postgres) GetAllClub() ([]domain.Club, error) {
 			&c.TgUrl,
 		)
 		if err != nil {
-			if parentID.Valid {
-				c.ParentID = int(parentID.Int64)
-			} else {
-				c.ParentID = NoParentClubID
-			}
 			return []domain.Club{}, err
+		}
+		if parentID.Valid {
+			c.ParentID = int(parentID.Int64)
+		} else {
+			c.ParentID = NoParentClubID
 		}
 		carr = append(carr, c)
 	}
 
+	return carr, nil
+}
+
+const getClubsByName = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE name ILIKE $1`
+
+func (s *Postgres) GetClubsByName(name string) ([]domain.Club, error) {
+	carr := []domain.Club{}
+	rows, err := s.db.Query(getClubsByName, "%"+name+"%")
+
+	if err != nil {
+		return []domain.Club{}, err
+	}
+
+	for rows.Next() {
+		var c domain.Club
+		parentID := sql.NullInt64{}
+		err = rows.Scan(
+			&c.ID,
+			&c.Name,
+			&c.ShortName,
+			&c.Description,
+			&c.Type,
+			&c.LogoId,
+			&parentID,
+			&c.VkUrl,
+			&c.TgUrl,
+		)
+		if err != nil {
+			return []domain.Club{}, err
+		}
+		if parentID.Valid {
+			c.ParentID = int(parentID.Int64)
+		} else {
+			c.ParentID = NoParentClubID
+		}
+		carr = append(carr, c)
+
+	}
+	return carr, nil
+}
+
+const getClubsByType = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE type ILIKE $1`
+
+func (s *Postgres) GetClubsByType(type_ string) ([]domain.Club, error) {
+	carr := []domain.Club{}
+	rows, err := s.db.Query(getClubsByType, "%"+type_+"%")
+
+	if err != nil {
+		return []domain.Club{}, err
+	}
+
+	for rows.Next() {
+		var c domain.Club
+		parentID := sql.NullInt64{}
+		err = rows.Scan(
+			&c.ID,
+			&c.Name,
+			&c.ShortName,
+			&c.Description,
+			&c.Type,
+			&c.LogoId,
+			&parentID,
+			&c.VkUrl,
+			&c.TgUrl,
+		)
+		if err != nil {
+			return []domain.Club{}, err
+		}
+		if parentID.Valid {
+			c.ParentID = int(parentID.Int64)
+		} else {
+			c.ParentID = NoParentClubID
+		}
+		carr = append(carr, c)
+
+	}
 	return carr, nil
 }
 
@@ -157,6 +232,79 @@ func (s *Postgres) GetClubOrgs(clubID int) ([]domain.ClubOrg, error) {
 			&c.RoleID,
 			&c.IsAdmin,
 			&c.ClubName,
+		)
+		if err != nil {
+			return []domain.ClubOrg{}, err
+		}
+		oarr = append(oarr, c)
+	}
+	return oarr, nil
+}
+
+const getClubsOrgs = `
+SELECT
+	role_name,
+	role_spec,
+	mem.id,
+	mem.hash_password,
+	mem.login,
+	mem.media_id,
+	mem.telegram,
+	mem.vk,
+	mem.name,
+	mem.role_id,
+	mem.is_admin,
+	clubs.name as club_name,
+	clubs.id as club_id
+FROM club_org
+JOIN
+(
+	SELECT
+		id,
+		hash_password,
+		login,
+		media_id,
+		telegram,
+		vk,
+		name,
+		role_id,
+		is_admin
+		FROM member
+) mem
+ON (mem.id = club_org.member_id)
+JOIN 
+(
+	SELECT
+	    id,
+        name
+    FROM club
+) as clubs
+ON (club_org.club_id = clubs.id)
+WHERE club_id = ANY($1)
+`
+
+func (s *Postgres) GetClubsOrgs(clubIDs []int) ([]domain.ClubOrg, error) {
+	oarr := []domain.ClubOrg{}
+	rows, err := s.db.Query(getClubSubOrgs, clubIDs)
+	if err != nil {
+		return []domain.ClubOrg{}, err
+	}
+	for rows.Next() {
+		c := domain.ClubOrg{}
+		err = rows.Scan(
+			&c.RoleName,
+			&c.RoleSpec,
+			&c.ID,
+			&c.HashPassword,
+			&c.Login,
+			&c.MediaID,
+			&c.Telegram,
+			&c.Vk,
+			&c.Name,
+			&c.RoleID,
+			&c.IsAdmin,
+			&c.ClubName,
+			&c.ClubID,
 		)
 		if err != nil {
 			return []domain.ClubOrg{}, err

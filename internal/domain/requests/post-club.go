@@ -40,10 +40,18 @@ type ClubOrg struct {
 func (c *PostClub) Bind(req *http.Request) error {
 	pc := PostClubPointer{}
 
-	err := json.NewDecoder(req.Body).Decode(&pc)
+	decoder := json.NewDecoder(req.Body)
+	decoder.DisallowUnknownFields()
+	err := decoder.Decode(&pc)
+
 	if err != nil {
 		return fmt.Errorf("can't json decoder on PostClub: %v", err)
 	}
+
+	if decoder.More() {
+		return fmt.Errorf("postClub Bind: extraneous data after JSON object")
+	}
+
 	err = pc.validate()
 	if err != nil {
 		return fmt.Errorf("%v: %v", domain.ErrIncorrectRequest, err)

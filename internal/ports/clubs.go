@@ -86,34 +86,51 @@ func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler
 }
 
 func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) handler.Response {
-	// filter := &requests.GetClubsByType{}
+	h.logger.Info("ClubsHandler: got GetClubsByType request")
 
-	// err := filter.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetClubsByType GetClubsByType")
-	// 	return handler.BadRequestResponse()
-	// }
+	clubName := &requests.GetClubsByType{}
 
-	// res, err := h.clubs.GetClubsByFilter(context.Background(), *filter)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetClubsByType GetClubsByType")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	err := clubName.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind GetClubsByType: %v", err)
+		return handler.BadRequestResponse()
+	}
 
-	return handler.OkResponse(nil)
+	h.logger.Infof("ClubsHandler: parse request: %v", clubName)
+
+	res, err := h.clubs.GetClubsByType(clubName.Type)
+	if err != nil {
+		h.logger.Warnf("can't ClubService.GetClub: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("ClubsHandler: request done")
+
+	return handler.OkResponse(res)
 }
 
 func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) handler.Response {
-	// filter := &requests.GetClubsByName{}
+	h.logger.Info("ClubsHandler: got GetClubByName request")
 
-	// err := filter.Bind(req)
-	// res, err := h.clubs.GetClubsByFilter(context.Background(), *filter)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetClubsByName GetClubsByName")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	clubName := &requests.GetClubsByName{}
 
-	return handler.OkResponse(nil)
+	err := clubName.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind GetClubByName: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: parse request: %v", clubName)
+
+	res, err := h.clubs.GetClubsByName(clubName.Name)
+	if err != nil {
+		h.logger.Warnf("can't ClubService.GetClub: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("ClubsHandler: request done")
+
+	return handler.OkResponse(res)
 }
 
 func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) handler.Response {
