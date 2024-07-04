@@ -20,11 +20,12 @@ type FeedHandler struct {
 	guard  *app.GuardService
 }
 
-func NewFeedHandler(r handler.Renderer, feed app.FeedService, logger *log.Logger) *FeedHandler {
+func NewFeedHandler(r handler.Renderer, feed app.FeedService, logger *log.Logger, guard *app.GuardService) *FeedHandler {
 	return &FeedHandler{
 		r:      r,
 		feed:   feed,
 		logger: logger,
+		guard:  guard,
 	}
 }
 
