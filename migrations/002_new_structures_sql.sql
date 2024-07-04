@@ -23,7 +23,7 @@ create table if not exists club (
 -- TODO in domain
 create table if not exists club_photo (
     id serial primary key,
-    ref_num int unique default 0,
+    ref_num int default 0,
     media_id int not null,
     club_id int not null
 );

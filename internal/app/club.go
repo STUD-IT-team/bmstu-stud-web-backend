@@ -17,6 +17,7 @@ type clubStorage interface {
 	GetClubsByType(type_ string) ([]domain.Club, error)
 	GetMediaFile(id int) (*domain.MediaFile, error)
 	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
+	GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error)
 	GetClubOrgs(clubID int) ([]domain.ClubOrg, error)
 	GetClubsOrgs(clubIDs []int) ([]domain.ClubOrg, error)
 	GetClubSubOrgs(clubID int) ([]domain.ClubOrg, error)
@@ -215,4 +216,17 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 	}
 
 	return nil
+}
+
+func (s *ClubService) GetClubMediaFiles(clubID int) (*responses.GetClubMedia, error) {
+	res, err := s.storage.GetClubMediaFiles(clubID)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %v", err)
+	}
+
+	if len(res) == 0 {
+		return nil, fmt.Errorf("no club photo found")
+	}
+
+	return mapper.MakeResponseClubMediaFiles(clubID, res)
 }
