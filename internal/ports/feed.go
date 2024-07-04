@@ -56,6 +56,8 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 		return handler.NotFoundResponse()
 	}
 
+	h.logger.Info("FeedHandler: request GetAllFeed done")
+
 	return handler.OkResponse(res)
 }
 
@@ -77,6 +79,8 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 		h.logger.Warnf("can't FeedService.GetFeed: %v", err)
 		return handler.NotFoundResponse()
 	}
+
+	h.logger.Info("FeedHandler: request GetFeed done")
 
 	return handler.OkResponse(res)
 }
@@ -100,6 +104,8 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 		return handler.NotFoundResponse()
 	}
 
+	h.logger.Info("FeedHandler: request GetFeedEncounters done")
+
 	return handler.OkResponse(res)
 }
 
@@ -121,6 +127,8 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 		h.logger.Warnf("can't FeedService.GetFeedByTitle: %v", err)
 		return handler.NotFoundResponse()
 	}
+
+	h.logger.Info("FeedHandler: request GetFeedByTitle done")
 
 	return handler.OkResponse(res)
 }
@@ -158,6 +166,8 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 		return handler.NotFoundResponse()
 	}
 
+	h.logger.Info("FeedHandler: request PostFeed done")
+
 	return handler.CreatedResponse(nil)
 }
 
@@ -194,6 +204,8 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 		return handler.NotFoundResponse()
 	}
 
+	h.logger.Info("FeedHandler: request DeleteFeed done")
+
 	return handler.OkResponse(nil)
 }
 
@@ -229,6 +241,8 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 		h.logger.Warnf("can't FeedService.UpdateFeed: %v", err)
 		return handler.NotFoundResponse()
 	}
+
+	h.logger.Info("FeedHandler: request UpdateFeed done")
 
 	return handler.OkResponse(nil)
 }

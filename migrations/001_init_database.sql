@@ -61,7 +61,7 @@ create table IF NOT EXISTS event
 -- +goose Down
 -- +goose StatementBegin
 drop table IF EXISTS member_role;
-drop table IF EXISTS  member;
+drop table IF EXISTS member;
 drop table IF EXISTS feed;
 drop table IF EXISTS event;
 drop table IF EXISTS mediafile;

@@ -81,6 +81,7 @@ func main() {
 	// services
 	clubService := app.NewClubService(appStorage)
 	feedService := app.NewFeedService(appStorage)
+	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(logger, appStorage)
 	apiService := app.NewAPI(logger, feedService, guardService)
 
@@ -89,15 +90,17 @@ func main() {
 	if cfg.Log.Level == "debug" {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
-			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
+			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
+			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
-			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
+			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
+			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 		)
 	}
 
