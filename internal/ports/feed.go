@@ -133,13 +133,13 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 		return handler.UnauthorizedResponse()
 	}
 
-	_, err = h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil {
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
 		h.logger.Warnf("can't GuardService.Check: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Info("FeedHandler: PostFeed request authenticated")
+	h.logger.Infof("FeedHandler: PostFeed Authenticated: %v", resp.MemberID)
 
 	feed := &requests.PostFeed{}
 
@@ -161,37 +161,73 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 }
 
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	// feedId := &requests.DeleteFeed{}
+	h.logger.Info("FeedHandler: got DeleteFeed request")
 
-	// err := feedId.Bind(req)
-	// if err != nil {
-	// 	h.logger.Warnf("can't service.DeleteFeed DeleteFeed")
-	// 	return handler.BadRequestResponse()
-	// }
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token DeleteFeed: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	// err = h.feed.DeleteFeed(context.Background(), feedId.ID)
-	// if err != nil {
-	// 	h.logger.Warnf("can't service.DeleteFeed DeleteFeed")
-	// 	return handler.NotFoundResponse()
-	// }
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("FeedHandler: DeleteFeed Authenticated: %v", resp.MemberID)
+
+	feedId := &requests.DeleteFeed{}
+
+	err = feedId.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind DeleteFeed: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("FeedHandler: parse request DeleteFeed: %v", feedId)
+
+	err = h.feed.DeleteFeed(context.Background(), feedId.ID)
+	if err != nil {
+		h.logger.Warnf("can't FeedService.DeleteFeed: %v", err)
+		return handler.NotFoundResponse()
+	}
 
 	return handler.OkResponse(nil)
 }
 
 func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
-	// feed := &requests.UpdateFeed{}
+	h.logger.Info("FeedHandler: got UpdateFeed request")
 
-	// err := feed.Bind(req)
-	// if err != nil {
-	// 	h.logger.Warnf("can't service.UpdateFeed UpdateFeed")
-	// 	return handler.BadRequestResponse()
-	// }
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token UpdateFeed: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	// err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestPutFeed(*feed))
-	// if err != nil {
-	// 	h.logger.Warnf("can't service.UpdateFeed UpdateFeed")
-	// 	return handler.NotFoundResponse()
-	// }
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("FeedHandler: UpdateFeed Authenticated: %v", resp.MemberID)
+
+	feed := &requests.UpdateFeed{}
+
+	err = feed.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind UpdateFeed: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("FeedHandler: parse request UpdateFeed: %v", feed)
+
+	err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestUpdateFeed(*feed))
+	if err != nil {
+		h.logger.Warnf("can't FeedService.UpdateFeed: %v", err)
+		return handler.NotFoundResponse()
+	}
 
 	return handler.OkResponse(nil)
 }

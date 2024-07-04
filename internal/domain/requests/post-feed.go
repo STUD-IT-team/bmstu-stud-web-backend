@@ -40,11 +40,11 @@ func (f *PostFeed) Bind(req *http.Request) error {
 
 	err := decoder.Decode(&pf)
 	if err != nil {
-		return fmt.Errorf("can't json decoder on UpdateFeed.Bind: %v", err)
+		return fmt.Errorf("can't json decoder on PostFeed.Bind: %v", err)
 	}
 
 	if decoder.More() {
-		return fmt.Errorf("extraneous data after JSON object")
+		return fmt.Errorf("extraneous data after JSON object on PostFeed.Bind")
 	}
 
 	err = pf.validate()

@@ -18,8 +18,8 @@ type feedServiceStorage interface {
 	PostFeed(ctx context.Context, feed domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed domain.Feed) error
-	GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
-	GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
+	// GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
+	// GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
 }
 
 type FeedService struct {
@@ -69,33 +69,6 @@ func (s *FeedService) GetFeedByTitle(
 	return mapper.MakeResponseFeedByTitle(res), nil
 }
 
-func (s *FeedService) GetFeedByFilter(
-	ctx context.Context,
-	filter requests.GetFeedByFilter,
-) (*responses.GetAllFeed, error) {
-	var res []domain.Feed
-	var err error
-
-	if filter.Limit.IsPresent() && filter.Offset.IsPresent() {
-		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit.MustGet(), filter.Offset.MustGet())
-		if err != nil {
-			return nil, fmt.Errorf("can't storage.GetFeedByFilterLimitAndOffset: %v", err)
-		}
-	} else if filter.IdLast.IsPresent() && filter.Offset.IsPresent() {
-		res, err = s.storage.GetFeedByFilterIdLastAndOffset(ctx, filter.IdLast.MustGet(), filter.Offset.MustGet())
-		if err != nil {
-			return nil, fmt.Errorf("can't storage.GetFeedByFilterIdLastAndOffset: %v", err)
-		}
-	} else {
-		res, err = s.storage.GetAllFeed(ctx)
-		if err != nil {
-			return nil, fmt.Errorf("can't storage.GetAllFeed: %v", err)
-		}
-	}
-
-	return mapper.MakeResponseAllFeed(res), nil
-}
-
 func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, error) {
 	res, err := s.storage.GetFeed(ctx, id)
 	if err != nil {
@@ -129,3 +102,30 @@ func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 
 	return nil
 }
+
+// func (s *FeedService) GetFeedByFilter(
+// 	ctx context.Context,
+// 	filter requests.GetFeedByFilter,
+// ) (*responses.GetAllFeed, error) {
+// 	var res []domain.Feed
+// 	var err error
+
+// 	if filter.Limit.IsPresent() && filter.Offset.IsPresent() {
+// 		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit.MustGet(), filter.Offset.MustGet())
+// 		if err != nil {
+// 			return nil, fmt.Errorf("can't storage.GetFeedByFilterLimitAndOffset: %v", err)
+// 		}
+// 	} else if filter.IdLast.IsPresent() && filter.Offset.IsPresent() {
+// 		res, err = s.storage.GetFeedByFilterIdLastAndOffset(ctx, filter.IdLast.MustGet(), filter.Offset.MustGet())
+// 		if err != nil {
+// 			return nil, fmt.Errorf("can't storage.GetFeedByFilterIdLastAndOffset: %v", err)
+// 		}
+// 	} else {
+// 		res, err = s.storage.GetAllFeed(ctx)
+// 		if err != nil {
+// 			return nil, fmt.Errorf("can't storage.GetAllFeed: %v", err)
+// 		}
+// 	}
+
+// 	return mapper.MakeResponseAllFeed(res), nil
+// }

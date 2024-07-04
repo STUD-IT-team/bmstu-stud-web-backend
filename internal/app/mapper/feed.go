@@ -92,12 +92,17 @@ func MakeRequestPostFeed(f requests.PostFeed) *domain.Feed {
 	}
 }
 
-func MakeRequestPutFeed(f requests.UpdateFeed) *domain.Feed {
+func MakeRequestUpdateFeed(f requests.UpdateFeed) *domain.Feed {
 	return &domain.Feed{
 		ID:          f.ID,
 		Title:       f.Title,
 		Description: f.Description,
-		CreatedBy:   f.CreatedBy,
+		Approved:    f.Approved,
+		MediaID:     f.MediaID,
+		VkPostUrl:   f.VkPostUrl,
 		UpdatedAt:   f.UpdatedAt,
+		CreatedAt:   f.CreatedAt,
+		CreatedBy:   f.CreatedBy,
+		Views:       f.Views,
 	}
 }
