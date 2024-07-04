@@ -26,35 +26,35 @@ type Response interface {
 }
 
 func OkResponse(data interface{}) Response {
-	return &response{body: data, code: http.StatusOK}
+	return &response{head: map[string]string{}, body: data, code: http.StatusOK}
 }
 
 func CreatedResponse(data interface{}) Response {
-	return &response{body: data, code: http.StatusCreated}
+	return &response{head: map[string]string{}, body: data, code: http.StatusCreated}
 }
 
 func NotFoundResponse() Response {
-	return &response{body: nil, code: http.StatusNotFound}
+	return &response{head: map[string]string{}, body: nil, code: http.StatusNotFound}
 }
 
 func InternalServerErrorResponse() Response {
-	return &response{body: nil, code: http.StatusInternalServerError}
+	return &response{head: map[string]string{}, body: nil, code: http.StatusInternalServerError}
 }
 
 func BadRequestResponse() Response {
-	return &response{body: nil, code: http.StatusBadRequest}
+	return &response{head: map[string]string{}, body: nil, code: http.StatusBadRequest}
 }
 
 func UnauthorizedResponse() Response {
-	return &response{body: nil, code: http.StatusUnauthorized}
+	return &response{head: map[string]string{}, body: nil, code: http.StatusUnauthorized}
 }
 
 func NoContentResponse() Response {
-	return &response{body: nil, code: http.StatusNoContent}
+	return &response{head: map[string]string{}, body: nil, code: http.StatusNoContent}
 }
 
 func RequestCanceledResponse() Response {
-	return &response{body: nil, code: 499}
+	return &response{head: map[string]string{}, body: nil, code: 499}
 }
 
 type response struct {
@@ -104,10 +104,8 @@ func (rd *jsonRenderer) Wrap(h func(w http.ResponseWriter, r *http.Request) Resp
 }
 
 func writeResponse(w http.ResponseWriter, r *http.Request, resp Response) {
-	if resp.Head() != nil {
-		for k, v := range resp.Head() {
-			w.Header().Set(k, v)
-		}
+	for k, v := range resp.Head() {
+		w.Header().Set(k, v)
 	}
 	if body := resp.Body(); body != nil {
 		SetResponseStatus(r, resp.HTTPCode())
