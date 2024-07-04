@@ -16,7 +16,11 @@ func RenderJSON(w http.ResponseWriter, r *http.Request, v interface{}) {
 
 // Response
 
+const ErrorHeaderKey = "Error"
+
 type Response interface {
+	SetKVHeader(k, v string)
+	Head() *map[string]string
 	Body() interface{}
 	HTTPCode() int
 }
@@ -54,6 +58,7 @@ func RequestCanceledResponse() Response {
 }
 
 type response struct {
+	head *map[string]string
 	body interface{}
 	code int
 }
@@ -62,8 +67,19 @@ func (r *response) Body() interface{} {
 	return r.body
 }
 
+func (r *response) Head() *map[string]string {
+	return r.head
+}
+
 func (r *response) HTTPCode() int {
 	return r.code
+}
+
+func (r *response) SetKVHeader(k, v string) {
+	if r.head == nil {
+		r.head = &map[string]string{}
+	}
+	(*r.head)[k] = v
 }
 
 // Renderer
@@ -83,12 +99,16 @@ func NewJSONRenderer() Renderer {
 func (rd *jsonRenderer) Wrap(h func(w http.ResponseWriter, r *http.Request) Response) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		resp := h(w, r)
-
 		writeResponse(w, r, resp)
 	}
 }
 
 func writeResponse(w http.ResponseWriter, r *http.Request, resp Response) {
+	if resp.Head() != nil {
+		for k, v := range *resp.Head() {
+			w.Header().Set(k, v)
+		}
+	}
 	if body := resp.Body(); body != nil {
 		SetResponseStatus(r, resp.HTTPCode())
 		RenderJSON(w, r, body)
