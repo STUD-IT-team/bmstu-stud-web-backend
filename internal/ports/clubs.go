@@ -135,21 +135,21 @@ func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) 
 }
 
 func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) handler.Response {
-	// clubId := &requests.GetClubMembers{}
+	clubId := &requests.GetClubMembers{}
 
-	// err := clubId.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetClubMembers GetClubMembers")
-	// 	return handler.BadRequestResponse()
-	// }
+	err := clubId.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetClubMembers GetClubMembers")
+		return handler.BadRequestResponse()
+	}
 
-	// res, err := h.clubs.GetClubMembers(context.Background(), clubId.ID)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetClubMembers GetClubMembers")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	res, err := h.clubs.GetClubMembers(clubId.ID)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetClubMembers GetClubMembers")
+		return handler.NotFoundResponse()
+	}
 
-	return handler.OkResponse(nil)
+	return handler.OkResponse(res)
 }
 
 func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
