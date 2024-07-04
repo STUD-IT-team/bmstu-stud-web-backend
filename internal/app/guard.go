@@ -72,5 +72,5 @@ func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (r
 
 	// return mapper.CreateResponseCheck(true, session.MemberID), nil
 
-	return nil, nil
+	return &responses.CheckResponse{Valid: true, MemberID: 0}, nil
 }

@@ -16,6 +16,7 @@ type ClubsHandler struct {
 	r      handler.Renderer
 	clubs  app.ClubService
 	logger *log.Logger
+	guard  *app.GuardService
 }
 
 func NewClubsHandler(r handler.Renderer, clubs app.ClubService, logger *log.Logger) *ClubsHandler {
@@ -152,11 +153,24 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 }
 
 func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handler.Response {
-	club := &requests.PostClub{}
-
 	h.logger.Info("ClubsHandler: got PostClub request")
 
-	err := club.Bind(req)
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: PostClub Authenticated: %v", resp.MemberID)
+
+	club := &requests.PostClub{}
+	err = club.Bind(req)
 	if err != nil {
 		h.logger.Warnf("can't service.PostClub %v", err)
 		return handler.BadRequestResponse()
