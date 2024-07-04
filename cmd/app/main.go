@@ -90,14 +90,14 @@ func main() {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger),
-			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger),
+			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger),
-			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger),
+			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
 		)
 	}
 

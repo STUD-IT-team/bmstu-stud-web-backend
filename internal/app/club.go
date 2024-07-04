@@ -165,6 +165,32 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 	return mapper.MakeResponseAllClub(res, logos, orgs)
 }
 
+func (s *ClubService) GetClubMembers(clubID int) (*responses.GetClubMembers, error) {
+	orgs, err := s.storage.GetClubOrgs(clubID)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetClubOrgs: %v", err)
+	}
+
+	subOrgs, err := s.storage.GetClubSubOrgs(clubID)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetClubSubOrgs: %v", err)
+	}
+
+	ids := make([]int, 0, len(orgs)+len(subOrgs))
+	for _, org := range orgs {
+		ids = append(ids, org.MediaID)
+	}
+	for _, org := range subOrgs {
+		ids = append(ids, org.MediaID)
+	}
+
+	media, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+	}
+	return mapper.MakeResponseClubMembers(clubID, orgs, subOrgs, media)
+}
+
 func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) error {
 	club, orgs, err := mapper.ParsePostClub(req)
 	if err != nil {
