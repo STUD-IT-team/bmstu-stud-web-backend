@@ -127,16 +127,11 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got PostFeed request")
 
-	c, err := req.Cookie("AccessToken")
+	accessToken, err := getAccessToken(req)
 	if err != nil {
-		if err == http.ErrNoCookie {
-			h.logger.Warnf("cookie is not set PostFeed: %v", err)
-			return handler.BadRequestResponse()
-		}
-		h.logger.Warnf("cookie error PostFeed: %v", err)
+		h.logger.Warnf("can't get access token PostFeed: %v", err)
 		return handler.BadRequestResponse()
 	}
-	accessToken := c.Value
 
 	h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
 
