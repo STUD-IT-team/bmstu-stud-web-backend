@@ -218,19 +218,37 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 }
 
 func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) handler.Response {
-	// club := &requests.DeleteClub{}
+	h.logger.Info("ClubsHandler: got DeleteClub request")
 
-	// err := club.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.DeleteClub DeleteClub")
-	// 	return handler.BadRequestResponse()
-	// }
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	// err = h.clubs.DeleteClub(context.Background(), club.ID)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.DeleteClub DeleteClub")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: DeleteClub Authenticated: %v", resp.MemberID)
+
+	club := &requests.DeleteClub{}
+
+	err = club.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.DeleteClub DeleteClub")
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
+
+	err = h.clubs.DeleteClub(club.ID)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.DeleteClub DeleteClub")
+		return handler.InternalServerErrorResponse()
+	}
 
 	return handler.OkResponse(nil)
 }

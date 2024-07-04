@@ -10,7 +10,7 @@ create table if not exists encounter (
 
 create table if not exists club (
     id serial primary key,
-    name text default '',
+    name text default '' unique,
     short_name text default '',
     description text default '',
     type text default '',

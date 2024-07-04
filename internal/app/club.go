@@ -24,6 +24,7 @@ type clubStorage interface {
 	GetAllClubOrgs() ([]domain.ClubOrg, error)
 	AddClub(c *domain.Club) (int, error)
 	AddOrgs(orgs []domain.ClubOrg) error
+	DeleteClubWithOrgs(clubID int) error
 }
 
 type ClubService struct {
@@ -213,6 +214,15 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 	err = s.storage.AddOrgs(orgs)
 	if err != nil {
 		return fmt.Errorf("can't storage.AddOrgs: %v", err)
+	}
+
+	return nil
+}
+
+func (s *ClubService) DeleteClub(clubID int) error {
+	err := s.storage.DeleteClubWithOrgs(clubID)
+	if err != nil {
+		return fmt.Errorf("can't storage.DeleteClubWithOrgs: %v", err)
 	}
 
 	return nil

@@ -555,3 +555,48 @@ func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
 	}
 	return ph, nil
 }
+
+const deleteClub = "DELETE FROM club WHERE id = $1"
+const deleteClubOrgs = "DELETE FROM club_org WHERE club_id = $1"
+const deleteClubPhotos = "DELETE FROM club_photo WHERE club_id = $1"
+const deleteClubEncounters = "DELETE FROM encounter WHERE club_id = $1"
+const updateClubParents = "UPDATE club SET parent_id=null WHERE parent_id = $1"
+
+func (s *Postgres) DeleteClubWithOrgs(clubID int) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(deleteClub, clubID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(deleteClubOrgs, clubID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(deleteClubPhotos, clubID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(deleteClubEncounters, clubID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(updateClubParents, clubID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit()
+}

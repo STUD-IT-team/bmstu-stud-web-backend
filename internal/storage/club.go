@@ -14,6 +14,7 @@ type clubStorage interface {
 	GetAllClubOrgs() ([]domain.ClubOrg, error)
 	AddClub(c *domain.Club) (int, error)
 	AddOrgs(orgs []domain.ClubOrg) error
+	DeleteClubWithOrgs(clubID int) error
 }
 
 func (s *storage) GetClub(id int) (*domain.Club, error) {
@@ -58,4 +59,8 @@ func (s *storage) AddClub(c *domain.Club) (int, error) {
 
 func (s *storage) AddOrgs(orgs []domain.ClubOrg) error {
 	return s.postgres.AddOrgs(orgs)
+}
+
+func (s *storage) DeleteClubWithOrgs(clubID int) error {
+	return s.postgres.DeleteClubWithOrgs(clubID)
 }
