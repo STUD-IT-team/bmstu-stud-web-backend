@@ -1,6 +1,10 @@
 package postgres
 
-import "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+import (
+	"database/sql"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+)
 
 const getClub = `SELECT 
  name,
@@ -14,7 +18,10 @@ const getClub = `SELECT
  FROM club WHERE id = $1
 `
 
+const NoParentClubID = 0
+
 func (pgs *Postgres) GetClub(id int) (*domain.Club, error) {
+	parentID := sql.NullInt64{}
 	c := domain.Club{}
 	err := pgs.db.QueryRow(getClub, id).Scan(
 		&c.Name,
@@ -22,11 +29,16 @@ func (pgs *Postgres) GetClub(id int) (*domain.Club, error) {
 		&c.Description,
 		&c.Type,
 		&c.LogoId,
-		&c.ParentID,
+		&parentID,
 		&c.VkUrl,
 		&c.TgUrl,
 	)
 	c.ID = id
+	if parentID.Valid {
+		c.ParentID = int(parentID.Int64)
+	} else {
+		c.ParentID = NoParentClubID
+	}
 
 	if err != nil {
 		return nil, err
@@ -57,6 +69,7 @@ func (s *Postgres) GetAllClub() ([]domain.Club, error) {
 
 	for rows.Next() {
 		var c domain.Club
+		parentID := sql.NullInt64{}
 		err = rows.Scan(
 			&c.ID,
 			&c.Name,
@@ -64,11 +77,16 @@ func (s *Postgres) GetAllClub() ([]domain.Club, error) {
 			&c.Description,
 			&c.Type,
 			&c.LogoId,
-			&c.ParentID,
+			&parentID,
 			&c.VkUrl,
 			&c.TgUrl,
 		)
 		if err != nil {
+			if parentID.Valid {
+				c.ParentID = int(parentID.Int64)
+			} else {
+				c.ParentID = NoParentClubID
+			}
 			return []domain.Club{}, err
 		}
 		carr = append(carr, c)
