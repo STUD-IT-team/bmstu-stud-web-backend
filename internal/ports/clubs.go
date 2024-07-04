@@ -135,6 +135,8 @@ func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) 
 }
 
 func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got GetClubMembers request")
+
 	clubId := &requests.GetClubMembers{}
 
 	err := clubId.Bind(req)
@@ -143,31 +145,40 @@ func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) 
 		return handler.BadRequestResponse()
 	}
 
+	h.logger.Infof("ClubsHandler: parse request: %v", clubId)
+
 	res, err := h.clubs.GetClubMembers(clubId.ID)
 	if err != nil {
 		log.WithError(err).Warnf("can't service.GetClubMembers GetClubMembers")
 		return handler.NotFoundResponse()
 	}
 
+	h.logger.Info("ClubsHandler: request done")
+
 	return handler.OkResponse(res)
 }
 
 func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
-	// clubId := &requests.GetClubMedia{}
+	h.logger.Info("ClubsHandler: got GetClubMedia request")
+	clubId := &requests.GetClubMedia{}
 
-	// err := clubId.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetClubMedia GetClubMedia")
-	// 	return handler.BadRequestResponse()
-	// }
+	err := clubId.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetClubMedia GetClubMedia")
+		return handler.BadRequestResponse()
+	}
 
-	// res, err := h.clubs.GetClubMedia(context.Background(), clubId.ID)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.GetClubMedia GetClubMedia")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	h.logger.Infof("ClubsHandler: parse request: %v", clubId)
 
-	return handler.OkResponse(nil)
+	res, err := h.clubs.GetClubMediaFiles(clubId.ID)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.GetClubMedia GetClubMedia")
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("ClubsHandler: request done")
+
+	return handler.OkResponse(res)
 }
 
 func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handler.Response {

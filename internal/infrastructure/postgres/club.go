@@ -285,7 +285,7 @@ WHERE club_id = ANY($1)
 
 func (s *Postgres) GetClubsOrgs(clubIDs []int) ([]domain.ClubOrg, error) {
 	oarr := []domain.ClubOrg{}
-	rows, err := s.db.Query(getClubSubOrgs, clubIDs)
+	rows, err := s.db.Query(getClubsOrgs, clubIDs)
 	if err != nil {
 		return []domain.ClubOrg{}, err
 	}
@@ -516,4 +516,42 @@ func (s *Postgres) AddOrgs(orgs []domain.ClubOrg) error {
 	}
 
 	return tx.Commit()
+}
+
+const getClubMediaFiles = `
+SELECT
+    club_photo.id,
+	club_photo.ref_num,
+	photo.name,
+	photo.image
+FROM club_photo
+JOIN
+(
+	SELECT
+	    name,
+		image,
+		id
+	FROM mediafile
+) as photo
+ON (club_photo.media_id = photo.id)
+WHERE club_id = $1
+`
+
+func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
+	ph := []domain.ClubPhoto{}
+	rows, err := s.db.Query(getClubMediaFiles, clubID)
+	if err != nil {
+		return []domain.ClubPhoto{}, err
+	}
+
+	for rows.Next() {
+		p := domain.ClubPhoto{}
+		err := rows.Scan(&p.ID, &p.RefNumber, &p.Name, &p.Image)
+		if err != nil {
+			return []domain.ClubPhoto{}, err
+		}
+		p.ClubID = clubID
+		ph = append(ph, p)
+	}
+	return ph, nil
 }

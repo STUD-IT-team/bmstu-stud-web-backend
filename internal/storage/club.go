@@ -7,6 +7,7 @@ type clubStorage interface {
 	GetAllClub() ([]domain.Club, error)
 	GetClubsByName(name string) ([]*domain.Club, error)
 	GetClubsByType(type_ string) ([]*domain.Club, error)
+	GetClubMediaFiles(clubId int) (*domain.ClubPhoto, error)
 	GetClubOrgs(clubID int) ([]domain.ClubOrg, error)
 	GetClubsOrgs(clubIDs []int) ([]domain.ClubOrg, error)
 	GetClubSubOrgs(clubID int) ([]domain.ClubOrg, error)
@@ -29,6 +30,10 @@ func (s *storage) GetClubsByName(name string) ([]domain.Club, error) {
 
 func (s *storage) GetClubsByType(type_ string) ([]domain.Club, error) {
 	return s.postgres.GetClubsByType(type_)
+}
+
+func (s *storage) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
+	return s.postgres.GetClubMediaFiles(clubID)
 }
 
 func (s *storage) GetClubOrgs(clubID int) ([]domain.ClubOrg, error) {

@@ -5,3 +5,9 @@ type MediaFile struct {
 	Name  string `"db:name"`
 	Image []byte `"db:image"`
 }
+
+type ClubPhoto struct {
+	MediaFile
+	ClubID    int `db:"club_id"`
+	RefNumber int `db:"ref_number"`
+}

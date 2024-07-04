@@ -157,3 +157,19 @@ func ParsePostClub(req *requests.PostClub) (*domain.Club, []domain.ClubOrg, erro
 	return c, oarr, nil
 
 }
+
+func MakeResponseClubMediaFiles(clubID int, files []domain.ClubPhoto) (*responses.GetClubMedia, error) {
+	r := &responses.GetClubMedia{ID: clubID}
+	for _, f := range files {
+		m := responses.ClubMedia{
+			RefNumber: f.RefNumber,
+			MediaFile: domain.MediaFile{
+				ID:    f.ID,
+				Name:  f.Name,
+				Image: f.Image,
+			},
+		}
+		r.Media = append(r.Media, m)
+	}
+	return r, nil
+}
