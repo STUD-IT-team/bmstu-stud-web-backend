@@ -3,7 +3,7 @@ package domain
 type MediaFile struct {
 	ID       int    `"db:id"`
 	Name     string `"db:name"`
-	ImageUrl string `"db:image"`
+	ImageUrl string `"db:image_url"`
 }
 
 type ClubPhoto struct {
