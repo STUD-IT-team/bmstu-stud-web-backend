@@ -2,12 +2,14 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	log "github.com/sirupsen/logrus"
 
@@ -231,6 +233,9 @@ func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) ha
 	err = h.members.PostMember(context.Background(), *mapper.MakeRequestPostMember(*member))
 	if err != nil {
 		h.logger.Warnf("can't MembersService.PostMember: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		}
 		return handler.NotFoundResponse()
 	}
 	handler.NotFoundResponse()
@@ -333,7 +338,10 @@ func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) 
 
 	err = h.members.UpdateMember(context.Background(), *mapper.MakeRequestUpdateMember(*member))
 	if err != nil {
-		h.logger.Warnf("can't MemberService.UpdateMember: %v", err)
+		h.logger.Warnf("can't MembersService.UpdateMember: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		}
 		return handler.NotFoundResponse()
 	}
 

@@ -38,7 +38,7 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 
 	res, err = s.storage.GetAllFeed(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetAllFeed: %v", err)
+		return nil, fmt.Errorf("can't storage.GetAllFeed: %w", err)
 	}
 
 	ids := make([]int, 0, len(res))
@@ -48,7 +48,7 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 
 	feedMediaFiles, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %v", err)
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %w", err)
 	}
 
 	return mapper.MakeResponseAllFeed(res, feedMediaFiles)
@@ -57,12 +57,12 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, error) {
 	res, err := s.storage.GetFeed(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeed: %v", err)
+		return nil, fmt.Errorf("can't storage.GetFeed: %w", err)
 	}
 
 	feedMediaFile, err := s.storage.GetMediaFile(id)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %v", err)
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %w", err)
 	}
 
 	return mapper.MakeResponseFeed(&res, feedMediaFile)
@@ -74,7 +74,7 @@ func (s *FeedService) GetFeedEncounters(ctx context.Context, id int) (*responses
 
 	res, err = s.storage.GetFeedEncounters(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeedEncounters: %v", err)
+		return nil, fmt.Errorf("can't storage.GetFeedEncounters: %w", err)
 	}
 
 	return mapper.MakeResponseFeedEncounters(res)
@@ -89,7 +89,7 @@ func (s *FeedService) GetFeedByTitle(
 
 	res, err = s.storage.GetFeedByTitle(ctx, filter.Search)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeedByTitle: %v", err)
+		return nil, fmt.Errorf("can't storage.GetFeedByTitle: %w", err)
 	}
 
 	ids := make([]int, 0, len(res))
@@ -99,7 +99,7 @@ func (s *FeedService) GetFeedByTitle(
 
 	feedMediaFiles, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %v", err)
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %w", err)
 	}
 
 	return mapper.MakeResponseFeedByTitle(res, feedMediaFiles)
@@ -108,7 +108,7 @@ func (s *FeedService) GetFeedByTitle(
 func (s *FeedService) PostFeed(ctx context.Context, feed domain.Feed) error {
 	err := s.storage.PostFeed(ctx, feed)
 	if err != nil {
-		return fmt.Errorf("can't storage.PostFeed: %v", err)
+		return fmt.Errorf("can't storage.PostFeed: %w", err)
 	}
 
 	return nil
@@ -116,7 +116,7 @@ func (s *FeedService) PostFeed(ctx context.Context, feed domain.Feed) error {
 
 func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 	if err := s.storage.DeleteFeed(ctx, id); err != nil {
-		return fmt.Errorf("can't storage.DeleteFeed: %v", err)
+		return fmt.Errorf("can't storage.DeleteFeed: %w", err)
 	}
 
 	return nil
@@ -124,7 +124,7 @@ func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 
 func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 	if err := s.storage.UpdateFeed(ctx, feed); err != nil {
-		return fmt.Errorf("can't storage.UpdateFeed: %v", err)
+		return fmt.Errorf("can't storage.UpdateFeed: %w", err)
 	}
 
 	return nil
@@ -140,17 +140,17 @@ func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
 // 	if filter.Limit.IsPresent() && filter.Offset.IsPresent() {
 // 		res, err = s.storage.GetFeedByFilterLimitAndOffset(ctx, filter.Limit.MustGet(), filter.Offset.MustGet())
 // 		if err != nil {
-// 			return nil, fmt.Errorf("can't storage.GetFeedByFilterLimitAndOffset: %v", err)
+// 			return nil, fmt.Errorf("can't storage.GetFeedByFilterLimitAndOffset: %w", err)
 // 		}
 // 	} else if filter.IdLast.IsPresent() && filter.Offset.IsPresent() {
 // 		res, err = s.storage.GetFeedByFilterIdLastAndOffset(ctx, filter.IdLast.MustGet(), filter.Offset.MustGet())
 // 		if err != nil {
-// 			return nil, fmt.Errorf("can't storage.GetFeedByFilterIdLastAndOffset: %v", err)
+// 			return nil, fmt.Errorf("can't storage.GetFeedByFilterIdLastAndOffset: %w", err)
 // 		}
 // 	} else {
 // 		res, err = s.storage.GetAllFeed(ctx)
 // 		if err != nil {
-// 			return nil, fmt.Errorf("can't storage.GetAllFeed: %v", err)
+// 			return nil, fmt.Errorf("can't storage.GetAllFeed: %w", err)
 // 		}
 // 	}
 

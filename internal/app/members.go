@@ -34,7 +34,7 @@ func (s *MembersService) GetAllMembers(ctx context.Context) (*responses.GetAllMe
 
 	res, err = s.storage.GetAllMembers(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetAllMembers: %v", err)
+		return nil, fmt.Errorf("can't storage.GetAllMembers: %w", err)
 	}
 
 	ids := make([]int, 0, len(res))
@@ -44,7 +44,7 @@ func (s *MembersService) GetAllMembers(ctx context.Context) (*responses.GetAllMe
 
 	membersMediaFiles, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %v", err)
+		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %w", err)
 	}
 
 	return mapper.MakeResponseAllMembers(res, membersMediaFiles)
@@ -53,12 +53,12 @@ func (s *MembersService) GetAllMembers(ctx context.Context) (*responses.GetAllMe
 func (s *MembersService) GetMember(ctx context.Context, id int) (*responses.GetMember, error) {
 	res, err := s.storage.GetMember(ctx, id)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetMember: %v", err)
+		return nil, fmt.Errorf("can't storage.GetMember: %w", err)
 	}
 
 	feedMediaFile, err := s.storage.GetMediaFile(id)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %v", err)
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %w", err)
 	}
 
 	return mapper.MakeResponseMember(&res, feedMediaFile)
@@ -67,7 +67,7 @@ func (s *MembersService) GetMember(ctx context.Context, id int) (*responses.GetM
 func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*responses.GetMembersByName, error) {
 	res, err := s.storage.GetMembersByName(ctx, name)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetMembersByName: %v", err)
+		return nil, fmt.Errorf("can't storage.GetMembersByName: %w", err)
 	}
 
 	ids := make([]int, 0, len(res))
@@ -77,7 +77,7 @@ func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*re
 
 	membersMediaFiles, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %v", err)
+		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %w", err)
 	}
 
 	return mapper.MakeResponseMembersByName(res, membersMediaFiles)
@@ -86,7 +86,7 @@ func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*re
 func (s *MembersService) PostMember(ctx context.Context, member domain.Member) error {
 	err := s.storage.PostMember(ctx, member)
 	if err != nil {
-		return fmt.Errorf("can't storage.PostMember: %v", err)
+		return fmt.Errorf("can't storage.PostMember: %w", err)
 	}
 
 	return nil
@@ -95,7 +95,7 @@ func (s *MembersService) PostMember(ctx context.Context, member domain.Member) e
 func (s *MembersService) DeleteMember(ctx context.Context, id int) error {
 	err := s.storage.DeleteMember(ctx, id)
 	if err != nil {
-		return fmt.Errorf("can't storage.DeleteMember: %v", err)
+		return fmt.Errorf("can't storage.DeleteMember: %w", err)
 	}
 
 	return nil
@@ -104,7 +104,7 @@ func (s *MembersService) DeleteMember(ctx context.Context, id int) error {
 func (s *MembersService) UpdateMember(ctx context.Context, member domain.Member) error {
 	err := s.storage.UpdateMember(ctx, member)
 	if err != nil {
-		return fmt.Errorf("can't storage.UpdateMember: %v", err)
+		return fmt.Errorf("can't storage.UpdateMember: %w", err)
 	}
 
 	return nil

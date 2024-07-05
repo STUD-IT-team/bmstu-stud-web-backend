@@ -7,6 +7,7 @@ import (
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/jackc/pgx"
 )
 
 const getAllMembersQuery = "SELECT id, hash_password, login, media_id, telegram, vk, name, role_id, is_admin FROM member"
@@ -132,7 +133,8 @@ func (p *Postgres) PostMember(ctx context.Context, member domain.Member) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("can't insert member into postgres %w", err)
+		pgErr := err.(pgx.PgError)
+		return wrapPostgresError(pgErr.Code, ErrPostgresUniqueConstraintViolation)
 	}
 
 	return nil
@@ -180,7 +182,8 @@ func (p *Postgres) UpdateMember(ctx context.Context, member domain.Member) error
 	)
 
 	if err != nil {
-		return fmt.Errorf("can't update member on postgres %w", err)
+		pgErr := err.(pgx.PgError)
+		return wrapPostgresError(pgErr.Code, ErrPostgresUniqueConstraintViolation)
 	}
 
 	return nil
