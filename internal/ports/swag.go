@@ -5,6 +5,8 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	httpSwagger "github.com/swaggo/http-swagger"
+
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/app/docs"
 )
 
 type SwagHandler struct {
