@@ -201,6 +201,8 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 //	@Success     201
 //	@Failure     400
 //	@Failure     401
+//	@Failure     404
+//	@Failure     409
 //	@Router      /members [post]
 //	@Security    Authorised
 func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -307,6 +309,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     409
 //	@Router      /members/update [put]
 //	@Security    Authorised
 func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) handler.Response {
