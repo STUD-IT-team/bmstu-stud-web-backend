@@ -7,6 +7,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	log "github.com/sirupsen/logrus"
 
@@ -46,6 +47,18 @@ func (h *MembersHandler) Routes() chi.Router {
 	return r
 }
 
+// GetAllMembers retrieves all members
+//
+//	@Summary     Retrieve all members
+//	@Description Get a list of all members
+//	@Tags        auth.members
+//	@Produce     json
+//	@Success     200 {object} responses.Member
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /members [get]
+//	@Security    Authorised
 func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got GetAllMembers request")
 
@@ -74,6 +87,19 @@ func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request)
 	return handler.OkResponse(res)
 }
 
+// GetMember retrieves a member by ID
+//
+//	@Summary     Retrieve member by ID
+//	@Description Get a specific member using its ID
+//	@Tags        auth.members
+//	@Produce     json
+//	@Param       id   path     string           true "Member ID"
+//	@Success     200 {object} responses.Member
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /members/{id} [get]
+//	@Security    Authorised
 func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got GetMember request")
 
@@ -112,6 +138,19 @@ func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) han
 	return handler.OkResponse(res)
 }
 
+// GetMembersByName retrieves members by name
+//
+//	@Summary     Retrieve members by name
+//	@Description Get members that match the specified name
+//	@Tags        auth.members
+//	@Produce     json
+//	@Param       name   path     string           true "Member name"
+//	@Success     200 {array} responses.Member
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /members/search/{name} [get]
+//	@Security    Authorised
 func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got GetMembersByName request")
 
@@ -150,6 +189,18 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 	return handler.OkResponse(res)
 }
 
+// PostMember creates a new member
+//
+//	@Summary     Create a new member
+//	@Description Create a new member with the provided data
+//	@Tags        auth.members
+//	@Accept      json
+//	@Param       request body requests.PostMember true "Member data"
+//	@Success     201
+//	@Failure     400
+//	@Failure     401
+//	@Router      /members [post]
+//	@Security    Authorised
 func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got PostMember request")
 
@@ -189,6 +240,19 @@ func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) ha
 	return handler.CreatedResponse(nil)
 }
 
+// DeleteMember deletes a member by ID
+//
+//	@Summary     Delete a member by ID
+//	@Description Delete a member using its ID
+//	@Tags        auth.members
+//	@Produce     json
+//	@Param       id   path     string           true "Member ID"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /members/{id} [delete]
+//	@Security    Authorised
 func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got DeleteMember request")
 
@@ -227,6 +291,19 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 	return handler.OkResponse(nil)
 }
 
+// UpdateMember updates a member's information
+//
+//	@Summary     Update a member's information
+//	@Description Update a member's information with the provided data
+//	@Tags        auth.members
+//	@Accept      json
+//	@Param       request body requests.UpdateMember true "Member data"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /members/update [put]
+//	@Security    Authorised
 func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got UpdateMember request")
 
