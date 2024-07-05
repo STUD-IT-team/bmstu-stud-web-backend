@@ -7,6 +7,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
@@ -47,6 +48,16 @@ func (h *FeedHandler) Routes() chi.Router {
 	return r
 }
 
+// GetAllFeed retrieves all feed items
+//
+//	@Summary     Retrieve all feed items
+//	@Description Get a list of all feed items
+//	@Tags        public.feed
+//	@Produce     json
+//	@Success     200 {object}  responses.GetAllFeed
+//	@Failure     404
+//	@Router      /feed [get]
+//	@Security    public
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got GetAllFeed request")
 
@@ -61,6 +72,18 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 	return handler.OkResponse(res)
 }
 
+// GetFeed retrieves a feed item by its ID
+//
+//	@Summary     Retrieve feed item by ID
+//	@Description Get a specific feed item using its ID
+//	@Tags        public.feed
+//	@Produce     json
+//	@Param       id   path     string           true "id"
+//	@Success     200  {object} responses.GetFeed
+//	@Failure     400
+//	@Failure     404
+//	@Router      /feed/{id} [get]
+//	@Security    public
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got GetFeed request")
 
@@ -85,20 +108,32 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 	return handler.OkResponse(res)
 }
 
+// GetFeedEncounters retrieves by id
+//
+//	@Summary     Retrieve encounters by ID
+//	@Description Get encounters using ID
+//	@Tags        public.feed
+//	@Produce     json
+//	@Param       id   path     string           true "id"
+//	@Success     200  {object} responses.GetFeedEncounters
+//	@Failure     400
+//	@Failure     404
+//	@Router      /feed/encounters/{id} [get]
+//	@Security    public
 func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got GetFeedEncounters request")
 
-	feedId := &requests.GetFeedEncounters{}
+	encounterId := &requests.GetFeedEncounters{}
 
-	err := feedId.Bind(req)
+	err := encounterId.Bind(req)
 	if err != nil {
 		h.logger.Warnf("can't requests.Bind GetFeedEncounters: %v", err)
 		return handler.BadRequestResponse()
 	}
 
-	h.logger.Infof("FeedHandler: parse request GetFeedEncounters: %v", feedId)
+	h.logger.Infof("FeedHandler: parse request GetFeedEncounters: %v", encounterId)
 
-	res, err := h.feed.GetFeedEncounters(context.Background(), feedId.ID)
+	res, err := h.feed.GetFeedEncounters(context.Background(), encounterId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeedEncounters: %v", err)
 		return handler.NotFoundResponse()
@@ -109,6 +144,18 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 	return handler.OkResponse(res)
 }
 
+// GetFeedByTitle retrieves feed items by title
+//
+//	@Summary     Retrieve feed items by title
+//	@Description Get feed items that match the specified title
+//	@Tags        public.feed
+//	@Produce     json
+//	@Param       title path    string           true "title"
+//	@Success     200  {object} responses.GetFeedByTitle
+//	@Failure     400
+//	@Failure     404
+//	@Router      /feed/search/{title} [get]
+//	@Security    public
 func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got GetFeedByTitle request")
 
@@ -133,6 +180,19 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 	return handler.OkResponse(res)
 }
 
+// PostFeed creates a new feed item
+//
+//		@Summary     Create a new feed item
+//		@Description Create a new feed item with the provided data
+//		@Tags        auth.feed
+//		@Accept      json
+//		@Param       request body requests.PostFeed true "Feed data"
+//		@Success     201
+//		@Failure     400
+//	 	@Failure     401
+//		@Failure     404
+//		@Router      /feed [post]
+//		@Security    Authorised
 func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got PostFeed request")
 
@@ -171,6 +231,18 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 	return handler.CreatedResponse(nil)
 }
 
+// DeleteFeed deletes a feed item by ID
+//
+//	@Summary     Delete a feed item by ID
+//	@Description Delete a specific feed item using its ID
+//	@Tags        auth.feed
+//	@Param       id   path     string           true "Feed ID"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /feed/{id} [delete]
+//	@Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got DeleteFeed request")
 
@@ -209,6 +281,20 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	return handler.OkResponse(nil)
 }
 
+// UpdateFeed updates a feed item
+//
+//	@Summary     Update a feed item
+//	@Description Update an existing feed item with the provided data
+//	@Tags        auth.feed
+//	@Accept      json
+//	@Param       id   path     string           true "Feed ID"
+//	@Param       request body requests.UpdateFeed true "Feed new data"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /feed/{id} [put]
+//	@Security    Authorised
 func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got UpdateFeed request")
 
