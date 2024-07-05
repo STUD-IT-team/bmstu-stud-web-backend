@@ -249,24 +249,45 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 		log.WithError(err).Warnf("can't service.DeleteClub DeleteClub")
 		return handler.InternalServerErrorResponse()
 	}
+	h.logger.Info("ClubsHandler: request done")
 
 	return handler.OkResponse(nil)
 }
 
 func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) handler.Response {
-	// club := &requests.UpdateClub{}
+	h.logger.Info("ClubsHandler: got UpdateClub request")
 
-	// err := club.Bind(req)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.UpdateClub UpdateClub")
-	// 	return handler.BadRequestResponse()
-	// }
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
 
-	// err = h.clubs.UpdateClub(context.Background(), club)
-	// if err != nil {
-	// 	log.WithError(err).Warnf("can't service.UpdateClub UpdateClub")
-	// 	return handler.InternalServerErrorResponse()
-	// }
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: UpdateClub Authenticated: %v", resp.MemberID)
+
+	club := &requests.UpdateClub{}
+
+	err = club.Bind(req)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.UpdateClub UpdateClub")
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
+
+	err = h.clubs.UpdateClub(club)
+	if err != nil {
+		log.WithError(err).Warnf("can't service.UpdateClub UpdateClub")
+		return handler.InternalServerErrorResponse()
+	}
+
+	h.logger.Info("ClubsHandler: request done")
 
 	return handler.OkResponse(nil)
 }

@@ -164,12 +164,38 @@ func MakeResponseClubMediaFiles(clubID int, files []domain.ClubPhoto) (*response
 		m := responses.ClubMedia{
 			RefNumber: f.RefNumber,
 			MediaFile: domain.MediaFile{
-				ID:    f.ID,
-				Name:  f.Name,
-				Image: f.Image,
+				ID:       f.ID,
+				Name:     f.Name,
+				ImageUrl: f.ImageUrl,
 			},
 		}
 		r.Media = append(r.Media, m)
 	}
 	return r, nil
+}
+
+func ParseUpdateClub(req *requests.UpdateClub) (*domain.Club, []domain.ClubOrg, error) {
+	c := &domain.Club{}
+
+	c.ID = req.ID
+	c.Name = req.Name
+	c.ShortName = req.ShortName
+	c.Description = req.Description
+	c.LogoId = req.LogoId
+	c.Type = req.Type
+	c.VkUrl = req.VkUrl
+	c.TgUrl = req.TgUrl
+	c.ParentID = req.ParentID
+
+	oarr := []domain.ClubOrg{}
+	for _, org := range req.Orgs {
+		o := domain.ClubOrg{}
+		o.ID = org.MemberID
+		o.RoleName = org.RoleName
+		o.RoleSpec = org.RoleSpec
+		o.ClubID = c.ID
+		oarr = append(oarr, o)
+	}
+
+	return c, oarr, nil
 }

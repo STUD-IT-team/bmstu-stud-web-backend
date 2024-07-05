@@ -523,13 +523,13 @@ SELECT
     club_photo.id,
 	club_photo.ref_num,
 	photo.name,
-	photo.image
+	photo.image_url
 FROM club_photo
 JOIN
 (
 	SELECT
 	    name,
-		image,
+		image_url,
 		id
 	FROM mediafile
 ) as photo
@@ -546,7 +546,7 @@ func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
 
 	for rows.Next() {
 		p := domain.ClubPhoto{}
-		err := rows.Scan(&p.ID, &p.RefNumber, &p.Name, &p.Image)
+		err := rows.Scan(&p.ID, &p.RefNumber, &p.Name, &p.ImageUrl)
 		if err != nil {
 			return []domain.ClubPhoto{}, err
 		}
@@ -598,5 +598,56 @@ func (s *Postgres) DeleteClubWithOrgs(clubID int) error {
 		return err
 	}
 
+	return tx.Commit()
+}
+
+const updateClub = `
+UPDATE club
+SET name=$1,
+    short_name=$2,
+    description=$3,
+    type=$4,
+	logo=$5,
+    parent_id=$6,
+    vk_url=$7, 
+    tg_url=$8
+WHERE id = $9
+`
+
+func (s *Postgres) UpdateClub(c *domain.Club, o []domain.ClubOrg) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(updateClub,
+		c.Name,
+		c.ShortName,
+		c.Description,
+		c.Type,
+		c.LogoId,
+		c.ParentID,
+		c.VkUrl,
+		c.TgUrl,
+		c.ID,
+	)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(deleteClubOrgs, c.ID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, org := range o {
+		_, err = tx.Exec(addOrgs, org.RoleName, org.RoleSpec, org.ID, c.ID)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
 	return tx.Commit()
 }

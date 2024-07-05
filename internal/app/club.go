@@ -25,6 +25,7 @@ type clubStorage interface {
 	AddClub(c *domain.Club) (int, error)
 	AddOrgs(orgs []domain.ClubOrg) error
 	DeleteClubWithOrgs(clubID int) error
+	UpdateClub(c *domain.Club, o []domain.ClubOrg) error
 }
 
 type ClubService struct {
@@ -223,6 +224,19 @@ func (s *ClubService) DeleteClub(clubID int) error {
 	err := s.storage.DeleteClubWithOrgs(clubID)
 	if err != nil {
 		return fmt.Errorf("can't storage.DeleteClubWithOrgs: %v", err)
+	}
+
+	return nil
+}
+
+func (s *ClubService) UpdateClub(req *requests.UpdateClub) error {
+	club, orgs, err := mapper.ParseUpdateClub(req)
+	if err != nil {
+		return fmt.Errorf("can't mapper.PostClub: %v", err)
+	}
+	err = s.storage.UpdateClub(club, orgs)
+	if err != nil {
+		return fmt.Errorf("can't storage.UpdateClub: %v", err)
 	}
 
 	return nil
