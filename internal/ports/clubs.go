@@ -264,7 +264,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 // @Failure    401
 // @Failure    500
 // @Router      /clubs [post]
-// @Security    Public
+// @Security    Authotized
 func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got PostClub request")
 
@@ -313,7 +313,7 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 // @Failure    401
 // @Failure    500
 // @Router      /clubs [delete]
-// @Security    Public
+// @Security    Authotized
 func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got DeleteClub request")
 
@@ -364,7 +364,7 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 // @Failure    401
 // @Failure    500
 // @Router      /clubs [put]
-// @Security    Public
+// @Security    Authotized
 func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got UpdateClub request")
 
