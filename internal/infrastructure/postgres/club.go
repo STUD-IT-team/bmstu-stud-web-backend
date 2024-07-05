@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/jackc/pgx"
 )
 
 const getClub = `SELECT 
@@ -487,7 +488,7 @@ func (s *Postgres) AddClub(c *domain.Club) (int, error) {
 	var id int
 	err := row.Scan(&id)
 	if err != nil {
-		return 0, err
+		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 	return id, nil
 }
@@ -617,7 +618,7 @@ WHERE id = $9
 func (s *Postgres) UpdateClub(c *domain.Club, o []domain.ClubOrg) error {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(updateClub,
@@ -633,21 +634,22 @@ func (s *Postgres) UpdateClub(c *domain.Club, o []domain.ClubOrg) error {
 	)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(deleteClubOrgs, c.ID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	for _, org := range o {
 		_, err = tx.Exec(addOrgs, org.RoleName, org.RoleSpec, org.ID, c.ID)
 		if err != nil {
 			tx.Rollback()
-			return err
+			return wrapPostgresError(err.(pgx.PgError).Code, err)
 		}
 	}
-	return tx.Commit()
+	err = tx.Commit()
+	return wrapPostgresError(err.(pgx.PgError).Code, err)
 }

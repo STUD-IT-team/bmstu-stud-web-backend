@@ -39,19 +39,19 @@ func NewClubService(storage clubStorage) *ClubService {
 func (s *ClubService) GetClub(id int) (*responses.GetClub, error) {
 	club, err := s.storage.GetClub(id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClub: %v", err)
+		err = fmt.Errorf("can't storage.GetClub: %w", err)
 		return nil, err
 	}
 
 	mainOrgs, err := s.storage.GetClubOrgs(id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubOrgs: %v", err)
+		err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
 		return nil, err
 	}
 
 	subOrgs, err := s.storage.GetClubSubOrgs(id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubSubOrgs: %v", err)
+		err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func (s *ClubService) GetClub(id int) (*responses.GetClub, error) {
 
 	ims, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
 	}
 
@@ -76,7 +76,7 @@ func (s *ClubService) GetClub(id int) (*responses.GetClub, error) {
 func (s *ClubService) GetClubsByName(name string) (*responses.GetClubsByName, error) {
 	res, err := s.storage.GetClubsByName(name)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubsByName: %v", err)
+		err = fmt.Errorf("can't storage.GetClubsByName: %w", err)
 		return nil, err
 	}
 
@@ -91,13 +91,13 @@ func (s *ClubService) GetClubsByName(name string) (*responses.GetClubsByName, er
 
 	logos, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
 	}
 
 	orgs, err := s.storage.GetAllClubOrgs()
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetAllClubOrgs: %v", err)
+		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
 	}
 	resp, err := mapper.MakeResponseAllClub(res, logos, orgs)
@@ -108,7 +108,7 @@ func (s *ClubService) GetClubsByName(name string) (*responses.GetClubsByName, er
 func (s *ClubService) GetClubsByType(type_ string) (*responses.GetClubsByType, error) {
 	res, err := s.storage.GetClubsByType(type_)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubsByName: %v", err)
+		err = fmt.Errorf("can't storage.GetClubsByName: %w", err)
 		return nil, err
 	}
 
@@ -123,13 +123,13 @@ func (s *ClubService) GetClubsByType(type_ string) (*responses.GetClubsByType, e
 
 	logos, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
 	}
 
 	orgs, err := s.storage.GetAllClubOrgs()
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetAllClubOrgs: %v", err)
+		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
 	}
 	resp, err := mapper.MakeResponseAllClub(res, logos, orgs)
@@ -141,7 +141,7 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 	res, err := s.storage.GetAllClub()
 
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetAllClub: %v", err)
+		err = fmt.Errorf("can't storage.GetAllClub: %w", err)
 		return nil, err
 	}
 
@@ -156,13 +156,13 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 
 	logos, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
 	}
 
 	orgs, err := s.storage.GetAllClubOrgs()
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetAllClubOrgs: %v", err)
+		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
 	}
 	return mapper.MakeResponseAllClub(res, logos, orgs)
@@ -171,12 +171,12 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 func (s *ClubService) GetClubMembers(clubID int) (*responses.GetClubMembers, error) {
 	orgs, err := s.storage.GetClubOrgs(clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubOrgs: %v", err)
+		return nil, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
 	}
 
 	subOrgs, err := s.storage.GetClubSubOrgs(clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubSubOrgs: %v", err)
+		return nil, fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
 	}
 
 	if len(orgs)+len(subOrgs) == 0 {
@@ -193,7 +193,7 @@ func (s *ClubService) GetClubMembers(clubID int) (*responses.GetClubMembers, err
 
 	media, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetMediaFiles: %v", err)
+		return nil, fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 	}
 	return mapper.MakeResponseClubMembers(clubID, orgs, subOrgs, media)
 }
@@ -201,11 +201,11 @@ func (s *ClubService) GetClubMembers(clubID int) (*responses.GetClubMembers, err
 func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) error {
 	club, orgs, err := mapper.ParsePostClub(req)
 	if err != nil {
-		return fmt.Errorf("can't mapper.PostClub: %v", err)
+		return fmt.Errorf("can't mapper.PostClub: %w", err)
 	}
 	clubID, err := s.storage.AddClub(club)
 	if err != nil {
-		return fmt.Errorf("can't storage.AddClub: %v", err)
+		return fmt.Errorf("can't storage.AddClub: %w", err)
 	}
 
 	for i := range orgs {
@@ -214,7 +214,7 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 
 	err = s.storage.AddOrgs(orgs)
 	if err != nil {
-		return fmt.Errorf("can't storage.AddOrgs: %v", err)
+		return fmt.Errorf("can't storage.AddOrgs: %w", err)
 	}
 
 	return nil
@@ -223,7 +223,7 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 func (s *ClubService) DeleteClub(clubID int) error {
 	err := s.storage.DeleteClubWithOrgs(clubID)
 	if err != nil {
-		return fmt.Errorf("can't storage.DeleteClubWithOrgs: %v", err)
+		return fmt.Errorf("can't storage.DeleteClubWithOrgs: %w", err)
 	}
 
 	return nil
@@ -232,11 +232,11 @@ func (s *ClubService) DeleteClub(clubID int) error {
 func (s *ClubService) UpdateClub(req *requests.UpdateClub) error {
 	club, orgs, err := mapper.ParseUpdateClub(req)
 	if err != nil {
-		return fmt.Errorf("can't mapper.PostClub: %v", err)
+		return fmt.Errorf("can't mapper.PostClub: %w", err)
 	}
 	err = s.storage.UpdateClub(club, orgs)
 	if err != nil {
-		return fmt.Errorf("can't storage.UpdateClub: %v", err)
+		return fmt.Errorf("can't storage.UpdateClub: %w", err)
 	}
 
 	return nil
@@ -245,7 +245,7 @@ func (s *ClubService) UpdateClub(req *requests.UpdateClub) error {
 func (s *ClubService) GetClubMediaFiles(clubID int) (*responses.GetClubMedia, error) {
 	res, err := s.storage.GetClubMediaFiles(clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %v", err)
+		return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
 	}
 
 	if len(res) == 0 {

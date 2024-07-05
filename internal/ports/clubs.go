@@ -2,11 +2,13 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	log "github.com/sirupsen/logrus"
 
@@ -63,7 +65,7 @@ func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) han
 
 	res, err := h.clubs.GetAllClubs()
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllClubs GetAllClubs")
+		h.logger.Warnf("can't service.GetAllClubs GetAllClubs: %v", err)
 		return handler.NotFoundResponse()
 	}
 
@@ -200,7 +202,7 @@ func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) 
 
 	err := clubId.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetClubMembers GetClubMembers")
+		h.logger.Warnf("can't service.GetClubMembers GetClubMembers: %v", err)
 		return handler.BadRequestResponse()
 	}
 
@@ -208,7 +210,7 @@ func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) 
 
 	res, err := h.clubs.GetClubMembers(clubId.ID)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetClubMembers GetClubMembers")
+		h.logger.Warnf("can't service.GetClubMembers GetClubMembers: %v", err)
 		return handler.NotFoundResponse()
 	}
 
@@ -235,7 +237,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 
 	err := clubId.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetClubMedia GetClubMedia")
+		h.logger.Warnf("can't service.GetClubMedia GetClubMedia: %v", err)
 		return handler.BadRequestResponse()
 	}
 
@@ -243,7 +245,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 
 	res, err := h.clubs.GetClubMediaFiles(clubId.ID)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.GetClubMedia GetClubMedia")
+		h.logger.Warnf("can't service.GetClubMedia GetClubMedia: %v", err)
 		return handler.NotFoundResponse()
 	}
 
@@ -262,6 +264,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    409
 // @Failure    500
 // @Router      /clubs [post]
 // @Security    Authotized
@@ -292,9 +295,14 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 	h.logger.Infof("ClubsHandler: parse request: %v", club)
 
 	err = h.clubs.PostClub(context.Background(), club)
+
 	if err != nil {
 		h.logger.Warnf("can't service.PostClub %v", err)
-		return handler.InternalServerErrorResponse()
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
@@ -335,7 +343,7 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 
 	err = club.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.DeleteClub DeleteClub")
+		h.logger.Warnf("can't service.DeleteClub DeleteClub: %v", err)
 		return handler.BadRequestResponse()
 	}
 
@@ -343,7 +351,7 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 
 	err = h.clubs.DeleteClub(club.ID)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.DeleteClub DeleteClub")
+		h.logger.Warnf("can't service.DeleteClub DeleteClub: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 	h.logger.Info("ClubsHandler: request done")
@@ -351,7 +359,7 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 	return handler.OkResponse(nil)
 }
 
-// DeleteClub
+// UpdateClub
 //
 // @Summary    Обновляет данные клуба в базе данных
 // @Description Обновляет данные клуба в базе данных, требуется аутентификация
@@ -362,6 +370,7 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    409
 // @Failure    500
 // @Router      /clubs [put]
 // @Security    Authotized
@@ -386,7 +395,7 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 
 	err = club.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.UpdateClub UpdateClub")
+		h.logger.Warnf("can't service.UpdateClub UpdateClub: %v", err)
 		return handler.BadRequestResponse()
 	}
 
@@ -394,8 +403,12 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 
 	err = h.clubs.UpdateClub(club)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.UpdateClub UpdateClub")
-		return handler.InternalServerErrorResponse()
+		h.logger.Warnf("can't service.UpdateClub UpdateClub: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
