@@ -16,6 +16,8 @@ type membersServiceStorage interface {
 	PostMember(ctx context.Context, member domain.Member) error
 	DeleteMember(ctx context.Context, id int) error
 	UpdateMember(ctx context.Context, member domain.Member) error
+	GetMediaFile(id int) (*domain.MediaFile, error)
+	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
 }
 
 type MembersService struct {
@@ -35,7 +37,17 @@ func (s *MembersService) GetAllMembers(ctx context.Context) (*responses.GetAllMe
 		return nil, fmt.Errorf("can't storage.GetAllMembers: %v", err)
 	}
 
-	return mapper.MakeResponseAllMembers(res), nil
+	ids := make([]int, 0, len(res))
+	for _, member := range res {
+		ids = append(ids, member.MediaID)
+	}
+
+	membersMediaFiles, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %v", err)
+	}
+
+	return mapper.MakeResponseAllMembers(res, membersMediaFiles)
 }
 
 func (s *MembersService) GetMember(ctx context.Context, id int) (*responses.GetMember, error) {
@@ -44,7 +56,12 @@ func (s *MembersService) GetMember(ctx context.Context, id int) (*responses.GetM
 		return nil, fmt.Errorf("can't storage.GetMember: %v", err)
 	}
 
-	return mapper.MakeResponseMember(res), nil
+	feedMediaFile, err := s.storage.GetMediaFile(id)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %v", err)
+	}
+
+	return mapper.MakeResponseMember(&res, feedMediaFile)
 }
 
 func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*responses.GetMembersByName, error) {
@@ -53,7 +70,17 @@ func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*re
 		return nil, fmt.Errorf("can't storage.GetMembersByName: %v", err)
 	}
 
-	return mapper.MakeResponseMembersByName(res), nil
+	ids := make([]int, 0, len(res))
+	for _, member := range res {
+		ids = append(ids, member.MediaID)
+	}
+
+	membersMediaFiles, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %v", err)
+	}
+
+	return mapper.MakeResponseMembersByName(res, membersMediaFiles)
 }
 
 func (s *MembersService) PostMember(ctx context.Context, member domain.Member) error {

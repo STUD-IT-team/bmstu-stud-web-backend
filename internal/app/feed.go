@@ -18,6 +18,8 @@ type feedServiceStorage interface {
 	PostFeed(ctx context.Context, feed domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed domain.Feed) error
+	GetMediaFile(id int) (*domain.MediaFile, error)
+	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
 	// GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
 	// GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
 }
@@ -39,7 +41,17 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 		return nil, fmt.Errorf("can't storage.GetAllFeed: %v", err)
 	}
 
-	return mapper.MakeResponseAllFeed(res), nil
+	ids := make([]int, 0, len(res))
+	for _, feed := range res {
+		ids = append(ids, feed.MediaID)
+	}
+
+	feedMediaFiles, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %v", err)
+	}
+
+	return mapper.MakeResponseAllFeed(res, feedMediaFiles)
 }
 
 func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, error) {
@@ -48,7 +60,12 @@ func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, 
 		return nil, fmt.Errorf("can't storage.GetFeed: %v", err)
 	}
 
-	return mapper.MakeResponseFeed(res), nil
+	feedMediaFile, err := s.storage.GetMediaFile(id)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %v", err)
+	}
+
+	return mapper.MakeResponseFeed(&res, feedMediaFile)
 }
 
 func (s *FeedService) GetFeedEncounters(ctx context.Context, id int) (*responses.GetFeedEncounters, error) {
@@ -60,7 +77,7 @@ func (s *FeedService) GetFeedEncounters(ctx context.Context, id int) (*responses
 		return nil, fmt.Errorf("can't storage.GetFeedEncounters: %v", err)
 	}
 
-	return mapper.MakeResponseFeedEncounters(res), nil
+	return mapper.MakeResponseFeedEncounters(res)
 }
 
 func (s *FeedService) GetFeedByTitle(
@@ -75,7 +92,17 @@ func (s *FeedService) GetFeedByTitle(
 		return nil, fmt.Errorf("can't storage.GetFeedByTitle: %v", err)
 	}
 
-	return mapper.MakeResponseFeedByTitle(res), nil
+	ids := make([]int, 0, len(res))
+	for _, feed := range res {
+		ids = append(ids, feed.MediaID)
+	}
+
+	feedMediaFiles, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %v", err)
+	}
+
+	return mapper.MakeResponseFeedByTitle(res, feedMediaFiles)
 }
 
 func (s *FeedService) PostFeed(ctx context.Context, feed domain.Feed) error {

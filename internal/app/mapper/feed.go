@@ -1,21 +1,27 @@
 package mapper
 
 import (
+	"fmt"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
+func MakeResponseAllFeed(f []domain.Feed, feedMediaFiles map[int]domain.MediaFile) (*responses.GetAllFeed, error) {
 	feed := make([]responses.Feed, 0, len(f))
 	for _, v := range f {
+		media, ok := feedMediaFiles[v.MediaID]
+		if !ok {
+			return nil, fmt.Errorf("can't find media for feed id %v", v.MediaID)
+		}
 		feed = append(feed,
 			responses.Feed{
 				ID:          v.ID,
 				Title:       v.Title,
 				Description: v.Description,
 				Approved:    v.Approved,
-				MediaID:     v.MediaID,
+				Media:       media,
 				VkPostUrl:   v.VkPostUrl,
 				UpdatedAt:   v.UpdatedAt,
 				CreatedAt:   v.CreatedAt,
@@ -24,10 +30,25 @@ func MakeResponseAllFeed(f []domain.Feed) *responses.GetAllFeed {
 			})
 	}
 
-	return &responses.GetAllFeed{Feed: feed}
+	return &responses.GetAllFeed{Feed: feed}, nil
 }
 
-func MakeResponseFeedEncounters(f []domain.Encounter) *responses.GetFeedEncounters {
+func MakeResponseFeed(f *domain.Feed, feedMediaFile *domain.MediaFile) (*responses.GetFeed, error) {
+	return &responses.GetFeed{
+		ID:          f.ID,
+		Title:       f.Title,
+		Description: f.Description,
+		Approved:    f.Approved,
+		Media:       *feedMediaFile,
+		VkPostUrl:   f.VkPostUrl,
+		UpdatedAt:   f.UpdatedAt,
+		CreatedAt:   f.CreatedAt,
+		CreatedBy:   f.CreatedBy,
+		Views:       f.Views,
+	}, nil
+}
+
+func MakeResponseFeedEncounters(f []domain.Encounter) (*responses.GetFeedEncounters, error) {
 	encounters := make([]responses.Encounter, 0, len(f))
 	for _, v := range f {
 		encounters = append(encounters,
@@ -39,19 +60,23 @@ func MakeResponseFeedEncounters(f []domain.Encounter) *responses.GetFeedEncounte
 			})
 	}
 
-	return &responses.GetFeedEncounters{Encounters: encounters}
+	return &responses.GetFeedEncounters{Encounters: encounters}, nil
 }
 
-func MakeResponseFeedByTitle(f []domain.Feed) *responses.GetFeedByTitle {
+func MakeResponseFeedByTitle(f []domain.Feed, feedMediaFiles map[int]domain.MediaFile) (*responses.GetFeedByTitle, error) {
 	feed := make([]responses.Feed, 0, len(f))
 	for _, v := range f {
+		media, ok := feedMediaFiles[v.MediaID]
+		if !ok {
+			return nil, fmt.Errorf("can't find media for feed id %v", v.MediaID)
+		}
 		feed = append(feed,
 			responses.Feed{
 				ID:          v.ID,
 				Title:       v.Title,
 				Description: v.Description,
 				Approved:    v.Approved,
-				MediaID:     v.MediaID,
+				Media:       media,
 				VkPostUrl:   v.VkPostUrl,
 				UpdatedAt:   v.UpdatedAt,
 				CreatedAt:   v.CreatedAt,
@@ -60,22 +85,7 @@ func MakeResponseFeedByTitle(f []domain.Feed) *responses.GetFeedByTitle {
 			})
 	}
 
-	return &responses.GetFeedByTitle{Feed: feed}
-}
-
-func MakeResponseFeed(f domain.Feed) *responses.GetFeed {
-	return &responses.GetFeed{
-		ID:          f.ID,
-		Title:       f.Title,
-		Description: f.Description,
-		Approved:    f.Approved,
-		MediaID:     f.MediaID,
-		VkPostUrl:   f.VkPostUrl,
-		UpdatedAt:   f.UpdatedAt,
-		CreatedAt:   f.CreatedAt,
-		CreatedBy:   f.CreatedBy,
-		Views:       f.Views,
-	}
+	return &responses.GetFeedByTitle{Feed: feed}, nil
 }
 
 func MakeRequestPostFeed(f requests.PostFeed) *domain.Feed {
