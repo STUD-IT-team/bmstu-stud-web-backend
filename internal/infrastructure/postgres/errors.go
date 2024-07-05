@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-const uniqueConstraintViolation int = 23505
+const uniqueConstraintViolation string = "23505"
 
 var (
 	TextPostgresUniqueConstraintViolation = "postgres unique constraint violation"
@@ -17,13 +17,13 @@ var (
 	ErrPostgresUnknownError              = errors.New(TextPostgresUnknownError)
 )
 
-func mapPostgresError(code int) error {
+func mapPostgresError(code string) error {
 	if code == uniqueConstraintViolation {
 		return ErrPostgresUniqueConstraintViolation
 	}
 	return ErrPostgresUnknownError
 }
 
-func wrapPostgresError(code int, err error) error {
+func wrapPostgresError(code string, err error) error {
 	return fmt.Errorf("%v: %v", mapPostgresError(code), err)
 }
