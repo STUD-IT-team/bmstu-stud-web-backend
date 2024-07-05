@@ -101,6 +101,7 @@ func main() {
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
+			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	}
 

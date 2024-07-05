@@ -6,6 +6,7 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	log "github.com/sirupsen/logrus"
 
@@ -34,10 +35,9 @@ func (h *ClubsHandler) BasePrefix() string {
 
 func (h *ClubsHandler) Routes() chi.Router {
 	r := chi.NewRouter()
-
 	r.Get("/", h.r.Wrap(h.GetAllClubs))
 	r.Get("/{club_id}", h.r.Wrap(h.GetClub))
-	r.Get("/type={type}", h.r.Wrap(h.GetClubsByType))
+	r.Get("/type/{type}", h.r.Wrap(h.GetClubsByType))
 	r.Get("/search/{name}", h.r.Wrap(h.GetClubsByName))
 	r.Get("/members/{club_id}", h.r.Wrap(h.GetClubMembers))
 	r.Get("/media/{club_id}", h.r.Wrap(h.GetClubMedia))
@@ -48,6 +48,16 @@ func (h *ClubsHandler) Routes() chi.Router {
 	return r
 }
 
+// GetAllClubs
+//
+// @Summary    Возвращает все клубы из БД
+// @Description  Возвращает все клубы для страницы с поиском клубов
+// @Tags      public.club
+// @Produce    json
+// @Success    200      {object}  responses.GetAllClubs
+// @Failure    404
+// @Router      /clubs [get]
+// @Security    Public
 func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got getAllClub request")
 
@@ -62,6 +72,19 @@ func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) han
 	return handler.OkResponse(res)
 }
 
+// GetClub
+//
+// @Summary    Возвращает клуб по ID
+// @Description  Возвращает информацию о клубе для страницы клуба
+// @Tags      public.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClub
+// @Failure    400
+// @Failure    404
+//
+// @Router      /clubs/{club_id} [get]
+// @Security    Public
 func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got getClub request")
 
@@ -86,6 +109,18 @@ func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler
 	return handler.OkResponse(res)
 }
 
+// GetClubsByType
+//
+// @Summary    Возвращает все клубы по типу
+// @Description  Возвращает все клубы, у которых введенная строка является подстрокой в типе
+// @Tags      public.club
+// @Produce    json
+// @Param      club_type    path    string  true  "club type"
+// @Success    200      {object}  responses.GetClubsByType
+// @Failure    400
+// @Failure    404
+// @Router      /clubs/type/{club_type} [get]
+// @Security    Public
 func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClubsByType request")
 
@@ -110,6 +145,18 @@ func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) 
 	return handler.OkResponse(res)
 }
 
+// GetClubsByName
+//
+// @Summary    Возвращает все клубы по имени
+// @Description  Возвращает все клубы, у которых введенная строка является подстрокой в имени
+// @Tags      public.club
+// @Produce    json
+// @Param      club_name    path    string  true  "club name"
+// @Success    200      {object}  responses.GetClubsByName
+// @Failure    400
+// @Failure    404
+// @Router      /clubs/search/{club_name} [get]
+// @Security    Public
 func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClubByName request")
 
@@ -134,6 +181,18 @@ func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) 
 	return handler.OkResponse(res)
 }
 
+// GetClubMembers
+//
+// @Summary    Возвращает руководителя клуба и руководителей подклубов
+// @Description  Возвращает руководителя клуба и руководителей подклубов(1-го уровня) по ID клуба
+// @Tags      public.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClubMembers
+// @Failure    400
+// @Failure    404
+// @Router      /clubs/members/{club_id} [get]
+// @Security    Public
 func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClubMembers request")
 
@@ -158,6 +217,18 @@ func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) 
 	return handler.OkResponse(res)
 }
 
+// GetClubMedia
+//
+// @Summary    Возвращает фотографии клуба
+// @Description  Возвращает фотографии клуба по его ID
+// @Tags      public.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClubMedia
+// @Failure    400
+// @Failure    404
+// @Router      /clubs/media/{club_id} [get]
+// @Security    Public
 func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClubMedia request")
 	clubId := &requests.GetClubMedia{}
@@ -181,6 +252,19 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 	return handler.OkResponse(res)
 }
 
+// PostClub
+//
+// @Summary    Добавляет клуб в базу данных
+// @Description Добавляет клуб в базу данных, требуется аутентификация
+// @Tags      auth.club
+// @Produce    json
+// @Param      request  body    requests.PostClub  true  "post club data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /clubs [post]
+// @Security    Public
 func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got PostClub request")
 
@@ -217,6 +301,19 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 	return handler.OkResponse(nil)
 }
 
+// DeleteClub
+//
+// @Summary    Удаляет клуб из базу данных
+// @Description Удаляет клуб в базу данных, а также все объеуты ассоциируемые с ним, требуется аутентификация
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /clubs [delete]
+// @Security    Public
 func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got DeleteClub request")
 
@@ -254,6 +351,20 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 	return handler.OkResponse(nil)
 }
 
+// DeleteClub
+//
+// @Summary    Обновляет данные клуба в базе данных
+// @Description Обновляет данные клуба в базе данных, требуется аутентификация
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Param      request  body    requests.PostClub  true  "update club data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /clubs [put]
+// @Security    Public
 func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got UpdateClub request")
 
