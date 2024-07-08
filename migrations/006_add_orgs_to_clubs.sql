@@ -4,7 +4,7 @@
 INSERT INTO member (hash_password, login, media_id, telegram, vk, name, role_id, is_admin)
 VALUES
 ('test', 'toha', 1, '@toha', 'vk.com/toha', 'Антон Павленко', 1, true),
-('test', 'imp', 1, '@imp', 'vk.com/imp', 'Дмитрий Шахнович', 1, true),
+('$2a$10$kj0GwI3q1H0PgOzuLqK5uOhPPvA42upL8CdIm/4luikQBYNKVxXay', 'imp', 1, '@imp', 'vk.com/imp', 'Дмитрий Шахнович', 1, true),
 ('test', 'dasha', 1, '@dasha', 'vk.com/dasha', 'Дарья Серышева', 1, true),
 ('test', 'paioid', 1, '@paioid', 'vk.com/paioid', 'Андрей Поляков', 1, true),
 ('test', 'admin', 1, '@admin', 'vk.com/admin', 'Админ', 1, true),

@@ -83,14 +83,20 @@ func main() {
 	feedService := app.NewFeedService(appStorage)
 	eventsService := app.NewEventsService(appStorage)
 	membersService := app.NewMembersService(appStorage)
+<<<<<<< Updated upstream
 	guardService := app.NewGuardService(logger, appStorage)
 	apiService := app.NewAPI(logger, feedService, eventsService, membersService, guardService)
+=======
+	guardService := app.NewGuardService(appStorage)
+	apiService := app.NewAPI(logger, feedService, guardService)
+>>>>>>> Stashed changes
 
 	var mainGroupHandler *handler.GroupHandler
 	// Main API router.
 	if cfg.Log.Level == "debug" {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
+			internalhttp.NewGuardHandler(jsonRenderer, *guardService, logger),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
@@ -100,6 +106,7 @@ func main() {
 	} else {
 		mainGroupHandler = handler.NewGroupHandler("/",
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
+			internalhttp.NewGuardHandler(jsonRenderer, *guardService, logger),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),

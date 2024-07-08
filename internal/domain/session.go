@@ -7,8 +7,9 @@ import (
 )
 
 type Session struct {
-	SessionID string    `json:"session_id"`
-	MemberID  int64     `json:"member_id"`
+	SessionID int64     `json:"session_id"`
+	MemberID  int       `json:"member_id"`
+	IsAdmin   bool      `json:"is_admin"`
 	ExpireAt  time.Time `json:"expire_at"`
 }
 
