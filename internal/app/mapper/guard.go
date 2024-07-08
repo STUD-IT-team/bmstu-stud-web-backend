@@ -3,6 +3,7 @@ package mapper
 import (
 	"strconv"
 
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
@@ -40,13 +41,13 @@ func CreateResponseLogin(token int64) *responses.LoginResponse {
 //	return nil
 //}
 
-// func CreateResponseCheck(valid bool, memberID int64) *responses.CheckResponse {
-// 	//return &responses.CheckResponse{
-// 	//	Valid:    valid,
-// 	//	MemberID: memberID,
-// 	//}
-// 	return nil
-// }
+func CreateResponseCheck(valid bool, sess domain.Session) *responses.CheckResponse {
+	return &responses.CheckResponse{
+		Valid:    valid,
+		MemberID: sess.MemberID,
+		IsAdmin:  sess.IsAdmin,
+	}
+}
 
 //func CreateGPRCResponseCheck(res *responses.CheckResponse) *grpc.CheckResponse {
 //	//return &grpc.CheckResponse{
