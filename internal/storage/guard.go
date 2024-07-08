@@ -7,8 +7,17 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/hasher"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/times"
-	"github.com/google/uuid"
 )
+
+var nextSessionID int64 = 0
+
+func getNextSessionID() int64 {
+	if nextSessionID < 0 {
+		nextSessionID = 0
+	}
+	nextSessionID++
+	return nextSessionID
+}
 
 type guardStorage interface {
 	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
@@ -16,7 +25,7 @@ type guardStorage interface {
 	FindSession(id string) *domain.Session
 	DeleteSession(id string)
 	CheckSession(accessToken string) (*domain.Session, error)
-	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+	CreateSession(memberID int, isAdmin bool) (domain.Session, error)
 }
 
 func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error) {
@@ -33,28 +42,33 @@ func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string
 	return user, nil
 }
 
-func (s *storage) SetSession(id string, value domain.Session) {
+func (s *storage) SetSession(id int64, value domain.Session) {
 	s.sessionCache.Put(id, value)
 }
 
-func (s *storage) FindSession(id string) *domain.Session {
-	return s.sessionCache.Find(id)
+func (s *storage) FindSession(id int64) (domain.Session, error) {
+	val := s.sessionCache.Find(id)
+	if val == nil {
+		return domain.Session{}, domain.ErrNotFound
+	}
+
+	return *val, nil
 }
 
-func (s *storage) DeleteSession(id string) {
+func (s *storage) DeleteSession(id int64) {
 	s.sessionCache.Delete(id)
 }
 
-func (s *storage) CheckSession(accessToken string) (*domain.Session, error) {
-	session := s.FindSession(accessToken)
-	if session == nil {
-		return &domain.Session{}, domain.ErrNotFound
+func (s *storage) CheckSession(accessToken int64) (domain.Session, error) {
+	session, err := s.FindSession(accessToken)
+	if err != nil {
+		return domain.Session{}, domain.ErrNotFound
 	}
 
 	if session.IsExpired() {
 		s.DeleteSession(session.SessionID)
 
-		return &domain.Session{}, domain.ErrIsExpired
+		return domain.Session{}, ErrIsExpired
 	}
 
 	return session, nil
@@ -62,16 +76,30 @@ func (s *storage) CheckSession(accessToken string) (*domain.Session, error) {
 
 const sessionDuration = 5 * time.Hour
 
-func (s *storage) SaveSessoinFromMemberID(memberID int64) (session domain.Session) {
-	sessionID := uuid.NewString()
+const MaxSessionCreateTries = 10
 
-	session = domain.Session{
+func (s *storage) CreateSession(memberID int, isAdmin bool) (domain.Session, error) {
+	sessionID := getNextSessionID()
+	cnt := 0
+	_, err := s.FindSession(sessionID)
+	for err == ErrNotFound && cnt < MaxSessionCreateTries {
+		cnt++
+		sessionID = getNextSessionID()
+		_, err = s.FindSession(sessionID)
+	}
+
+	if cnt == MaxSessionCreateTries {
+		return domain.Session{}, ErrCantCreateSession
+	}
+
+	session := domain.Session{
 		SessionID: sessionID,
 		MemberID:  memberID,
 		ExpireAt:  time.Now().In(times.TZMoscow).Add(sessionDuration),
+		IsAdmin:   isAdmin,
 	}
 
 	s.sessionCache.Put(sessionID, session)
 
-	return session
+	return session, nil
 }

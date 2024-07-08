@@ -5,9 +5,11 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
+type SessionCache cache.ICache[int64, domain.Session]
+
 // NewSessionCache
 //
 // Создание нового объекта кэша сессий
-func NewSessionCache() cache.ICache[string, domain.Session] {
-	return cache.NewCache[string, domain.Session]()
+func NewSessionCache() SessionCache {
+	return cache.NewCache[int64, domain.Session]()
 }

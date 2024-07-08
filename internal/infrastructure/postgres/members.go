@@ -189,7 +189,7 @@ func (p *Postgres) UpdateMember(ctx context.Context, member domain.Member) error
 	return nil
 }
 
-const getMemberByLoginQuery = "SELECT id, login, hash_password FROM members WHERE login=$1;"
+const getMemberByLoginQuery = "SELECT id, login, hash_password FROM member WHERE login=$1;"
 
 func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (domain.Member, error) {
 	const op = "postgres.GetUserByLogin"

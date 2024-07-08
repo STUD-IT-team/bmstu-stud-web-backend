@@ -1,6 +1,8 @@
 package mapper
 
 import (
+	"strconv"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
@@ -11,10 +13,9 @@ import (
 //	//}
 //}
 
-func CreateResponseLogin(token, expires string) *responses.LoginResponse {
+func CreateResponseLogin(token int64) *responses.LoginResponse {
 	return &responses.LoginResponse{
-		Token:   token,
-		Expires: expires,
+		AccessToken: strconv.FormatInt(token, 10),
 	}
 }
 
@@ -39,13 +40,13 @@ func CreateResponseLogin(token, expires string) *responses.LoginResponse {
 //	return nil
 //}
 
-func CreateResponseCheck(valid bool, memberID int64) *responses.CheckResponse {
-	//return &responses.CheckResponse{
-	//	Valid:    valid,
-	//	MemberID: memberID,
-	//}
-	return nil
-}
+// func CreateResponseCheck(valid bool, memberID int64) *responses.CheckResponse {
+// 	//return &responses.CheckResponse{
+// 	//	Valid:    valid,
+// 	//	MemberID: memberID,
+// 	//}
+// 	return nil
+// }
 
 //func CreateGPRCResponseCheck(res *responses.CheckResponse) *grpc.CheckResponse {
 //	//return &grpc.CheckResponse{
