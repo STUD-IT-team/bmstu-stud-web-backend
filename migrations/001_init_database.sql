@@ -53,7 +53,7 @@ create table IF NOT EXISTS event
     created_at    timestamp not null,
     created_by    int       not null,
     reg_url       text    default '',
-    reg_open_date text    default '',
+    reg_open_date timestamp not null, 
     feedback_url  text    default ''
 );
 -- +goose StatementEnd

@@ -13,7 +13,7 @@ type feedStorage interface {
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
 	PostFeed(ctx context.Context, feed domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
-	UpdateFeed(_ context.Context, id int, feed domain.Feed) error
+	UpdateFeed(_ context.Context, feed domain.Feed) error
 	// GetFeedByFilter(ctx context.Context, limit, offset int) ([]domain.Feed, error)
 	// GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
 }

@@ -12,8 +12,8 @@ import (
 
 type feedServiceStorage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
-	GetFeedEncounters(ctx context.Context, id int) ([]domain.Encounter, error)
 	GetFeed(ctx context.Context, id int) (domain.Feed, error)
+	GetFeedEncounters(ctx context.Context, id int) ([]domain.Encounter, error)
 	GetFeedByTitle(ctx context.Context, title string) ([]domain.Feed, error)
 	PostFeed(ctx context.Context, feed domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error

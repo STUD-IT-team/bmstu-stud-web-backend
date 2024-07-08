@@ -12,6 +12,7 @@ type Storage interface {
 	guardStorage
 	clubStorage
 	mediaFileStorage
+	eventStorage
 }
 
 type storage struct {

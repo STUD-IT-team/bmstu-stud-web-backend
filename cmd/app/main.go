@@ -81,9 +81,10 @@ func main() {
 	// services
 	clubService := app.NewClubService(appStorage)
 	feedService := app.NewFeedService(appStorage)
+	eventsService := app.NewEventsService(appStorage)
 	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(logger, appStorage)
-	apiService := app.NewAPI(logger, feedService, guardService)
+	apiService := app.NewAPI(logger, feedService, eventsService, membersService, guardService)
 
 	var mainGroupHandler *handler.GroupHandler
 	// Main API router.
@@ -92,6 +93,7 @@ func main() {
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
+			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
@@ -100,6 +102,7 @@ func main() {
 			internalhttp.NewAPIHandler(jsonRenderer, apiService),
 			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
+			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
