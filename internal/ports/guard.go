@@ -39,6 +39,17 @@ func (h *GuardHandler) Routes() chi.Router {
 	return r
 }
 
+// LoginUser
+//
+// @Summary    Авторизирует пользователя
+// @Description Авторизует пользователя в системе, оставляя куку с токеном авторизации.
+// @Tags      public.guard
+// @Param      request  body    requests.LoginRequest  true  "login user data"
+// @Success    200
+// @Failure    400
+// @Failure    500
+// @Router      /guard/login [post]
+// @Security    Public
 func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handler.Response {
 
 	h.logger.Infof("GuardHandler: got LoginUser request")
@@ -75,6 +86,16 @@ func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handl
 	return resp
 }
 
+// LoginUser
+//
+// @Summary    Выход из системы
+// @Description Выход из системы, удалением сессии из кеша. Кука на стороне пользователя остается, но по ней нельзя будет взаимодействовать.
+// @Tags      public.guard
+// @Success    200
+// @Failure    401
+// @Failure    500
+// @Router      /guard/logout [post]
+// @Security    Public
 func (h *GuardHandler) LogoutUser(w http.ResponseWriter, req *http.Request) handler.Response {
 
 	h.logger.Infof("GuardHandler: got LogoutUser request")
