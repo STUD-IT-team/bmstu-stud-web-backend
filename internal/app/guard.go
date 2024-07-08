@@ -45,9 +45,7 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest,
 }
 
 func (s *GuardService) Logout(_ context.Context, req *requests.LogoutRequest) error {
-	// s.storage.DeleteSession(req.AccessToken)
-
-	// s.logger.Infof("user with session %s uccessfully logged out", req.AccessToken)
+	s.storage.DeleteSession(req.AccessToken)
 
 	return nil
 }
@@ -55,18 +53,11 @@ func (s *GuardService) Logout(_ context.Context, req *requests.LogoutRequest) er
 func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (res *responses.CheckResponse, err error) {
 	const op = "appGuard.Check"
 
-	// session, err := s.storage.CheckSession(req.AccessToken)
-	// if err != nil {
-	// 	s.logger.WithError(err).Warnf("can't storage.CheckSession %s", op)
+	session, err := s.storage.CheckSession(req.AccessToken)
+	if err != nil {
+		return mapper.CreateResponseCheck(false, session),
+			fmt.Errorf("can't storage.CheckSession %s: %w", op, err)
+	}
 
-	// 	return mapper.CreateResponseCheck(false, 0),
-	// 		fmt.Errorf("can't storage.CheckSession %s: %w", op, err)
-	// }
-
-	// s.logger.Infof("user %d is authorized", session.MemberID)
-
-	// return mapper.CreateResponseCheck(true, session.MemberID), nil
-
-	// return &responses.CheckResponse{Valid: true, MemberID: 0}, nil
-	return nil, nil
+	return mapper.CreateResponseCheck(true, session), nil
 }

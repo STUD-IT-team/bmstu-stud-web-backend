@@ -1,5 +1,5 @@
 package requests
 
 type LogoutRequest struct {
-	AccessToken string `json:"access_token"`
+	AccessToken int64 `json:"access_token"`
 }
