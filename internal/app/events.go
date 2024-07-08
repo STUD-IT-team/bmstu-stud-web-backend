@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -12,6 +13,7 @@ import (
 type eventsServiceStorage interface {
 	GetAllEvents(ctx context.Context) ([]domain.Event, error)
 	GetEvent(ctx context.Context, id int) (domain.Event, error)
+	GetEventsByRange(ctx context.Context, from, to time.Time) ([]domain.Event, error)
 	PostEvent(ctx context.Context, event domain.Event) error
 	DeleteEvent(ctx context.Context, id int) error
 	UpdateEvent(ctx context.Context, event domain.Event) error
@@ -46,7 +48,7 @@ func (s *EventsService) GetAllEvents(ctx context.Context) (*responses.GetAllEven
 		return nil, fmt.Errorf("can't storage.GetEventMediaFiles: %w", err)
 	}
 
-	return mapper.MakeResponseAllEvent(res, eventMediaFiles)
+	return mapper.MakeResponseAllEvents(res, eventMediaFiles)
 }
 
 func (s *EventsService) GetEvent(ctx context.Context, id int) (*responses.GetEvent, error) {
@@ -61,6 +63,25 @@ func (s *EventsService) GetEvent(ctx context.Context, id int) (*responses.GetEve
 	}
 
 	return mapper.MakeResponseEvent(&res, feedMediaFile)
+}
+
+func (s *EventsService) GetEventsByRange(ctx context.Context, from, to time.Time) (*responses.GetEventsByRange, error) {
+	res, err := s.storage.GetEventsByRange(ctx, from, to)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetEventsByRange: %w", err)
+	}
+
+	ids := make([]int, 0, len(res))
+	for _, event := range res {
+		ids = append(ids, event.MediaID)
+	}
+
+	eventMediaFiles, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetEventMediaFiles: %w", err)
+	}
+
+	return mapper.MakeResponseEventsByRange(res, eventMediaFiles)
 }
 
 func (s *EventsService) PostEvent(ctx context.Context, event domain.Event) error {

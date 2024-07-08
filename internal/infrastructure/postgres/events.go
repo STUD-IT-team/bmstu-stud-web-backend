@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
@@ -81,6 +82,54 @@ func (p *Postgres) GetEvent(_ context.Context, id int) (domain.Event, error) {
 	}
 
 	return event, nil
+}
+
+const getEventsByRangeQuery = `
+SELECT
+id           ,
+title        ,
+description  ,
+prompt       ,
+media_id     ,
+date         ,
+approved     ,
+created_at   ,
+created_by   ,
+reg_url      ,
+reg_open_date,
+feedback_url
+FROM event
+WHERE date BETWEEN $1 AND $2;`
+
+func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]domain.Event, error) {
+	var events []domain.Event
+
+	rows, err := p.db.Query(getEventsByRangeQuery, from, to)
+	if err != nil {
+		return []domain.Event{}, err
+	}
+
+	for rows.Next() {
+		var event domain.Event
+
+		err = rows.Scan(
+			&event.ID, &event.Title, &event.Description,
+			&event.Propmt, &event.MediaID, &event.Date,
+			&event.Approved, &event.CreatedAt, &event.CreatedBy,
+			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
+
+		if err != nil {
+			return []domain.Event{}, err
+		}
+
+		events = append(events, event)
+	}
+
+	if len(events) == 0 {
+		return []domain.Event{}, fmt.Errorf("no events found")
+	}
+
+	return events, nil
 }
 
 const postEventQuery = `INSERT INTO event (title, description, prompt,  media_id,  date, approved, created_at, created_by, reg_url, reg_open_date, feedback_url)

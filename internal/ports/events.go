@@ -39,6 +39,7 @@ func (h *EventsHandler) Routes() chi.Router {
 
 	r.Get("/", h.r.Wrap(h.GetAllEvents))
 	r.Get("/{id}", h.r.Wrap(h.GetEvent))
+	r.Get("/range/", h.r.Wrap(h.GetEventsByRange))
 	r.Post("/", h.r.Wrap(h.PostEvent))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteEvent))
 	r.Put("/{id}", h.r.Wrap(h.UpdateEvent))
@@ -102,6 +103,43 @@ func (h *EventsHandler) GetEvent(w http.ResponseWriter, req *http.Request) handl
 	}
 
 	h.logger.Info("EventsHandler: request GetEvent done")
+
+	return handler.OkResponse(res)
+}
+
+// GetEventsByRange retrieves an array of events in the given time range
+//
+//	@Summary     Retrieve events items by range
+//	@Description Given a start time and end time recieve events in that period
+//	@Tags        public.events
+//	@Accept      json
+//	@Produce     json
+//	@Param       request body requests.GetEventsByRange true "Range"
+//	@Success     200  {object} responses.GetEventsByRange
+//	@Failure     400
+//	@Failure     404
+//	@Router      /events/range/ [get]
+//	@Security    public
+func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("EventsHandler: got GetEventsByRange request")
+
+	timeRange := &requests.GetEventsByRange{}
+
+	err := timeRange.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("EventsHandler: parse request GetEventsByRange: %v", timeRange)
+
+	res, err := h.events.GetEventsByRange(context.Background(), timeRange.From, timeRange.To)
+	if err != nil {
+		h.logger.Warnf("can't EventsService.GetEventsByRange: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("EventsHandler: request GetEventsByRange done")
 
 	return handler.OkResponse(res)
 }
