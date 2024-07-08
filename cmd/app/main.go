@@ -83,13 +83,8 @@ func main() {
 	feedService := app.NewFeedService(appStorage)
 	eventsService := app.NewEventsService(appStorage)
 	membersService := app.NewMembersService(appStorage)
-<<<<<<< Updated upstream
-	guardService := app.NewGuardService(logger, appStorage)
-	apiService := app.NewAPI(logger, feedService, eventsService, membersService, guardService)
-=======
 	guardService := app.NewGuardService(appStorage)
-	apiService := app.NewAPI(logger, feedService, guardService)
->>>>>>> Stashed changes
+	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService)
 
 	var mainGroupHandler *handler.GroupHandler
 	// Main API router.

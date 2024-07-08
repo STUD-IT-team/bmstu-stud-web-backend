@@ -16,15 +16,17 @@ type apiService struct {
 	feedService    *FeedService
 	guardService   *GuardService
 	eventsService  *EventsService
+	clubsService   *ClubService
 	membersService *MembersService
 }
 
-func NewAPI(logger *logrus.Logger, feed *FeedService, events *EventsService, membs *MembersService, guard *GuardService) API {
+func NewAPI(logger *logrus.Logger, feed *FeedService, events *EventsService, membs *MembersService, club *ClubService, guard *GuardService) API {
 	return &apiService{
 		logger:         logger,
 		feedService:    feed,
 		guardService:   guard,
 		eventsService:  events,
+		clubsService:   club,
 		membersService: membs,
 	}
 }
