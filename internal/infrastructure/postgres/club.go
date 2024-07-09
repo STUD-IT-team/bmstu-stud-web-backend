@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -21,7 +22,7 @@ const getClub = `SELECT
 
 const NoParentClubID = 0
 
-func (pgs *Postgres) GetClub(id int) (*domain.Club, error) {
+func (pgs *Postgres) GetClub(_ context.Context, id int) (*domain.Club, error) {
 	parentID := sql.NullInt64{}
 	c := domain.Club{}
 	err := pgs.db.QueryRow(getClub, id).Scan(
@@ -59,7 +60,7 @@ const getAllClub = `SELECT
 FROM club
 `
 
-func (s *Postgres) GetAllClub() ([]domain.Club, error) {
+func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
 	carr := []domain.Club{}
 	rows, err := s.db.Query(getAllClub)
 
@@ -97,7 +98,7 @@ func (s *Postgres) GetAllClub() ([]domain.Club, error) {
 
 const getClubsByName = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE name ILIKE $1`
 
-func (s *Postgres) GetClubsByName(name string) ([]domain.Club, error) {
+func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club, error) {
 	carr := []domain.Club{}
 	rows, err := s.db.Query(getClubsByName, "%"+name+"%")
 
@@ -135,7 +136,7 @@ func (s *Postgres) GetClubsByName(name string) ([]domain.Club, error) {
 
 const getClubsByType = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE type ILIKE $1`
 
-func (s *Postgres) GetClubsByType(type_ string) ([]domain.Club, error) {
+func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Club, error) {
 	carr := []domain.Club{}
 	rows, err := s.db.Query(getClubsByType, "%"+type_+"%")
 
@@ -212,7 +213,7 @@ ON (club_org.club_id = clubs.id)
 WHERE club_id = $1
 `
 
-func (s *Postgres) GetClubOrgs(clubID int) ([]domain.ClubOrg, error) {
+func (s *Postgres) GetClubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg, error) {
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getClubOrgs, clubID)
 	if err != nil {
@@ -284,7 +285,7 @@ ON (club_org.club_id = clubs.id)
 WHERE club_id = ANY($1)
 `
 
-func (s *Postgres) GetClubsOrgs(clubIDs []int) ([]domain.ClubOrg, error) {
+func (s *Postgres) GetClubsOrgs(_ context.Context, clubIDs []int) ([]domain.ClubOrg, error) {
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getClubsOrgs, clubIDs)
 	if err != nil {
@@ -356,7 +357,7 @@ ON (club_org.club_id = clubs.id)
 WHERE club_id = ANY((SELECT id FROM club WHERE parent_id = $1))
 `
 
-func (s *Postgres) GetClubSubOrgs(clubID int) ([]domain.ClubOrg, error) {
+func (s *Postgres) GetClubSubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg, error) {
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getClubSubOrgs, clubID)
 	if err != nil {
@@ -428,7 +429,7 @@ JOIN
 ON (club_org.club_id = clubs.id)
 `
 
-func (s *Postgres) GetAllClubOrgs() ([]domain.ClubOrg, error) {
+func (s *Postgres) GetAllClubOrgs(_ context.Context) ([]domain.ClubOrg, error) {
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getAllClubOrgs)
 	if err != nil {
@@ -473,7 +474,7 @@ INSERT INTO club (
 RETURNING id
 `
 
-func (s *Postgres) AddClub(c *domain.Club) (int, error) {
+func (s *Postgres) AddClub(_ context.Context, c *domain.Club) (int, error) {
 	row := s.db.QueryRow(addClub,
 		c.Name,
 		c.ShortName,
@@ -502,7 +503,7 @@ INSERT INTO club_org (
 ) VALUES ($1, $2, $3, $4)
 `
 
-func (s *Postgres) AddOrgs(orgs []domain.ClubOrg) error {
+func (s *Postgres) AddOrgs(_ context.Context, orgs []domain.ClubOrg) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -563,7 +564,7 @@ const deleteClubPhotos = "DELETE FROM club_photo WHERE club_id = $1"
 const deleteClubEncounters = "DELETE FROM encounter WHERE club_id = $1"
 const updateClubParents = "UPDATE club SET parent_id=null WHERE parent_id = $1"
 
-func (s *Postgres) DeleteClubWithOrgs(clubID int) error {
+func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -615,7 +616,7 @@ SET name=$1,
 WHERE id = $9
 `
 
-func (s *Postgres) UpdateClub(c *domain.Club, o []domain.ClubOrg) error {
+func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.ClubOrg) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return wrapPostgresError(err.(pgx.PgError).Code, err)

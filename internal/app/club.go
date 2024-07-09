@@ -11,21 +11,21 @@ import (
 )
 
 type clubStorage interface {
-	GetClub(id int) (*domain.Club, error)
-	GetAllClub() ([]domain.Club, error)
-	GetClubsByName(name string) ([]domain.Club, error)
-	GetClubsByType(type_ string) ([]domain.Club, error)
+	GetClub(ctx context.Context, id int) (*domain.Club, error)
+	GetAllClub(ctx context.Context) ([]domain.Club, error)
+	GetClubsByName(ctx context.Context, name string) ([]domain.Club, error)
+	GetClubsByType(ctx context.Context, type_ string) ([]domain.Club, error)
 	GetMediaFile(id int) (*domain.MediaFile, error)
 	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
-	GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error)
-	GetClubOrgs(clubID int) ([]domain.ClubOrg, error)
-	GetClubsOrgs(clubIDs []int) ([]domain.ClubOrg, error)
-	GetClubSubOrgs(clubID int) ([]domain.ClubOrg, error)
-	GetAllClubOrgs() ([]domain.ClubOrg, error)
-	AddClub(c *domain.Club) (int, error)
-	AddOrgs(orgs []domain.ClubOrg) error
-	DeleteClubWithOrgs(clubID int) error
-	UpdateClub(c *domain.Club, o []domain.ClubOrg) error
+	GetClubMediaFiles(ctx context.Context, clubID int) ([]domain.ClubPhoto, error)
+	GetClubOrgs(ctx context.Context, clubID int) ([]domain.ClubOrg, error)
+	GetClubsOrgs(ctx context.Context, clubIDs []int) ([]domain.ClubOrg, error)
+	GetClubSubOrgs(ctx context.Context, clubID int) ([]domain.ClubOrg, error)
+	GetAllClubOrgs(ctx context.Context) ([]domain.ClubOrg, error)
+	AddClub(ctx context.Context, c *domain.Club) (int, error)
+	AddOrgs(ctx context.Context, orgs []domain.ClubOrg) error
+	DeleteClubWithOrgs(ctx context.Context, clubID int) error
+	UpdateClub(ctx context.Context, c *domain.Club, o []domain.ClubOrg) error
 }
 
 type ClubService struct {
@@ -36,20 +36,20 @@ func NewClubService(storage clubStorage) *ClubService {
 	return &ClubService{storage: storage}
 }
 
-func (s *ClubService) GetClub(id int) (*responses.GetClub, error) {
-	club, err := s.storage.GetClub(id)
+func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, error) {
+	club, err := s.storage.GetClub(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClub: %w", err)
 		return nil, err
 	}
 
-	mainOrgs, err := s.storage.GetClubOrgs(id)
+	mainOrgs, err := s.storage.GetClubOrgs(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
 		return nil, err
 	}
 
-	subOrgs, err := s.storage.GetClubSubOrgs(id)
+	subOrgs, err := s.storage.GetClubSubOrgs(ctx, id)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
 		return nil, err
@@ -73,8 +73,8 @@ func (s *ClubService) GetClub(id int) (*responses.GetClub, error) {
 	return mapper.MakeResponseClub(club, &mainOrgs, &subOrgs, &ims)
 }
 
-func (s *ClubService) GetClubsByName(name string) (*responses.GetClubsByName, error) {
-	res, err := s.storage.GetClubsByName(name)
+func (s *ClubService) GetClubsByName(ctx context.Context, name string) (*responses.GetClubsByName, error) {
+	res, err := s.storage.GetClubsByName(ctx, name)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClubsByName: %w", err)
 		return nil, err
@@ -95,7 +95,7 @@ func (s *ClubService) GetClubsByName(name string) (*responses.GetClubsByName, er
 		return nil, err
 	}
 
-	orgs, err := s.storage.GetAllClubOrgs()
+	orgs, err := s.storage.GetAllClubOrgs(ctx)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
@@ -105,8 +105,8 @@ func (s *ClubService) GetClubsByName(name string) (*responses.GetClubsByName, er
 	return &responses.GetClubsByName{Clubs: clubs}, err
 }
 
-func (s *ClubService) GetClubsByType(type_ string) (*responses.GetClubsByType, error) {
-	res, err := s.storage.GetClubsByType(type_)
+func (s *ClubService) GetClubsByType(ctx context.Context, type_ string) (*responses.GetClubsByType, error) {
+	res, err := s.storage.GetClubsByType(ctx, type_)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClubsByName: %w", err)
 		return nil, err
@@ -127,7 +127,7 @@ func (s *ClubService) GetClubsByType(type_ string) (*responses.GetClubsByType, e
 		return nil, err
 	}
 
-	orgs, err := s.storage.GetAllClubOrgs()
+	orgs, err := s.storage.GetAllClubOrgs(ctx)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
@@ -137,8 +137,8 @@ func (s *ClubService) GetClubsByType(type_ string) (*responses.GetClubsByType, e
 	return &responses.GetClubsByType{Clubs: clubs}, err
 }
 
-func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
-	res, err := s.storage.GetAllClub()
+func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, error) {
+	res, err := s.storage.GetAllClub(ctx)
 
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClub: %w", err)
@@ -160,7 +160,7 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 		return nil, err
 	}
 
-	orgs, err := s.storage.GetAllClubOrgs()
+	orgs, err := s.storage.GetAllClubOrgs(ctx)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
@@ -168,13 +168,13 @@ func (s *ClubService) GetAllClubs() (*responses.GetAllClubs, error) {
 	return mapper.MakeResponseAllClub(res, logos, orgs)
 }
 
-func (s *ClubService) GetClubMembers(clubID int) (*responses.GetClubMembers, error) {
-	orgs, err := s.storage.GetClubOrgs(clubID)
+func (s *ClubService) GetClubMembers(ctx context.Context, clubID int) (*responses.GetClubMembers, error) {
+	orgs, err := s.storage.GetClubOrgs(ctx, clubID)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
 	}
 
-	subOrgs, err := s.storage.GetClubSubOrgs(clubID)
+	subOrgs, err := s.storage.GetClubSubOrgs(ctx, clubID)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
 	}
@@ -203,7 +203,7 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 	if err != nil {
 		return fmt.Errorf("can't mapper.PostClub: %w", err)
 	}
-	clubID, err := s.storage.AddClub(club)
+	clubID, err := s.storage.AddClub(ctx, club)
 	if err != nil {
 		return fmt.Errorf("can't storage.AddClub: %w", err)
 	}
@@ -212,7 +212,7 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 		orgs[i].ClubID = clubID
 	}
 
-	err = s.storage.AddOrgs(orgs)
+	err = s.storage.AddOrgs(ctx, orgs)
 	if err != nil {
 		return fmt.Errorf("can't storage.AddOrgs: %w", err)
 	}
@@ -220,8 +220,8 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 	return nil
 }
 
-func (s *ClubService) DeleteClub(clubID int) error {
-	err := s.storage.DeleteClubWithOrgs(clubID)
+func (s *ClubService) DeleteClub(ctx context.Context, clubID int) error {
+	err := s.storage.DeleteClubWithOrgs(ctx, clubID)
 	if err != nil {
 		return fmt.Errorf("can't storage.DeleteClubWithOrgs: %w", err)
 	}
@@ -229,12 +229,12 @@ func (s *ClubService) DeleteClub(clubID int) error {
 	return nil
 }
 
-func (s *ClubService) UpdateClub(req *requests.UpdateClub) error {
+func (s *ClubService) UpdateClub(ctx context.Context, req *requests.UpdateClub) error {
 	club, orgs, err := mapper.ParseUpdateClub(req)
 	if err != nil {
 		return fmt.Errorf("can't mapper.PostClub: %w", err)
 	}
-	err = s.storage.UpdateClub(club, orgs)
+	err = s.storage.UpdateClub(ctx, club, orgs)
 	if err != nil {
 		return fmt.Errorf("can't storage.UpdateClub: %w", err)
 	}
@@ -242,8 +242,8 @@ func (s *ClubService) UpdateClub(req *requests.UpdateClub) error {
 	return nil
 }
 
-func (s *ClubService) GetClubMediaFiles(clubID int) (*responses.GetClubMedia, error) {
-	res, err := s.storage.GetClubMediaFiles(clubID)
+func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*responses.GetClubMedia, error) {
+	res, err := s.storage.GetClubMediaFiles(ctx, clubID)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
 	}
