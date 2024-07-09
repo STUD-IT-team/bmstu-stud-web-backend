@@ -13,6 +13,7 @@ services:
       - minio
     networks:
       - postgres
+      - minio
 
   postgres:
     container_name: postgres_container
@@ -101,7 +102,8 @@ services:
       - postgres
   
   minio:
-    container_name: minio
+    container_name: minio_container
+    hostname: minio
     image: minio/minio:latest
     command: server --console-address ":9001" /data
     ports:
@@ -120,6 +122,8 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    networks:
+      - minio
     
   minio-migrate:
     container_name: migrate_minio
@@ -137,4 +141,6 @@ volumes:
 
 networks:
   postgres:
+    driver: bridge
+  minio:
     driver: bridge

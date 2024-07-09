@@ -2,7 +2,7 @@ package postgres
 
 import "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 
-const getMediaFile = "SELECT name, image_url FROM mediafile WHERE id = $1"
+const getMediaFile = "SELECT name, key FROM mediafile WHERE id = $1"
 
 func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	f := domain.MediaFile{}
@@ -14,7 +14,7 @@ func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	return nil, err
 }
 
-const getMediaFiles = "SELECT id, name, image_url FROM mediafile WHERE id = ANY($1)"
+const getMediaFiles = "SELECT id, name, key FROM mediafile WHERE id = ANY($1)"
 
 func (p *Postgres) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
 	m := make(map[int]domain.MediaFile)
@@ -33,7 +33,7 @@ func (p *Postgres) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
 	return m, nil
 }
 
-const addMediaFile = "INSERT INTO mediafile (name, image_url) VALUES ($1, $2) RETURNING id"
+const addMediaFile = "INSERT INTO mediafile (name, key) VALUES ($1, $2) RETURNING id"
 
 func (p *Postgres) AddMediaFile(name, key string) (int, error) {
 	var id int
