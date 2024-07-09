@@ -34,6 +34,7 @@ COPY ./scripts/minio_migration.sh .
 
 RUN mkdir /data
 COPY ./data/main_vid.mp4 ./data
+COPY ./about/arch.png ./data
 
 RUN chmod 777 minio_migration.sh
 
