@@ -32,44 +32,44 @@ func (h *MediaHandler) BasePrefix() string {
 func (h *MediaHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Get("/", h.r.Wrap(h.GetAllMedia))
-	r.Get("/{id}", h.r.Wrap(h.GetMedia))
-	r.Post("/{media}", h.r.Wrap(h.PostMedia)) // TODO: redoo
-	r.Delete("/{id}", h.r.Wrap(h.DeleteMedia))
-	r.Put("/{id}", h.r.Wrap(h.UpdateMedia))
+	// r.Get("/", h.r.Wrap(h.GetAllMedia))
+	// r.Get("/{id}", h.r.Wrap(h.GetMedia))
+	r.Post("/", h.r.Wrap(h.PostMedia)) // TODO: redoo
+	// r.Delete("/{id}", h.r.Wrap(h.DeleteMedia))
+	// r.Put("/{id}", h.r.Wrap(h.UpdateMedia))
 
 	return r
 }
 
-func (h *MediaHandler) GetAllMedia(w http.ResponseWriter, req *http.Request) handler.Response {
-	filter := &requests.GetAllMedia{}
+// func (h *MediaHandler) GetAllMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	filter := &requests.GetAllMedia{}
 
-	res, err := h.media.GetAllMedia(context.Background(), *filter)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetAllMedia GetAllMedia")
-		return handler.InternalServerErrorResponse()
-	}
+// 	res, err := h.media.GetAllMedia(context.Background(), *filter)
+// 	if err != nil {
+// 		log.WithError(err).Warnf("can't service.GetAllMedia GetAllMedia")
+// 		return handler.InternalServerErrorResponse()
+// 	}
 
-	return handler.OkResponse(res)
-}
+// 	return handler.OkResponse(res)
+// }
 
-func (h *MediaHandler) GetMedia(w http.ResponseWriter, req *http.Request) handler.Response {
-	mediaId := &requests.GetMedia{}
+// func (h *MediaHandler) GetMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	mediaId := &requests.GetMedia{}
 
-	err := mediaId.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetMedia GetMedia")
-		return handler.BadRequestResponse()
-	}
+// 	err := mediaId.Bind(req)
+// 	if err != nil {
+// 		log.WithError(err).Warnf("can't service.GetMedia GetMedia")
+// 		return handler.BadRequestResponse()
+// 	}
 
-	res, err := h.media.GetMedia(context.Background(), mediaId.ID)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.GetMedia GetMedia")
-		return handler.InternalServerErrorResponse()
-	}
+// 	res, err := h.media.GetMedia(context.Background(), mediaId.ID)
+// 	if err != nil {
+// 		log.WithError(err).Warnf("can't service.GetMedia GetMedia")
+// 		return handler.InternalServerErrorResponse()
+// 	}
 
-	return handler.OkResponse(res)
-}
+// 	return handler.OkResponse(res)
+// }
 
 func (h *MediaHandler) PostMedia(w http.ResponseWriter, req *http.Request) handler.Response {
 	media := &requests.PostMedia{}
@@ -89,38 +89,38 @@ func (h *MediaHandler) PostMedia(w http.ResponseWriter, req *http.Request) handl
 	return handler.OkResponse(nil)
 }
 
-func (h *MediaHandler) DeleteMedia(w http.ResponseWriter, req *http.Request) handler.Response {
-	media := &requests.DeleteMedia{}
+// func (h *MediaHandler) DeleteMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	media := &requests.DeleteMedia{}
 
-	err := media.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.DeleteMedia DeleteMedia")
-		return handler.BadRequestResponse()
-	}
+// 	err := media.Bind(req)
+// 	if err != nil {
+// 		log.WithError(err).Warnf("can't service.DeleteMedia DeleteMedia")
+// 		return handler.BadRequestResponse()
+// 	}
 
-	err = h.media.DeleteMedia(context.Background(), media.ID)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.DeleteMedia DeleteMedia")
-		return handler.InternalServerErrorResponse()
-	}
+// 	err = h.media.DeleteMedia(context.Background(), media.ID)
+// 	if err != nil {
+// 		log.WithError(err).Warnf("can't service.DeleteMedia DeleteMedia")
+// 		return handler.InternalServerErrorResponse()
+// 	}
 
-	return handler.OkResponse(nil)
-}
+// 	return handler.OkResponse(nil)
+// }
 
-func (h *MediaHandler) UpdateMedia(w http.ResponseWriter, req *http.Request) handler.Response {
-	media := &requests.UpdateMedia{}
+// func (h *MediaHandler) UpdateMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	media := &requests.UpdateMedia{}
 
-	err := media.Bind(req)
-	if err != nil {
-		log.WithError(err).Warnf("can't service.UpdateMedia UpdateMedia")
-		return handler.BadRequestResponse()
-	}
+// 	err := media.Bind(req)
+// 	if err != nil {
+// 		log.WithError(err).Warnf("can't service.UpdateMedia UpdateMedia")
+// 		return handler.BadRequestResponse()
+// 	}
 
-	err = h.media.UpdateMedia(context.Background(), *mapper.MakeRequestPutMedia(*media))
-	if err != nil {
-		log.WithError(err).Warnf("can't service.UpdateMedia UpdateMedia")
-		return handler.InternalServerErrorResponse()
-	}
+// 	err = h.media.UpdateMedia(context.Background(), *mapper.MakeRequestPutMedia(*media))
+// 	if err != nil {
+// 		log.WithError(err).Warnf("can't service.UpdateMedia UpdateMedia")
+// 		return handler.InternalServerErrorResponse()
+// 	}
 
-	return handler.OkResponse(nil)
-}
+// 	return handler.OkResponse(nil)
+// }
