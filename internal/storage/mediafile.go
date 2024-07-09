@@ -31,7 +31,7 @@ func (s *storage) UploadObject(ctx context.Context, name string, data []byte) (i
 	}
 	key, err := s.minio.UploadObject(ctx, &upl)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	id, err := s.postgres.AddMediaFile(name, key)
 	return id, err

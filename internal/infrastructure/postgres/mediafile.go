@@ -32,3 +32,11 @@ func (p *Postgres) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
 	}
 	return m, nil
 }
+
+const addMediaFile = "INSERT INTO mediafile (name, image_url) VALUES ($1, $2) RETURNING id"
+
+func (p *Postgres) AddMediaFile(name, key string) (int, error) {
+	var id int
+	err := p.db.QueryRow(addMediaFile, name, key).Scan(&id)
+	return id, err
+}
