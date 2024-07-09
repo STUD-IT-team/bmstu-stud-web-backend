@@ -134,6 +134,8 @@ services:
       dockerfile: ./pkg/minio/Dockerfile
     env_file: 
       - minio.env
+    networks:
+      - minio
 
 volumes:
   SWB_DB-data:
