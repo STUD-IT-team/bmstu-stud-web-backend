@@ -7,7 +7,6 @@ import (
 
 type ObjectStorage interface {
 	uploadStorage
-	downloadStorage
 }
 
 type MinioStorage struct {
@@ -24,5 +23,5 @@ func NewMinioStorage(minioURL string, minioUser string, minioPassword string, ss
 		return nil, err
 	}
 
-	return MinioStorage{client: client}, nil
+	return &MinioStorage{client: client}, nil
 }
