@@ -38,7 +38,7 @@ CREATE table IF NOT EXISTS feed
 create table if not exists mediafile (
     id serial primary key,
     name text default '',
-    image bytea default ''
+    image text default ''
 );
 
 create table IF NOT EXISTS event
