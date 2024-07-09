@@ -1,11 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 
-INSERT INTO mediafile (name, image)
-VALUES
-('cockballs.png', 'idef-0id9'),
-('balls.jpg', 'idef-0912'),
-('cock.pm4','ifas-axsx');
+ALTER table mediafile rename column image_url to key;
+
+update mediafile set key = 'idef-0id9';
 
 -- +goose StatementEnd
 
