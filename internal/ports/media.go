@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
@@ -14,14 +13,16 @@ import (
 )
 
 type MediaHandler struct {
-	r     handler.Renderer
-	media app.MediaService
+	r      handler.Renderer
+	media  app.MediaService
+	logger *log.Logger
 }
 
-func NewMediaHandler(r handler.Renderer, media app.MediaService) *MediaHandler {
+func NewMediaHandler(r handler.Renderer, media app.MediaService, logger *log.Logger) *MediaHandler {
 	return &MediaHandler{
-		r:     r,
-		media: media,
+		r:      r,
+		media:  media,
+		logger: logger,
 	}
 }
 
@@ -72,19 +73,25 @@ func (h *MediaHandler) Routes() chi.Router {
 // }
 
 func (h *MediaHandler) PostMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("PostHandler: got PostMedia request")
+
 	media := &requests.PostMedia{}
 
 	err := media.Bind(req)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.PostMedia PostMedia")
+		h.logger.Warnf("can't parse request PostMedia: %v", err)
 		return handler.BadRequestResponse()
 	}
 
-	err = h.media.PostMedia(context.Background(), *mapper.MakeRequestPutMedia(*media))
+	h.logger.Infof("PostHandler: parsed PostMedia request: %v", media)
+
+	_, err = h.media.PostObject(context.Background(), media)
 	if err != nil {
-		log.WithError(err).Warnf("can't service.PostMedia PostMedia")
+		h.logger.Warnf("can't service.PostMedia PostMedia: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
+
+	h.logger.Info("PostHandler: done PostMedia request")
 
 	return handler.OkResponse(nil)
 }

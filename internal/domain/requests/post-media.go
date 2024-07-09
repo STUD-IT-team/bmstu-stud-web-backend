@@ -9,13 +9,13 @@ import (
 )
 
 type PostMedia struct {
-	Name string
-	Data []byte
+	Name string `json:"name"`
+	Data []byte `json:"data"`
 }
 
 type PostMediaPointer struct {
-	Name *string
-	Data []byte
+	Name *string `json:"name"`
+	Data []byte  `json:"data"`
 }
 
 func (m *PostMedia) Bind(req *http.Request) error {

@@ -10,7 +10,7 @@ import (
 type mediaFileStorage interface {
 	GetMediaFile(id int) (*domain.MediaFile, error)
 	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
-	UploadObject(ctx context.Context, name string, data []byte) (string, error)
+	UploadObject(ctx context.Context, name string, data []byte) (int, error)
 }
 
 func (s *storage) GetMediaFile(id int) (*domain.MediaFile, error) {

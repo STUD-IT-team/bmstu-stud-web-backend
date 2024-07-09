@@ -17,6 +17,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/cache"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/miniostorage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	internalhttp "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/storage"
@@ -75,8 +76,19 @@ func main() {
 		logger.WithError(err).Errorf("can`t connect to postgres: %s", os.Getenv("PG_CONNECT"))
 	}
 
+	endpoint := "minio:9000"
+	user := "user"
+	password := "password"
+	useSSL := false
+
+	minioStorage, err := miniostorage.NewMinioStorage(endpoint, user, password, useSSL)
+
+	if err != nil {
+		log.Fatalf("Upload err: " + err.Error())
+	}
+
 	sessionCache := cache.NewSessionCache()
-	appStorage := storage.NewStorage(*appPostgres, sessionCache)
+	appStorage := storage.NewStorage(*appPostgres, sessionCache, minioStorage)
 
 	// services
 	clubService := app.NewClubService(appStorage)
@@ -84,6 +96,7 @@ func main() {
 	eventsService := app.NewEventsService(appStorage)
 	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(appStorage)
+	mediaService := app.NewMediaService(appStorage)
 	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService)
 
 	var mainGroupHandler *handler.GroupHandler
@@ -96,6 +109,7 @@ func main() {
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
+			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
@@ -106,6 +120,7 @@ func main() {
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
+			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	}

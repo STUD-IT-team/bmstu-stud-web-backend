@@ -10,6 +10,7 @@ services:
       - app.env
     depends_on:
       - postgres
+      - minio
     networks:
       - postgres
 
@@ -106,8 +107,6 @@ services:
     ports:
       - "9000:9000"
       - "9001:9001"
-    volumes:
-      - minio-storage:/data
     env_file:
       - minio.env
     healthcheck:
@@ -135,7 +134,6 @@ services:
 volumes:
   SWB_DB-data:
   pgadmin-data:
-  minio-storage:
 
 networks:
   postgres:
