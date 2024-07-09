@@ -98,10 +98,36 @@ services:
       dockerfile: ./migrations/Dockerfile
     networks:
       - postgres
+  
+  minio:
+    container_name: minio_container
+    image: minio/minio:latest
+    command: server --console-address ":9001" /data/
+    env_file:
+      - .env
+    ports:
+      - "${API_PORT}:${API_PORT}"
+      - "${API_WEB_PORT}:${API_WEB_PORT}"
+    
+
+    # volumes:
+    #   - minio-storage:/data
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
 
 volumes:
   SWB_DB-data:
   pgadmin-data:
+  minio-storage:
 
 networks:
   postgres:
