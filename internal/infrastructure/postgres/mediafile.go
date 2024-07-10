@@ -1,6 +1,8 @@
 package postgres
 
 import (
+	"context"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/jackc/pgx"
 )
@@ -51,5 +53,49 @@ const deleteMediaFile = "DELETE FROM mediafile WHERE id = $1"
 
 func (p *Postgres) DeleteMediaFile(id int) error {
 	_, err := p.db.Exec(deleteMediaFile, id)
+	return err
+}
+
+const getUnusedMedia = `
+SELECT
+    id,
+	name,
+	key
+FROM mediafile
+WHERE id NOT IN (
+    SELECT media_id FROM club_photo
+    UNION ALL
+	SELECT media_id FROM member
+	UNION ALL
+	SELECT media_id FROM feed
+	UNION ALL
+	SELECT media_id FROM event
+	UNION ALL
+	SELECT logo as media_id FROM club
+)
+`
+
+func (p *Postgres) GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, error) {
+	res := make([]domain.MediaFile, 0)
+	rows, err := p.db.Query(getUnusedMedia)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		med := domain.MediaFile{}
+		err := rows.Scan(&med.ID, &med.Name, &med.Key)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, med)
+	}
+	return res, nil
+}
+
+const deleteMediaFiles = "DELETE FROM mediafile WHERE key = ANY($1)"
+
+func (p *Postgres) DeleteMediaFiles(ctx context.Context, keys []string) error {
+	_, err := p.db.Exec(deleteMediaFiles, keys)
 	return err
 }

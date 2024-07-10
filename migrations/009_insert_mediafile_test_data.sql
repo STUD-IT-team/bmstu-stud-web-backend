@@ -12,9 +12,12 @@ UPDATE mediafile set key = '6.jpg' where id=6;
 UPDATE mediafile set key = '7.jpg' where id=7;
 UPDATE mediafile set key = '8.jpg' where id=8;
 UPDATE mediafile set key = '9.jpg' where id=9;
+INSERT INTO mediafile (key, name) VALUES
+('10.jpg', 'image10.jpg'),
+('11.jpg', 'image11.jpg'),
+('12.jpg', 'image12.jpg');
 
 ALTER TABLE mediafile ADD CONSTRAINT key_unique UNIQUE (key)
-
 -- +goose StatementEnd
 
 -- +goose Down

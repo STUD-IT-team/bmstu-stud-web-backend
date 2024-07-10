@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/go-chi/chi"
+	"github.com/go-co-op/gocron/v2"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/automaxprocs/maxprocs"
 	"golang.org/x/sync/errgroup"
@@ -167,6 +168,26 @@ func main() {
 			logger.WithError(err).Errorf("server can't listen and serve requests")
 		}
 	}()
+
+	// Run the cron jobs
+	s, err := gocron.NewScheduler()
+	if err != nil {
+		logger.Fatalf("failed to create gocron scheduler")
+	}
+
+	_, err = s.NewJob(
+		gocron.DailyJob(
+			1,
+			gocron.NewAtTimes(
+				gocron.NewAtTime(3, 0, 0),
+			)),
+		gocron.NewTask(mediaService.DeleteUnusedMedia, context.Background(), logger),
+	)
+	if err != nil {
+		logger.Fatalf("gocron обдристался...")
+	}
+	s.Start()
+	logger.Infof("Cron started")
 
 	// for i := range servers {
 	// 	srv := servers[i]
