@@ -164,9 +164,9 @@ func MakeResponseClubMediaFiles(clubID int, files []domain.ClubPhoto) (*response
 		m := responses.ClubMedia{
 			RefNumber: f.RefNumber,
 			MediaFile: domain.MediaFile{
-				ID:       f.ID,
-				Name:     f.Name,
-				ImageUrl: f.ImageUrl,
+				ID:   f.ID,
+				Name: f.Name,
+				Key:  f.Key,
 			},
 		}
 		r.Media = append(r.Media, m)

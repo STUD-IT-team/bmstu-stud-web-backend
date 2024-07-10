@@ -1,9 +1,9 @@
 package domain
 
 type MediaFile struct {
-	ID       int    `"db:id"`
-	Name     string `"db:name"`
-	ImageUrl string `"db:image_url"`
+	ID   int    `db:"id"`
+	Name string `db:"name"`
+	Key  string `db:"key"`
 }
 
 type ClubPhoto struct {

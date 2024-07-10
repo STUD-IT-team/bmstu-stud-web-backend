@@ -525,13 +525,13 @@ SELECT
     club_photo.id,
 	club_photo.ref_num,
 	photo.name,
-	photo.image_url
+	photo.key
 FROM club_photo
 JOIN
 (
 	SELECT
 	    name,
-		image_url,
+		key,
 		id
 	FROM mediafile
 ) as photo
@@ -548,7 +548,7 @@ func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
 
 	for rows.Next() {
 		p := domain.ClubPhoto{}
-		err := rows.Scan(&p.ID, &p.RefNumber, &p.Name, &p.ImageUrl)
+		err := rows.Scan(&p.ID, &p.RefNumber, &p.Name, &p.Key)
 		if err != nil {
 			return []domain.ClubPhoto{}, err
 		}

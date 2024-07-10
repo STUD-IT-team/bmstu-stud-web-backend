@@ -6,7 +6,7 @@ const getMediaFile = "SELECT name, key FROM mediafile WHERE id = $1"
 
 func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	f := domain.MediaFile{}
-	err := p.db.QueryRow(getMediaFile, id).Scan(&f.Name, &f.ImageUrl)
+	err := p.db.QueryRow(getMediaFile, id).Scan(&f.Name, &f.Key)
 	if err == nil {
 		return &f, nil
 	}
@@ -24,7 +24,7 @@ func (p *Postgres) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
 	}
 	for rows.Next() {
 		media := domain.MediaFile{}
-		err := rows.Scan(&media.ID, &media.Name, &media.ImageUrl)
+		err := rows.Scan(&media.ID, &media.Name, &media.Key)
 		if err != nil {
 			return nil, err
 		}
