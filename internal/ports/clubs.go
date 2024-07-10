@@ -63,7 +63,7 @@ func (h *ClubsHandler) Routes() chi.Router {
 func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got getAllClub request")
 
-	res, err := h.clubs.GetAllClubs()
+	res, err := h.clubs.GetAllClubs(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't service.GetAllClubs GetAllClubs: %v", err)
 		return handler.NotFoundResponse()
@@ -100,7 +100,7 @@ func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler
 
 	h.logger.Infof("ClubsHandler: parse request: %v", clubId)
 
-	res, err := h.clubs.GetClub(clubId.ID)
+	res, err := h.clubs.GetClub(context.Background(), clubId.ID)
 	if err != nil {
 		h.logger.Warnf("can't ClubService.GetClub: %v", err)
 		return handler.NotFoundResponse()
@@ -136,7 +136,7 @@ func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) 
 
 	h.logger.Infof("ClubsHandler: parse request: %v", clubName)
 
-	res, err := h.clubs.GetClubsByType(clubName.Type)
+	res, err := h.clubs.GetClubsByType(context.Background(), clubName.Type)
 	if err != nil {
 		h.logger.Warnf("can't ClubService.GetClub: %v", err)
 		return handler.NotFoundResponse()
@@ -172,7 +172,7 @@ func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) 
 
 	h.logger.Infof("ClubsHandler: parse request: %v", clubName)
 
-	res, err := h.clubs.GetClubsByName(clubName.Name)
+	res, err := h.clubs.GetClubsByName(context.Background(), clubName.Name)
 	if err != nil {
 		h.logger.Warnf("can't ClubService.GetClub: %v", err)
 		return handler.NotFoundResponse()
@@ -208,7 +208,7 @@ func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) 
 
 	h.logger.Infof("ClubsHandler: parse request: %v", clubId)
 
-	res, err := h.clubs.GetClubMembers(clubId.ID)
+	res, err := h.clubs.GetClubMembers(context.Background(), clubId.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.GetClubMembers GetClubMembers: %v", err)
 		return handler.NotFoundResponse()
@@ -243,7 +243,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 
 	h.logger.Infof("ClubsHandler: parse request: %v", clubId)
 
-	res, err := h.clubs.GetClubMediaFiles(clubId.ID)
+	res, err := h.clubs.GetClubMediaFiles(context.Background(), clubId.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.GetClubMedia GetClubMedia: %v", err)
 		return handler.NotFoundResponse()
@@ -349,7 +349,7 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 
 	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
 
-	err = h.clubs.DeleteClub(club.ID)
+	err = h.clubs.DeleteClub(context.Background(), club.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.DeleteClub DeleteClub: %v", err)
 		return handler.InternalServerErrorResponse()
@@ -401,7 +401,7 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 
 	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
 
-	err = h.clubs.UpdateClub(club)
+	err = h.clubs.UpdateClub(context.Background(), club)
 	if err != nil {
 		h.logger.Warnf("can't service.UpdateClub UpdateClub: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
