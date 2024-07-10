@@ -7,6 +7,8 @@ import (
 type mediaFileStorage interface {
 	GetMediaFile(id int) (*domain.MediaFile, error)
 	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
+	PutMediaFile(name string, key string) (int, error)
+	DeleteMediaFile(id int) error
 }
 
 func (s *storage) GetMediaFile(id int) (*domain.MediaFile, error) {
@@ -15,4 +17,12 @@ func (s *storage) GetMediaFile(id int) (*domain.MediaFile, error) {
 
 func (s *storage) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
 	return s.postgres.GetMediaFiles(ids)
+}
+
+func (s *storage) PutMediaFile(name string, key string) (int, error) {
+	return s.postgres.AddMediaFile(name, key)
+}
+
+func (s *storage) DeleteMediaFile(id int) error {
+	return s.postgres.DeleteMediaFile(id)
 }

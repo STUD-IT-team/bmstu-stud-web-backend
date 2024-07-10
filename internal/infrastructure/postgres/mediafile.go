@@ -1,6 +1,9 @@
 package postgres
 
-import "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+import (
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/jackc/pgx"
+)
 
 const getMediaFile = "SELECT name, key FROM mediafile WHERE id = $1"
 
@@ -38,5 +41,15 @@ const addMediaFile = "INSERT INTO mediafile (name, key) VALUES ($1, $2) RETURNIN
 func (p *Postgres) AddMediaFile(name, key string) (int, error) {
 	var id int
 	err := p.db.QueryRow(addMediaFile, name, key).Scan(&id)
-	return id, err
+	if err != nil {
+		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return id, nil
+}
+
+const deleteMediaFile = "DELETE FROM mediafile WHERE id = $1"
+
+func (p *Postgres) DeleteMediaFile(id int) error {
+	_, err := p.db.Exec(deleteMediaFile, id)
+	return err
 }

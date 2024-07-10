@@ -4,12 +4,10 @@ import (
 	"context"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/miniostorage"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type minioStorage interface {
-	UploadObject(ctx context.Context, name string, bucketName string, data []byte) (int, error)
-	UploadObjectBcrypt(ctx context.Context, name string, bucketName string, data []byte) (int, error)
+	UploadObject(ctx context.Context, name string, bucketName string, data []byte) (string, error)
 	DeleteObject(ctx context.Context, name string, bucketName string) error
 }
 
@@ -17,27 +15,6 @@ func (s *storage) UploadObject(ctx context.Context, name string, bucketName stri
 	upl := miniostorage.UploadObject{
 		BucketName:  bucketName,
 		ObjectName:  name,
-		Data:        data,
-		Size:        int64(len(data)),
-		ContentType: "",
-	}
-	minioKey, err := s.minio.UploadObject(ctx, &upl)
-	if err != nil {
-		return "", err
-	}
-	return minioKey, err
-}
-
-const bcryptCost = 10
-
-func (s *storage) UploadObjectBcrypt(ctx context.Context, name string, bucketName string, data []byte) (string, error) {
-	key, err := bcrypt.GenerateFromPassword([]byte(name), bcryptCost)
-	if err != nil {
-		return "", err
-	}
-	upl := miniostorage.UploadObject{
-		BucketName:  bucketName,
-		ObjectName:  string(key),
 		Data:        data,
 		Size:        int64(len(data)),
 		ContentType: "",

@@ -96,7 +96,7 @@ func main() {
 	eventsService := app.NewEventsService(appStorage)
 	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(appStorage)
-	mediaService := app.NewMediaService(appStorage)
+	mediaService := app.NewMediaService(appStorage, os.Getenv("IMAGE_BUCKET"))
 	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService)
 
 	var mainGroupHandler *handler.GroupHandler
