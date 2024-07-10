@@ -97,6 +97,7 @@ func main() {
 	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(appStorage)
 	mediaService := app.NewMediaService(appStorage, os.Getenv("IMAGE_BUCKET"))
+	documentsService := app.NewDocumentsService(appStorage, os.Getenv("DOCUMENT_BUCKET"))
 	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService)
 
 	var mainGroupHandler *handler.GroupHandler
@@ -110,6 +111,7 @@ func main() {
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger),
+			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
@@ -121,6 +123,7 @@ func main() {
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger),
+			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	}

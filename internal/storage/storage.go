@@ -16,6 +16,7 @@ type Storage interface {
 	mediaFileStorage
 	eventStorage
 	minioStorage
+	documentsStorage
 }
 
 type storage struct {

@@ -129,7 +129,7 @@ services:
   minio-migrate:
     container_name: migrate_minio
     depends_on:
-      [minio]
+      - minio
     build:
       context: ../
       dockerfile: ./pkg/minio/Dockerfile
