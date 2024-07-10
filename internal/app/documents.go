@@ -11,6 +11,7 @@ import (
 type documentsServiceStorage interface {
 	GetAllDocuments(ctx context.Context) ([]domain.Document, error)
 	GetDocument(ctx context.Context, id int) (domain.Document, error)
+	GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error)
 }
 
 type DocumentsService struct {
@@ -36,4 +37,12 @@ func (s *DocumentsService) GetDocument(ctx context.Context, id int) (*responses.
 		return nil, err
 	}
 	return mapper.MakeResponseDocument(&doc, s.bucketName)
+}
+
+func (s *DocumentsService) GetDocumentsByClubID(ctx context.Context, clubID int) (*responses.GetDocumentsByClubID, error) {
+	docs, err := s.storage.GetDocumentsByClubID(ctx, clubID)
+	if err != nil {
+		return nil, err
+	}
+	return mapper.MakeResponseDocumentsByClubID(docs, s.bucketName)
 }

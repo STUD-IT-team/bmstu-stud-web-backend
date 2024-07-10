@@ -1,5 +1,5 @@
 package responses
 
 type GetEventsByRange struct {
-	Event []Event `json:"event"`
+	Events []Event `json:"events"`
 }

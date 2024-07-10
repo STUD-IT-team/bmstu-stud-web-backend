@@ -111,7 +111,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 // GetFeedEncounters retrieves by id
 //
 //	@Summary     Retrieve encounters by ID
-//	@Description Get encounters using ID
+//	@Description Get encounters using ID (0 for main page)
 //	@Tags        public.feed
 //	@Produce     json
 //	@Param       id   path     string           true "id"

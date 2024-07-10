@@ -5,9 +5,9 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-func MakeResponseAllDocuments(f []domain.Document, bucketName string) (*responses.GetAllDocuments, error) {
-	documents := make([]responses.Document, 0, len(f))
-	for _, v := range f {
+func MakeResponseAllDocuments(d []domain.Document, bucketName string) (*responses.GetAllDocuments, error) {
+	documents := make([]responses.Document, 0, len(d))
+	for _, v := range d {
 		documents = append(documents,
 			responses.Document{
 				ID:     v.ID,
@@ -27,4 +27,19 @@ func MakeResponseDocument(v *domain.Document, bucketName string) (*responses.Get
 		Key:    bucketName + "/" + v.Key,
 		ClubID: v.ClubID,
 	}, nil
+}
+
+func MakeResponseDocumentsByClubID(d []domain.Document, bucketName string) (*responses.GetDocumentsByClubID, error) {
+	documents := make([]responses.Document, 0, len(d))
+	for _, v := range d {
+		documents = append(documents,
+			responses.Document{
+				ID:     v.ID,
+				Name:   v.Name,
+				Key:    bucketName + "/" + v.Key,
+				ClubID: v.ClubID,
+			})
+	}
+
+	return &responses.GetDocumentsByClubID{Documents: documents}, nil
 }

@@ -76,7 +76,7 @@ func MakeResponseEventsByRange(evs []domain.Event, eventMediaFiles map[int]domai
 			})
 	}
 
-	return &responses.GetEventsByRange{Event: event}, nil
+	return &responses.GetEventsByRange{Events: event}, nil
 }
 
 func MakeRequestPostEvent(v requests.PostEvent) *domain.Event {
