@@ -76,9 +76,9 @@ func main() {
 		logger.WithError(err).Errorf("can`t connect to postgres: %s", os.Getenv("PG_CONNECT"))
 	}
 
-	endpoint := "minio:9000"
-	user := "user"
-	password := "password"
+	endpoint := os.Getenv("END_POINT")
+	user := os.Getenv("MINIO_ROOT_USER")
+	password := os.Getenv("MINIO_ROOT_PASSWORD")
 	useSSL := false
 
 	minioStorage, err := miniostorage.NewMinioStorage(endpoint, user, password, useSSL)
