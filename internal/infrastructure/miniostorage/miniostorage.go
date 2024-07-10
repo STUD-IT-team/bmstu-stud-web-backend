@@ -7,6 +7,7 @@ import (
 
 type ObjectStorage interface {
 	uploadStorage
+	deleteStorage
 }
 
 type MinioStorage struct {
