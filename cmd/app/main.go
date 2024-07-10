@@ -110,7 +110,7 @@ func main() {
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
-			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger),
+			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger, guardService),
 			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
@@ -122,7 +122,7 @@ func main() {
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
-			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger),
+			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger, guardService),
 			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
