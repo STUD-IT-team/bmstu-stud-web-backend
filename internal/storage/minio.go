@@ -9,7 +9,7 @@ import (
 
 func (s *storage) UploadObject(ctx context.Context, name string, bucketName string, data []byte) (string, error) {
 	upl := miniostorage.UploadObject{
-		BucketName:  "images",
+		BucketName:  bucketName,
 		ObjectName:  name,
 		Data:        data,
 		Size:        int64(len(data)),
@@ -30,7 +30,7 @@ func (s *storage) UploadObjectBcrypt(ctx context.Context, name string, bucketNam
 		return "", err
 	}
 	upl := miniostorage.UploadObject{
-		BucketName:  "images",
+		BucketName:  bucketName,
 		ObjectName:  string(key),
 		Data:        data,
 		Size:        int64(len(data)),
