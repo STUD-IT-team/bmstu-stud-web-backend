@@ -18,13 +18,15 @@ type MediaHandler struct {
 	r      handler.Renderer
 	media  app.MediaService
 	logger *log.Logger
+	guard  *app.GuardService
 }
 
-func NewMediaHandler(r handler.Renderer, media app.MediaService, logger *log.Logger) *MediaHandler {
+func NewMediaHandler(r handler.Renderer, media app.MediaService, logger *log.Logger, guard *app.GuardService) *MediaHandler {
 	return &MediaHandler{
 		r:      r,
 		media:  media,
 		logger: logger,
+		guard:  guard,
 	}
 }
 
@@ -44,9 +46,21 @@ func (h *MediaHandler) Routes() chi.Router {
 func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("PostHandler: got PostMediaPublic request")
 
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token PostMediaPublic: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
 	media := &requests.PostMedia{}
 
-	err := media.Bind(req)
+	err = media.Bind(req)
 	if err != nil {
 		h.logger.Warnf("can't parse request PostMediaPublic: %v", err)
 		return handler.BadRequestResponse()
@@ -71,9 +85,21 @@ func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request)
 func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("PostHandler: got PostMediaPrivate request")
 
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token PostMediaPublic: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
 	media := &requests.PostMedia{}
 
-	err := media.Bind(req)
+	err = media.Bind(req)
 	if err != nil {
 		h.logger.Warnf("can't parse request PostMediaPrivate: %v", err)
 		return handler.BadRequestResponse()
