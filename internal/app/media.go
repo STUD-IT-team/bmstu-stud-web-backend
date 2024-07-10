@@ -7,8 +7,8 @@ import (
 )
 
 type mediaStorage interface {
-	UploadObject(ctx context.Context, name string, data []byte) (int, error)
-	UploadObjectBcrypt(ctx context.Context, name string, data []byte) (int, error)
+	UploadObject(ctx context.Context, name string, bucketName string, data []byte) (int, error)
+	UploadObjectBcrypt(ctx context.Context, name string, bucketName string, data []byte) (int, error)
 }
 
 type MediaService struct {

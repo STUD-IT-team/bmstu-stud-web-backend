@@ -15,6 +15,7 @@ type Storage interface {
 	clubStorage
 	mediaFileStorage
 	eventStorage
+	minioStorage
 }
 
 type storage struct {

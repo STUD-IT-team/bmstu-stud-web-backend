@@ -7,6 +7,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type minioStorage interface {
+	UploadObject(ctx context.Context, name string, bucketName string, data []byte) (int, error)
+	UploadObjectBcrypt(ctx context.Context, name string, bucketName string, data []byte) (int, error)
+	DeleteObject(ctx context.Context, name string, bucketName string) error
+}
+
 func (s *storage) UploadObject(ctx context.Context, name string, bucketName string, data []byte) (string, error) {
 	upl := miniostorage.UploadObject{
 		BucketName:  bucketName,
