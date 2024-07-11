@@ -92,12 +92,12 @@ func main() {
 	appStorage := storage.NewStorage(*appPostgres, sessionCache, minioStorage)
 
 	// services
-	clubService := app.NewClubService(appStorage)
+	mediaService := app.NewMediaService(appStorage, os.Getenv("IMAGE_BUCKET"))
+	clubService := app.NewClubService(appStorage, mediaService)
 	feedService := app.NewFeedService(appStorage)
 	eventsService := app.NewEventsService(appStorage)
 	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(appStorage)
-	mediaService := app.NewMediaService(appStorage, os.Getenv("IMAGE_BUCKET"))
 	documentsService := app.NewDocumentsService(appStorage, os.Getenv("DOCUMENT_BUCKET"))
 	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService)
 
