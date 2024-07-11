@@ -7,16 +7,16 @@ import (
 )
 
 type GetEvent struct {
-	ID          int              `db:"id"`
-	Title       string           `db:"title"`
-	Description string           `db:"description"`
-	Prompt      string           `db:"prompt"`
-	Media       domain.MediaFile `db:"media"`
-	Date        time.Time        `db:"date"`
-	Approved    bool             `db:"approved"`
-	CreatedAt   time.Time        `db:"created_at"`
-	CreatedBy   int              `db:"created_by"`
-	RegUrl      string           `db:"reg_url"`
-	RegOpenDate time.Time        `db:"reg_open_date"`
-	FeedbackUrl string           `db:"feedback_url"`
+	ID          int              `json:"id"`
+	Title       string           `json:"title"`
+	Description string           `json:"description"`
+	Prompt      string           `json:"prompt"`
+	Media       domain.MediaFile `json:"media"`
+	Date        time.Time        `json:"date"`
+	Approved    bool             `json:"approved"`
+	CreatedAt   time.Time        `json:"created_at"`
+	CreatedBy   int              `json:"created_by"`
+	RegUrl      string           `json:"reg_url"`
+	RegOpenDate time.Time        `json:"reg_open_date"`
+	FeedbackUrl string           `json:"feedback_url"`
 }

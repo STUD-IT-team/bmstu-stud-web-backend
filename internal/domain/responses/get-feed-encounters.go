@@ -5,8 +5,8 @@ type GetFeedEncounters struct {
 }
 
 type Encounter struct {
-	ID          int    `db:"id"`
-	Count       string `db:"count"`
-	Description string `db:"description"`
-	ClubID      int    `db:"club_id"`
+	ID          int    `json:"id"`
+	Count       string `json:"count"`
+	Description string `json:"description"`
+	ClubID      int    `json:"club_id"`
 }

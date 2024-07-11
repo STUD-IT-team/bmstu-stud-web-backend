@@ -1,8 +1,8 @@
 package responses
 
 type GetDocument struct {
-	ID     int    `db:"id"`
-	Name   string `db:"name"`
-	Key    string `db:"key"`
-	ClubID int    `db:"club_id"`
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Key    string `json:"key"`
+	ClubID int    `json:"club_id"`
 }
