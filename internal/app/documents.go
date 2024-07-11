@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -12,6 +13,7 @@ type documentsServiceStorage interface {
 	GetAllDocuments(ctx context.Context) ([]domain.Document, error)
 	GetDocument(ctx context.Context, id int) (domain.Document, error)
 	GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error)
+	PostDocument(ctx context.Context, doc domain.Document) error
 }
 
 type DocumentsService struct {
@@ -45,4 +47,13 @@ func (s *DocumentsService) GetDocumentsByClubID(ctx context.Context, clubID int)
 		return nil, err
 	}
 	return mapper.MakeResponseDocumentsByClubID(docs, s.bucketName)
+}
+
+func (s *DocumentsService) PostDocument(ctx context.Context, feed domain.Document) error {
+	err := s.storage.PostDocument(ctx, feed)
+	if err != nil {
+		return fmt.Errorf("can't storage.PostDocument: %w", err)
+	}
+
+	return nil
 }

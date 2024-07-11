@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
@@ -39,7 +40,7 @@ func (h *DocumentsHandler) Routes() chi.Router {
 	r.Get("/", h.r.Wrap(h.GetAllDocuments))
 	r.Get("/{id}", h.r.Wrap(h.GetDocument))
 	r.Get("/search/{club_id}", h.r.Wrap(h.GetDocumentsByClubID))
-	// r.Post("/", h.r.Wrap(h.PostDocument))
+	r.Post("/", h.r.Wrap(h.PostDocument))
 	// r.Delete("/{id}", h.r.Wrap(h.DeleteDocument))
 	// r.Put("/{id}", h.r.Wrap(h.UpdateDocument))
 
@@ -140,4 +141,55 @@ func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http
 	h.logger.Info("DocumentsHandler: request GetDocumentsByClubID done")
 
 	return handler.OkResponse(res)
+}
+
+// PostDocument creates a new document item
+//
+//		@Summary     Create a new document item
+//		@Description Create a new document item with the provided data
+//		@Tags        auth.documents
+//		@Accept      json
+//		@Param       request body requests.PostDocument true "Document data"
+//		@Success     201
+//		@Failure     400
+//	 	@Failure     401
+//		@Failure     404
+//		@Router      /document [post]
+//		@Security    Authorised
+func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got PostDocument request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token PostDocument: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on PostDocument: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: PostDocument Authenticated: %v", resp.MemberID)
+
+	document := &requests.PostDocument{}
+
+	err = document.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind PostDocument: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: parse request PostDocument: %v", document)
+
+	err = h.documents.PostDocument(context.Background(), *mapper.MakeRequestPostDocument(*document))
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.PostDocument: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("DocumentsHandler: request PostDocument done")
+
+	return handler.CreatedResponse(nil)
 }

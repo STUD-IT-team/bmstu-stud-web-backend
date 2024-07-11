@@ -204,7 +204,7 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 
 	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
 	if err != nil || !resp.Valid {
-		h.logger.Warnf("can't GuardService.Check on DeleteFeed: %v", err)
+		h.logger.Warnf("can't GuardService.Check on PostFeed: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
@@ -306,7 +306,7 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 
 	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
 	if err != nil || !resp.Valid {
-		h.logger.Warnf("can't GuardService.Check on DeleteFeed: %v", err)
+		h.logger.Warnf("can't GuardService.Check on UpdateFeed: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 

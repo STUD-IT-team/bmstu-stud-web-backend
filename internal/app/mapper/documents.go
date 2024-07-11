@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
@@ -42,4 +43,12 @@ func MakeResponseDocumentsByClubID(d []domain.Document, bucketName string) (*res
 	}
 
 	return &responses.GetDocumentsByClubID{Documents: documents}, nil
+}
+
+func MakeRequestPostDocument(v requests.PostDocument) *domain.Document {
+	return &domain.Document{
+		Name:   v.Name,
+		Key:    v.Key,
+		ClubID: v.ClubID,
+	}
 }

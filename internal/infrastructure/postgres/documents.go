@@ -77,3 +77,14 @@ func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain
 
 	return documentss, nil
 }
+
+const postDocumentQuery = "INSERT INTO document (name, key, club_id) VALUES ($1, $2, $3)"
+
+func (p *Postgres) PostDocument(_ context.Context, document domain.Document) error {
+	_, err := p.db.Exec(postDocumentQuery, document.Name, document.Key, document.ClubID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
