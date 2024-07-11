@@ -14,12 +14,13 @@ func MakeMainOrg(org *domain.ClubOrg, images *map[int]domain.MediaFile) (*respon
 	}
 
 	return &responses.MainOrg{
-		ID:    org.ID,
-		Name:  org.Name,
-		VkUrl: org.Vk,
-		TgUrl: org.Telegram,
-		Spec:  org.RoleName,
-		Image: (*images)[org.MediaID],
+		ID:       org.ID,
+		Name:     org.Name,
+		VkUrl:    org.Vk,
+		TgUrl:    org.Telegram,
+		Spec:     org.RoleSpec,
+		RoleName: org.RoleName,
+		Image:    (*images)[org.MediaID],
 	}, nil
 }
 
@@ -34,7 +35,7 @@ func MakeSubOrg(org *domain.ClubOrg, images *map[int]domain.MediaFile) (*respons
 		SubClubName: org.ClubName,
 		VkUrl:       org.Vk,
 		TgUrl:       org.Telegram,
-		Spec:        org.RoleName,
+		Spec:        org.RoleSpec,
 		Image:       (*images)[org.MediaID],
 	}, nil
 

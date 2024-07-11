@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -39,7 +40,7 @@ func NewMediaService(storage mediaStorage, bucketName string) *MediaService {
 func (s *MediaService) GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error) {
 	mediaFile, err := s.storage.GetMediaFile(id)
 	if err != nil {
-		return &domain.MediaFile{}, err
+		return &domain.MediaFile{}, fmt.Errorf("can't get storage.GetMediaFile: %v", err)
 	}
 
 	return &domain.MediaFile{
@@ -52,7 +53,7 @@ func (s *MediaService) GetMediaFile(ctx context.Context, id int) (*domain.MediaF
 func (s *MediaService) GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error) {
 	files, err := s.storage.GetMediaFiles(ids)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("can't get storage.GetMediaFiles: %v", err)
 	}
 
 	res := make(map[int]domain.MediaFile, len(files))
@@ -69,13 +70,13 @@ func (s *MediaService) GetMediaFiles(ctx context.Context, ids []int) (map[int]do
 func (s *MediaService) PostMedia(ctx context.Context, req *requests.PostMedia) (*responses.PostMedia, error) {
 	id, err := s.storage.PutMediaFile(req.Name, req.Name)
 	if err != nil {
-		return &responses.PostMedia{}, err
+		return &responses.PostMedia{}, fmt.Errorf("can't storage.PutMedia: %v", err)
 	}
 
 	_, err = s.storage.UploadObject(ctx, req.Name, s.bucketName, req.Data)
 	if err != nil {
 		s.storage.DeleteMediaFile(id)
-		return &responses.PostMedia{}, err
+		return &responses.PostMedia{}, fmt.Errorf("can't storage.UploadObject: %v", err)
 	}
 
 	return mapper.MakeResponsePostMedia(id), err
@@ -86,12 +87,12 @@ const bcryptCost = 12
 func (s *MediaService) PostMediaBcrypt(ctx context.Context, req *requests.PostMedia) (*responses.PostMedia, error) {
 	key, err := bcrypt.GenerateFromPassword([]byte(req.Name), bcryptCost)
 	if err != nil {
-		return &responses.PostMedia{}, err
+		return &responses.PostMedia{}, fmt.Errorf("can't bcrypt.GenerateFromPassword: %v", err)
 	}
 
 	id, err := s.storage.PutMediaFile(req.Name, string(key))
 	if err != nil {
-		return &responses.PostMedia{}, err
+		return &responses.PostMedia{}, fmt.Errorf("can't storage.PutMedia: %v", err)
 	}
 
 	_, err = s.storage.UploadObject(ctx, string(key), s.bucketName, req.Data)
@@ -100,7 +101,7 @@ func (s *MediaService) PostMediaBcrypt(ctx context.Context, req *requests.PostMe
 		return &responses.PostMedia{}, err
 	}
 
-	return mapper.MakeResponsePostMedia(id), err
+	return mapper.MakeResponsePostMedia(id), fmt.Errorf("can't storage.UploadObject: %v", err)
 }
 
 // / Delete media file by ID. Not checks if file uses in other tables.

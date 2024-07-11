@@ -7,6 +7,7 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
@@ -43,6 +44,19 @@ func (h *MediaHandler) Routes() chi.Router {
 	return r
 }
 
+// PostMediaPublic
+//
+// @Summary    Загружает изображение в базу данных
+// @Description Загружает изображение в базу данных публично, то есть в хранилище хранится файл по тому же названию, что и подан на вход.
+// @Tags      auth.media
+// @Produce    json
+// @Param      request  body    requests.PostMedia  true  "post media data"
+// @Success    200   {object}  responses.PostMedia
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /media/public [post]
+// @Security    Authorized
 func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("PostHandler: got PostMediaPublic request")
 
@@ -82,6 +96,19 @@ func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request)
 	return handler.OkResponse(response)
 }
 
+// PostMediaPrivate
+//
+// @Summary    Загружает изображение в базу данных
+// @Description Загружает изображение в базу данных приватно, то есть название загруженного файла и хранящегося объетка различаются. По сути из вне нельзя заранее узнать ключ для получения файла.
+// @Tags      auth.media
+// @Produce    json
+// @Param      request  body    requests.PostMedia  true  "post media data"
+// @Success    200   {object}  responses.PostMedia
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /media/private [post]
+// @Security    Authorized
 func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("PostHandler: got PostMediaPrivate request")
 
