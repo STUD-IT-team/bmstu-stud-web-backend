@@ -28,10 +28,11 @@ type SubClubOrg struct {
 }
 
 type MainOrg struct {
-	ID    int              `json:"id"`
-	Name  string           `json:"name"`
-	VkUrl string           `json:"vk_url"`
-	TgUrl string           `json:"tg_url"`
-	Spec  string           `json:"spec"`
-	Image domain.MediaFile `json:"image"`
+	ID       int              `json:"id"`
+	Name     string           `json:"name"`
+	VkUrl    string           `json:"vk_url"`
+	TgUrl    string           `json:"tg_url"`
+	Spec     string           `json:"spec"`
+	RoleName string           `json:"role_name"`
+	Image    domain.MediaFile `json:"image"`
 }
