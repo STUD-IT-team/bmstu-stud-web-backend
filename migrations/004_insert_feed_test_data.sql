@@ -5,7 +5,7 @@ INSERT INTO feed (title, approved, description, media_id, vk_post_url, updated_a
 VALUES
 ('11', true, '33', 1, '132', '2004-10-19 10:23:54', '2004-10-19 10:23:54', 13, 11),
 ('1', true, '33', 1, '132', '2004-10-19 10:23:54', '2004-10-19 10:23:54', 13, 11),
-('22', false, '44', 2, '321', '2005-11-19 10:23:54', '1900-10-19 10:23:54', 14, 12);
+('22', false, '44', 1, '321', '2005-11-19 10:23:54', '1900-10-19 10:23:54', 14, 12);
 
 INSERT INTO encounter (count, description, club_id)
 VALUES

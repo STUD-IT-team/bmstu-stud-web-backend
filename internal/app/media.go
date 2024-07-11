@@ -18,6 +18,8 @@ type mediaStorage interface {
 	GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, error)
 	DeleteMediaFiles(ctx context.Context, keys []string) error
 	GetAllMediaKeys(ctx context.Context) ([]string, error)
+	GetMediaFile(id int) (*domain.MediaFile, error)
+	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
 }
 
 type MediaService struct {
@@ -30,6 +32,36 @@ func NewMediaService(storage mediaStorage, bucketName string) *MediaService {
 		storage:    storage,
 		bucketName: bucketName,
 	}
+}
+
+func (s *MediaService) GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error) {
+	mediaFile, err := s.storage.GetMediaFile(id)
+	if err != nil {
+		return &domain.MediaFile{}, err
+	}
+
+	return &domain.MediaFile{
+		ID:   mediaFile.ID,
+		Name: mediaFile.Name,
+		Key:  s.bucketName + "/" + mediaFile.Key,
+	}, nil
+}
+
+func (s *MediaService) GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error) {
+	files, err := s.storage.GetMediaFiles(ids)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(map[int]domain.MediaFile, len(files))
+	for id, file := range files {
+		res[id] = domain.MediaFile{
+			ID:   file.ID,
+			Name: file.Name,
+			Key:  s.bucketName + "/" + file.Key,
+		}
+	}
+	return res, nil
 }
 
 func (s *MediaService) PostMedia(ctx context.Context, req *requests.PostMedia) (int, error) {
