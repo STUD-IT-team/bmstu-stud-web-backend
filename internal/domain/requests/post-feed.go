@@ -10,27 +10,27 @@ import (
 )
 
 type PostFeed struct {
-	Title       string    `db:"title"`
-	Description string    `db:"description"`
-	Approved    bool      `db:"approved"`
-	MediaID     int       `db:"media_id"`
-	VkPostUrl   string    `db:"vk_post_url"`
-	UpdatedAt   time.Time `db:"updated_at"`
-	CreatedAt   time.Time `db:"created_at"`
-	CreatedBy   int       `db:"created_by"`
-	Views       int       `db:"views"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Approved    bool      `json:"approved"`
+	MediaID     int       `json:"media_id"`
+	VkPostUrl   string    `json:"vk_post_url"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	CreatedBy   int       `json:"created_by"`
+	Views       int       `json:"views"`
 }
 
 type PostFeedPointer struct {
-	Title       *string    `db:"title"`
-	Description *string    `db:"description"`
-	Approved    *bool      `db:"approved"`
-	MediaID     *int       `db:"media_id"`
-	VkPostUrl   *string    `db:"vk_post_url"`
-	UpdatedAt   *time.Time `db:"updated_at"`
-	CreatedAt   *time.Time `db:"created_at"`
-	CreatedBy   *int       `db:"created_by"`
-	Views       *int       `db:"views"`
+	Title       *string    `json:"title"`
+	Description *string    `json:"description"`
+	Approved    *bool      `json:"approved"`
+	MediaID     *int       `json:"media_id"`
+	VkPostUrl   *string    `json:"vk_post_url"`
+	UpdatedAt   *time.Time `json:"updated_at"`
+	CreatedAt   *time.Time `json:"created_at"`
+	CreatedBy   *int       `json:"created_by"`
+	Views       *int       `json:"views"`
 }
 
 func (f *PostFeed) Bind(req *http.Request) error {

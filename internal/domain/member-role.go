@@ -1,7 +1,7 @@
 package domain
 
 type Role struct {
-	ID       int    `db:"id"`
-	RoleName string `db:"role_name"`
-	RoleSpec string `db:"role_spec"`
+	ID       int    `json:"id"`
+	RoleName string `json:"role_name"`
+	RoleSpec string `json:"role_spec"`
 }

@@ -1,13 +1,13 @@
 package domain
 
 type MediaFile struct {
-	ID   int    `db:"id"`
-	Name string `db:"name"`
-	Key  string `db:"key"`
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+	Key  string `json:"key"`
 }
 
 type ClubPhoto struct {
 	MediaFile
-	ClubID    int `db:"club_id"`
-	RefNumber int `db:"ref_number"`
+	ClubID    int `json:"club_id"`
+	RefNumber int `json:"ref_number"`
 }

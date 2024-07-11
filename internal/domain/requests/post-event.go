@@ -10,31 +10,31 @@ import (
 )
 
 type PostEvent struct {
-	Title       string    `db:"title"`
-	Description string    `db:"description"`
-	Prompt      string    `db:"prompt"`
-	MediaID     int       `db:"media_id"`
-	Date        time.Time `db:"date"`
-	Approved    bool      `db:"approved"`
-	CreatedAt   time.Time `db:"created_at"`
-	CreatedBy   int       `db:"created_by"`
-	RegUrl      string    `db:"reg_url"`
-	RegOpenDate time.Time `db:"reg_open_date"`
-	FeedbackUrl string    `db:"eventback_url"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Prompt      string    `json:"prompt"`
+	MediaID     int       `json:"media_id"`
+	Date        time.Time `json:"date"`
+	Approved    bool      `json:"approved"`
+	CreatedAt   time.Time `json:"created_at"`
+	CreatedBy   int       `json:"created_by"`
+	RegUrl      string    `json:"reg_url"`
+	RegOpenDate time.Time `json:"reg_open_date"`
+	FeedbackUrl string    `json:"eventback_url"`
 }
 
 type PostEventPointer struct {
-	Title       *string    `db:"title"`
-	Description *string    `db:"description"`
-	Prompt      *string    `db:"prompt"`
-	MediaID     *int       `db:"media_id"`
-	Date        *time.Time `db:"date"`
-	Approved    *bool      `db:"approved"`
-	CreatedAt   *time.Time `db:"created_at"`
-	CreatedBy   *int       `db:"created_by"`
-	RegUrl      *string    `db:"reg_url"`
-	RegOpenDate *time.Time `db:"reg_open_date"`
-	FeedbackUrl *string    `db:"eventback_url"`
+	Title       *string    `json:"title"`
+	Description *string    `json:"description"`
+	Prompt      *string    `json:"prompt"`
+	MediaID     *int       `json:"media_id"`
+	Date        *time.Time `json:"date"`
+	Approved    *bool      `json:"approved"`
+	CreatedAt   *time.Time `json:"created_at"`
+	CreatedBy   *int       `json:"created_by"`
+	RegUrl      *string    `json:"reg_url"`
+	RegOpenDate *time.Time `json:"reg_open_date"`
+	FeedbackUrl *string    `json:"eventback_url"`
 }
 
 func (f *PostEvent) Bind(req *http.Request) error {

@@ -9,15 +9,15 @@ import (
 )
 
 type PostDocument struct {
-	Name   string `db:"name"`
-	Key    string `db:"key"`
-	ClubID int    `db:"club_id"`
+	Name   string `json:"name"`
+	Key    string `json:"key"`
+	ClubID int    `json:"club_id"`
 }
 
 type PostDocumentPointer struct {
-	Name   *string `db:"name"`
-	Key    *string `db:"key"`
-	ClubID *int    `db:"club_id"`
+	Name   *string `json:"name"`
+	Key    *string `json:"key"`
+	ClubID *int    `json:"club_id"`
 }
 
 func (v *PostDocument) Bind(req *http.Request) error {
