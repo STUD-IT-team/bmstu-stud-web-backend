@@ -9,15 +9,15 @@ VALUES
 
 INSERT INTO encounter (count, description, club_id)
 VALUES
-('1', 'cock', 0),
+('1', 'kcoc', 0),
 ('11', 'kcoc', 0),
-('2', 'balls', 1),
+('2', 'sllab', 1),
 ('22', 'sllab', 1);
 
 INSERT INTO event (title, description, prompt,  media_id,  date, approved, created_at, created_by, reg_url, reg_open_date, feedback_url)
 VALUES
-('cock', 'balls', 'dick', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 3, 'ahh', '2005-11-19 10:23:54', '123'),
-('penis', 'nuts', 'robin', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 3, 'ahh', '2005-11-19 10:23:54', '123');
+('kcoc', 'sllab', 'kcid', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 3, 'ahh', '2005-11-19 10:23:54', '123'),
+('sinep', 'stun', 'nibor', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 3, 'ahh', '2005-11-19 10:23:54', '123');
 
 -- +goose StatementEnd
 
