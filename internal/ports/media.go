@@ -66,9 +66,9 @@ func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request)
 		return handler.BadRequestResponse()
 	}
 
-	h.logger.Infof("PostHandler: parsed PostMediaPublic request: %v", media)
+	h.logger.Infof("PostHandler: parsed PostMediaPublic request")
 
-	_, err = h.media.PostMedia(context.Background(), media)
+	response, err := h.media.PostMedia(context.Background(), media)
 	if err != nil {
 		h.logger.Warnf("can't service.PostMedia PostMediaPublic: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
@@ -79,7 +79,7 @@ func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request)
 
 	h.logger.Info("PostHandler: done PostMediaPublic request")
 
-	return handler.OkResponse(nil)
+	return handler.OkResponse(response)
 }
 
 func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -105,9 +105,9 @@ func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request
 		return handler.BadRequestResponse()
 	}
 
-	h.logger.Infof("PostHandler: parsed PostMediaPrivate request: %v", media)
+	h.logger.Infof("PostHandler: parsed PostMediaPrivate request")
 
-	_, err = h.media.PostMediaBcrypt(context.Background(), media)
+	response, err := h.media.PostMediaBcrypt(context.Background(), media)
 	if err != nil {
 		h.logger.Warnf("can't service.PostMedia PostMediaPrivate: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
@@ -118,5 +118,5 @@ func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request
 
 	h.logger.Info("PostHandler: done PostMediaPrivate request")
 
-	return handler.OkResponse(nil)
+	return handler.OkResponse(response)
 }

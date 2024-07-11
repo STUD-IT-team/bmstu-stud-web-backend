@@ -3,8 +3,10 @@ package app
 import (
 	"context"
 
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -64,41 +66,41 @@ func (s *MediaService) GetMediaFiles(ctx context.Context, ids []int) (map[int]do
 	return res, nil
 }
 
-func (s *MediaService) PostMedia(ctx context.Context, req *requests.PostMedia) (int, error) {
+func (s *MediaService) PostMedia(ctx context.Context, req *requests.PostMedia) (*responses.PostMedia, error) {
 	id, err := s.storage.PutMediaFile(req.Name, req.Name)
 	if err != nil {
-		return 0, err
+		return &responses.PostMedia{}, err
 	}
 
 	_, err = s.storage.UploadObject(ctx, req.Name, s.bucketName, req.Data)
 	if err != nil {
 		s.storage.DeleteMediaFile(id)
-		return 0, err
+		return &responses.PostMedia{}, err
 	}
 
-	return id, err
+	return mapper.MakeResponsePostMedia(id), err
 }
 
 const bcryptCost = 12
 
-func (s *MediaService) PostMediaBcrypt(ctx context.Context, req *requests.PostMedia) (int, error) {
+func (s *MediaService) PostMediaBcrypt(ctx context.Context, req *requests.PostMedia) (*responses.PostMedia, error) {
 	key, err := bcrypt.GenerateFromPassword([]byte(req.Name), bcryptCost)
 	if err != nil {
-		return 0, err
+		return &responses.PostMedia{}, err
 	}
 
 	id, err := s.storage.PutMediaFile(req.Name, string(key))
 	if err != nil {
-		return 0, err
+		return &responses.PostMedia{}, err
 	}
 
 	_, err = s.storage.UploadObject(ctx, string(key), s.bucketName, req.Data)
 	if err != nil {
 		s.storage.DeleteMediaFile(id)
-		return 0, err
+		return &responses.PostMedia{}, err
 	}
 
-	return id, err
+	return mapper.MakeResponsePostMedia(id), err
 }
 
 // / Delete media file by ID. Not checks if file uses in other tables.
