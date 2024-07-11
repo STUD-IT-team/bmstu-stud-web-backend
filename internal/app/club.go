@@ -30,10 +30,14 @@ type clubStorage interface {
 
 type ClubService struct {
 	storage clubStorage
+	media   *MediaService
 }
 
-func NewClubService(storage clubStorage) *ClubService {
-	return &ClubService{storage: storage}
+func NewClubService(storage clubStorage, media *MediaService) *ClubService {
+	return &ClubService{
+		storage: storage,
+		media:   media,
+	}
 }
 
 func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, error) {
@@ -64,7 +68,7 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 	}
 	ids = append(ids, club.LogoId)
 
-	ims, err := s.storage.GetMediaFiles(ids)
+	ims, err := s.media.GetMediaFiles(ctx, ids)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
