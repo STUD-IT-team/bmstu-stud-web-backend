@@ -11,6 +11,8 @@ type documentsStorage interface {
 	GetDocument(ctx context.Context, id int) (*domain.Document, error)
 	GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error)
 	PostDocument(ctx context.Context, document domain.Document) error
+	DeleteDocument(ctx context.Context, id int) error
+	UpdateDocument(ctx context.Context, document domain.Document) error
 }
 
 func (s *storage) GetAllDocuments(ctx context.Context) ([]domain.Document, error) {
@@ -27,4 +29,12 @@ func (s *storage) GetDocumentsByClubID(ctx context.Context, clubID int) ([]domai
 
 func (s *storage) PostDocument(ctx context.Context, document domain.Document) error {
 	return s.postgres.PostDocument(ctx, document)
+}
+
+func (s *storage) DeleteDocument(ctx context.Context, id int) error {
+	return s.postgres.DeleteDocument(ctx, id)
+}
+
+func (s *storage) UpdateDocument(ctx context.Context, document domain.Document) error {
+	return s.postgres.UpdateDocument(ctx, document)
 }

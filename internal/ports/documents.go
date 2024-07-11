@@ -41,8 +41,8 @@ func (h *DocumentsHandler) Routes() chi.Router {
 	r.Get("/{id}", h.r.Wrap(h.GetDocument))
 	r.Get("/search/{club_id}", h.r.Wrap(h.GetDocumentsByClubID))
 	r.Post("/", h.r.Wrap(h.PostDocument))
-	// r.Delete("/{id}", h.r.Wrap(h.DeleteDocument))
-	// r.Put("/{id}", h.r.Wrap(h.UpdateDocument))
+	r.Delete("/{id}", h.r.Wrap(h.DeleteDocument))
+	r.Put("/{id}", h.r.Wrap(h.UpdateDocument))
 
 	return r
 }
@@ -154,7 +154,7 @@ func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http
 //		@Failure     400
 //	 	@Failure     401
 //		@Failure     404
-//		@Router      /document [post]
+//		@Router      /documents/ [post]
 //		@Security    Authorised
 func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got PostDocument request")
@@ -192,4 +192,106 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 	h.logger.Info("DocumentsHandler: request PostDocument done")
 
 	return handler.CreatedResponse(nil)
+}
+
+// DeleteDocument deletes a document item by ID
+//
+//	@Summary     Delete a document item by ID
+//	@Description Delete a specific document item using its ID
+//	@Tags        auth.documents
+//	@Param       id   path     string           true "Document ID"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /documents/{id} [delete]
+//	@Security    Authorised
+func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got DeleteDocument request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token DeleteDocument: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on DeleteDocument: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: DeleteDocument Authenticated: %v", resp.MemberID)
+
+	documentId := &requests.DeleteDocument{}
+
+	err = documentId.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind DeleteDocument: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: parse request DeleteDocument: %v", documentId)
+
+	err = h.documents.DeleteDocument(context.Background(), documentId.ID)
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.DeleteDocument: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("DocumentsHandler: request DeleteDocument done")
+
+	return handler.OkResponse(nil)
+}
+
+// UpdateDocument updates a document item
+//
+//	@Summary     Update a document item
+//	@Description Update an existing document item with the provided data
+//	@Tags        auth.documents
+//	@Accept      json
+//	@Param       id   path     string           true "Document ID"
+//	@Param       request body requests.UpdateDocument true "Document new data"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /documents/{id} [put]
+//	@Security    Authorised
+func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got UpdateDocument request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token UpdateDocument: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on UpdateDocument: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: UpdateDocument Authenticated: %v", resp.MemberID)
+
+	document := &requests.UpdateDocument{}
+
+	err = document.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind UpdateDocument: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: parse request UpdateDocument: %v", document)
+
+	err = h.documents.UpdateDocument(context.Background(), *mapper.MakeRequestUpdateDocument(*document))
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.UpdateDocument: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("DocumentsHandler: request UpdateDocument done")
+
+	return handler.OkResponse(nil)
 }

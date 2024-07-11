@@ -12,7 +12,7 @@ import (
 type PostEvent struct {
 	Title       string    `db:"title"`
 	Description string    `db:"description"`
-	Propmt      string    `db:"propmt"`
+	Prompt      string    `db:"prompt"`
 	MediaID     int       `db:"media_id"`
 	Date        time.Time `db:"date"`
 	Approved    bool      `db:"approved"`
@@ -26,7 +26,7 @@ type PostEvent struct {
 type PostEventPointer struct {
 	Title       *string    `db:"title"`
 	Description *string    `db:"description"`
-	Propmt      *string    `db:"propmt"`
+	Prompt      *string    `db:"prompt"`
 	MediaID     *int       `db:"media_id"`
 	Date        *time.Time `db:"date"`
 	Approved    *bool      `db:"approved"`
@@ -59,7 +59,7 @@ func (f *PostEvent) Bind(req *http.Request) error {
 	*f = PostEvent{
 		Title:       *pf.Title,
 		Description: *pf.Description,
-		Propmt:      *pf.Propmt,
+		Prompt:      *pf.Prompt,
 		MediaID:     *pf.MediaID,
 		Date:        *pf.Date,
 		Approved:    *pf.Approved,
@@ -84,8 +84,8 @@ func (pf *PostEventPointer) validate() error {
 	if pf.Description == nil {
 		return fmt.Errorf("require: Description")
 	}
-	if pf.Propmt == nil {
-		return fmt.Errorf("require: Propmt")
+	if pf.Prompt == nil {
+		return fmt.Errorf("require: Prompt")
 	}
 	if pf.MediaID == nil {
 		return fmt.Errorf("require: MediaID")

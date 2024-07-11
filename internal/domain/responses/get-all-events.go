@@ -14,7 +14,7 @@ type Event struct {
 	ID          int              `db:"id"`
 	Title       string           `db:"title"`
 	Description string           `db:"description"`
-	Propmt      string           `db:"propmt"`
+	Prompt      string           `db:"prompt"`
 	Media       domain.MediaFile `db:"media"`
 	Date        time.Time        `db:"date"`
 	Approved    bool             `db:"approved"`

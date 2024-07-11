@@ -52,3 +52,12 @@ func MakeRequestPostDocument(v requests.PostDocument) *domain.Document {
 		ClubID: v.ClubID,
 	}
 }
+
+func MakeRequestUpdateDocument(v requests.UpdateDocument) *domain.Document {
+	return &domain.Document{
+		ID:     v.ID,
+		Name:   v.Name,
+		Key:    v.Key,
+		ClubID: v.ClubID,
+	}
+}

@@ -36,7 +36,7 @@ func (p *Postgres) GetAllEvents(_ context.Context) ([]domain.Event, error) {
 
 		err = rows.Scan(
 			&event.ID, &event.Title, &event.Description,
-			&event.Propmt, &event.MediaID, &event.Date,
+			&event.Prompt, &event.MediaID, &event.Date,
 			&event.Approved, &event.CreatedAt, &event.CreatedBy,
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
@@ -74,7 +74,7 @@ func (p *Postgres) GetEvent(_ context.Context, id int) (domain.Event, error) {
 
 	err := p.db.QueryRow(getEventQuery, id).Scan(
 		&event.ID, &event.Title, &event.Description,
-		&event.Propmt, &event.MediaID, &event.Date,
+		&event.Prompt, &event.MediaID, &event.Date,
 		&event.Approved, &event.CreatedAt, &event.CreatedBy,
 		&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 	if err != nil {
@@ -114,7 +114,7 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 
 		err = rows.Scan(
 			&event.ID, &event.Title, &event.Description,
-			&event.Propmt, &event.MediaID, &event.Date,
+			&event.Prompt, &event.MediaID, &event.Date,
 			&event.Approved, &event.CreatedAt, &event.CreatedBy,
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
@@ -138,7 +138,7 @@ const postEventQuery = `INSERT INTO event (title, description, prompt,  media_id
 func (p *Postgres) PostEvent(_ context.Context, event domain.Event) error {
 	_, err := p.db.Exec(postEventQuery,
 		event.Title, event.Description,
-		event.Propmt, event.MediaID, event.Date,
+		event.Prompt, event.MediaID, event.Date,
 		event.Approved, event.CreatedAt, event.CreatedBy,
 		event.RegUrl, event.RegOpenDate, event.FeedbackUrl,
 	)
@@ -179,7 +179,7 @@ WHERE id=$12`
 func (p *Postgres) UpdateEvent(_ context.Context, event domain.Event) error {
 	_, err := p.db.Exec(updateEventQuery,
 		event.Title, event.Description,
-		event.Propmt, event.MediaID, event.Date,
+		event.Prompt, event.MediaID, event.Date,
 		event.Approved, event.CreatedAt, event.CreatedBy,
 		event.RegUrl, event.RegOpenDate, event.FeedbackUrl,
 		event.ID,

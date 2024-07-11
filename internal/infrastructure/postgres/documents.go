@@ -88,3 +88,25 @@ func (p *Postgres) PostDocument(_ context.Context, document domain.Document) err
 
 	return nil
 }
+
+const deleteDocumentQuery = "DELETE FROM document WHERE id=$1"
+
+func (p *Postgres) DeleteDocument(_ context.Context, id int) error {
+	_, err := p.db.Exec(deleteDocumentQuery, id)
+	if err != nil {
+		return fmt.Errorf("can't delete document on postgres %w", err)
+	}
+
+	return nil
+}
+
+const updateDocumentQuery = "UPDATE document SET name=$1, key=$2, club_id=$3 WHERE id=$4"
+
+func (p *Postgres) UpdateDocument(_ context.Context, document domain.Document) error {
+	_, err := p.db.Exec(updateDocumentQuery, document.Name, document.Key, document.ClubID, document.ID)
+	if err != nil {
+		return fmt.Errorf("can't update document on postgres %w", err)
+	}
+
+	return nil
+}
