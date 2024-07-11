@@ -170,6 +170,9 @@ func main() {
 	}()
 
 	// Run the cron jobs
+	// mediaService.DeleteUnknownMedia(context.Background(), logger)
+	// mediaService.DeleteUnusedMedia(context.Background(), logger)
+
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		logger.Fatalf("failed to create gocron scheduler")
@@ -181,7 +184,7 @@ func main() {
 			gocron.NewAtTimes(
 				gocron.NewAtTime(3, 0, 0),
 			)),
-		gocron.NewTask(mediaService.DeleteUnusedMedia, context.Background(), logger),
+		gocron.NewTask(mediaService.ClearMediaStorages, context.Background(), logger),
 	)
 	if err != nil {
 		logger.Fatalf("gocron обдристался...")
