@@ -13,6 +13,7 @@ type mediaFileStorage interface {
 	DeleteMediaFile(id int) error
 	GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, error)
 	DeleteMediaFiles(ctx context.Context, keys []string) error
+	GetAllObjectNames(ctx context.Context, bucketName string) ([]string, error)
 }
 
 func (s *storage) GetMediaFile(id int) (*domain.MediaFile, error) {
@@ -37,4 +38,8 @@ func (s *storage) GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, error
 
 func (s *storage) DeleteMediaFiles(ctx context.Context, keys []string) error {
 	return s.postgres.DeleteMediaFiles(ctx, keys)
+}
+
+func (s *storage) GetAllMediaKeys(ctx context.Context) ([]string, error) {
+	return s.postgres.GetAllMediaKeys(ctx)
 }

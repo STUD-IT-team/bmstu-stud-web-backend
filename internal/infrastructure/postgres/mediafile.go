@@ -99,3 +99,24 @@ func (p *Postgres) DeleteMediaFiles(ctx context.Context, keys []string) error {
 	_, err := p.db.Exec(deleteMediaFiles, keys)
 	return err
 }
+
+const getAllMediaKeys = "SELECT key FROM mediafile"
+
+func (p *Postgres) GetAllMediaKeys(ctx context.Context) ([]string, error) {
+	rows, err := p.db.Query(getAllMediaKeys)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var keys []string
+	for rows.Next() {
+		var key string
+		err := rows.Scan(&key)
+		if err != nil {
+			return nil, err
+		}
+		keys = append(keys, key)
+	}
+	return keys, nil
+}

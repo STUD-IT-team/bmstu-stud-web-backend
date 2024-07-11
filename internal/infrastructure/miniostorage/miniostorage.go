@@ -8,6 +8,7 @@ import (
 type ObjectStorage interface {
 	uploadStorage
 	deleteStorage
+	listStorage
 }
 
 type MinioStorage struct {

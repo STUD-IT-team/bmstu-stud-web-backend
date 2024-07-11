@@ -9,6 +9,7 @@ import (
 type minioStorage interface {
 	UploadObject(ctx context.Context, name string, bucketName string, data []byte) (string, error)
 	DeleteObject(ctx context.Context, name string, bucketName string) error
+	GetAllObjectNames(ctx context.Context, bucketName string) ([]string, error)
 }
 
 func (s *storage) UploadObject(ctx context.Context, name string, bucketName string, data []byte) (string, error) {
@@ -32,4 +33,8 @@ func (s *storage) DeleteObject(ctx context.Context, name string, bucketName stri
 		BucketName: bucketName,
 	}
 	return s.minio.DeleteObject(ctx, &req)
+}
+
+func (s *storage) GetAllObjectNames(ctx context.Context, bucketName string) ([]string, error) {
+	return s.minio.GetAllObjectNames(ctx, bucketName)
 }
