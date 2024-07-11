@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
@@ -173,17 +172,17 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 
 	h.logger.Infof("DocumentsHandler: PostDocument Authenticated: %v", resp.MemberID)
 
-	document := &requests.PostDocument{}
+	doc := &requests.PostDocument{}
 
-	err = document.Bind(req)
+	err = doc.Bind(req)
 	if err != nil {
 		h.logger.Warnf("can't requests.Bind PostDocument: %v", err)
 		return handler.BadRequestResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: parse request PostDocument: %v", document)
+	h.logger.Infof("DocumentsHandler: parse request PostDocument")
 
-	err = h.documents.PostDocument(context.Background(), *mapper.MakeRequestPostDocument(*document))
+	err = h.documents.PostDocument(context.Background(), doc)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.PostDocument: %v", err)
 		return handler.NotFoundResponse()
@@ -275,17 +274,17 @@ func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Reque
 
 	h.logger.Infof("DocumentsHandler: UpdateDocument Authenticated: %v", resp.MemberID)
 
-	document := &requests.UpdateDocument{}
+	doc := &requests.UpdateDocument{}
 
-	err = document.Bind(req)
+	err = doc.Bind(req)
 	if err != nil {
 		h.logger.Warnf("can't requests.Bind UpdateDocument: %v", err)
 		return handler.BadRequestResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: parse request UpdateDocument: %v", document)
+	h.logger.Infof("DocumentsHandler: parse request UpdateDocument")
 
-	err = h.documents.UpdateDocument(context.Background(), *mapper.MakeRequestUpdateDocument(*document))
+	err = h.documents.UpdateDocument(context.Background(), doc)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.UpdateDocument: %v", err)
 		return handler.NotFoundResponse()

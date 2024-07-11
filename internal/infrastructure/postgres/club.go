@@ -562,6 +562,7 @@ const deleteClub = "DELETE FROM club WHERE id = $1"
 const deleteClubOrgs = "DELETE FROM club_org WHERE club_id = $1"
 const deleteClubPhotos = "DELETE FROM club_photo WHERE club_id = $1"
 const deleteClubEncounters = "DELETE FROM encounter WHERE club_id = $1"
+const deleteClubDocuments = "DELETE FROM document WHERE club_id = $1"
 const updateClubParents = "UPDATE club SET parent_id=null WHERE parent_id = $1"
 
 func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
@@ -589,6 +590,12 @@ func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 	}
 
 	_, err = tx.Exec(deleteClubEncounters, clubID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	_, err = tx.Exec(deleteClubDocuments, clubID)
 	if err != nil {
 		tx.Rollback()
 		return err

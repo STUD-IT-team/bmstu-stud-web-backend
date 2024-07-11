@@ -13,7 +13,7 @@ type mediaFileStorage interface {
 	DeleteMediaFile(id int) error
 	GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, error)
 	DeleteMediaFiles(ctx context.Context, keys []string) error
-	GetAllObjectNames(ctx context.Context, bucketName string) ([]string, error)
+	GetAllMediaKeys(ctx context.Context) ([]string, error)
 }
 
 func (s *storage) GetMediaFile(id int) (*domain.MediaFile, error) {

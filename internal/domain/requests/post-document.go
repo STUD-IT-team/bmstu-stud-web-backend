@@ -10,13 +10,13 @@ import (
 
 type PostDocument struct {
 	Name   string `json:"name"`
-	Key    string `json:"key"`
+	Data   []byte `json:"data"`
 	ClubID int    `json:"club_id"`
 }
 
 type PostDocumentPointer struct {
 	Name   *string `json:"name"`
-	Key    *string `json:"key"`
+	Data   []byte  `json:"data"`
 	ClubID *int    `json:"club_id"`
 }
 
@@ -41,7 +41,7 @@ func (v *PostDocument) Bind(req *http.Request) error {
 
 	*v = PostDocument{
 		Name:   *pv.Name,
-		Key:    *pv.Key,
+		Data:   pv.Data,
 		ClubID: *pv.ClubID,
 	}
 
@@ -56,8 +56,8 @@ func (pv *PostDocumentPointer) validate() error {
 	if pv.Name == nil {
 		return fmt.Errorf("require: Name")
 	}
-	if pv.Key == nil {
-		return fmt.Errorf("require: Key")
+	if pv.Data == nil {
+		return fmt.Errorf("require: Data")
 	}
 	if pv.ClubID == nil {
 		return fmt.Errorf("require: ClubID")

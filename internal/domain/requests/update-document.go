@@ -13,13 +13,13 @@ import (
 type UpdateDocument struct {
 	ID     int    `json:"id"`
 	Name   string `json:"name"`
-	Key    string `json:"key"`
+	Data   []byte `json:"data"`
 	ClubID int    `json:"club_id"`
 }
 
 type UpdateDocumentPointer struct {
 	Name   *string `json:"name"`
-	Key    *string `json:"key"`
+	Data   []byte  `json:"data"`
 	ClubID *int    `json:"club_id"`
 }
 
@@ -44,7 +44,7 @@ func (v *UpdateDocument) Bind(req *http.Request) error {
 
 	*v = UpdateDocument{
 		Name:   *pv.Name,
-		Key:    *pv.Key,
+		Data:   pv.Data,
 		ClubID: *pv.ClubID,
 	}
 
@@ -69,8 +69,8 @@ func (pv *UpdateDocumentPointer) validate() error {
 	if pv.Name == nil {
 		return fmt.Errorf("require: Name")
 	}
-	if pv.Key == nil {
-		return fmt.Errorf("require: Key")
+	if pv.Data == nil {
+		return fmt.Errorf("require: Data")
 	}
 	if pv.ClubID == nil {
 		return fmt.Errorf("require: ClubID")
