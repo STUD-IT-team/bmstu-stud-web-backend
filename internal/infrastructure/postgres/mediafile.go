@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx"
 )
 
-const getMediaFile = "SELECT name, key FROM mediafile WHERE id = $1"
+const getMediaFile = "SELECT name, key FROM mediafile WHERE id = $1 AND id > 0"
 
 func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	f := domain.MediaFile{}
@@ -19,7 +19,7 @@ func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	return nil, err
 }
 
-const getMediaFiles = "SELECT id, name, key FROM mediafile WHERE id = ANY($1)"
+const getMediaFiles = "SELECT id, name, key FROM mediafile WHERE id = ANY($1) AND id > 0"
 
 func (p *Postgres) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
 	m := make(map[int]domain.MediaFile)
@@ -49,7 +49,7 @@ func (p *Postgres) AddMediaFile(name, key string) (int, error) {
 	return id, nil
 }
 
-const deleteMediaFile = "DELETE FROM mediafile WHERE id = $1"
+const deleteMediaFile = "DELETE FROM mediafile WHERE id = $1 AND id > 0"
 
 func (p *Postgres) DeleteMediaFile(id int) error {
 	_, err := p.db.Exec(deleteMediaFile, id)
@@ -72,7 +72,7 @@ WHERE id NOT IN (
 	SELECT media_id FROM event
 	UNION ALL
 	SELECT logo as media_id FROM club
-)
+) AND id > 0
 `
 
 func (p *Postgres) GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, error) {
@@ -93,14 +93,14 @@ func (p *Postgres) GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, erro
 	return res, nil
 }
 
-const deleteMediaFiles = "DELETE FROM mediafile WHERE key = ANY($1)"
+const deleteMediaFiles = "DELETE FROM mediafile WHERE key = ANY($1) AND id > 0"
 
 func (p *Postgres) DeleteMediaFiles(ctx context.Context, keys []string) error {
 	_, err := p.db.Exec(deleteMediaFiles, keys)
 	return err
 }
 
-const getAllMediaKeys = "SELECT key FROM mediafile"
+const getAllMediaKeys = "SELECT key FROM mediafile WHERE id > 0"
 
 func (p *Postgres) GetAllMediaKeys(ctx context.Context) ([]string, error) {
 	rows, err := p.db.Query(getAllMediaKeys)

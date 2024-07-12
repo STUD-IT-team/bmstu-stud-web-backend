@@ -40,6 +40,11 @@ func (h *MediaHandler) Routes() chi.Router {
 
 	r.Post("/public", h.r.Wrap(h.PostMediaPublic))
 	r.Post("/private", h.r.Wrap(h.PostMediaPrivate))
+	r.Get("/default", h.r.Wrap(h.GetMediaDefault))
+	r.Get("/default/{id}", h.r.Wrap(h.GetMediaDefaultByID))
+	r.Post("/default", h.r.Wrap(h.PostMediaDefault))
+	r.Delete("/default", h.r.Wrap(h.DeleteMediaDefault))
+	r.Put("/default/{id}", h.r.Wrap(h.PutMediaDefault))
 
 	return r
 }
@@ -146,4 +151,24 @@ func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request
 	h.logger.Info("PostHandler: done PostMediaPrivate request")
 
 	return handler.OkResponse(response)
+}
+
+func (h *MediaHandler) GetMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
+	return nil
+}
+
+func (h *MediaHandler) GetMediaDefaultByID(w http.ResponseWriter, req *http.Request) handler.Response {
+	return nil
+}
+
+func (h *MediaHandler) PostMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
+	return nil
+}
+
+func (h *MediaHandler) DeleteMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
+	return nil
+}
+
+func (h *MediaHandler) PutMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
+	return nil
 }

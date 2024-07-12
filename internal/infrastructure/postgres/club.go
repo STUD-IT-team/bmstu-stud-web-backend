@@ -17,7 +17,7 @@ const getClub = `SELECT
  parent_id,
  vk_url, 
  tg_url
- FROM club WHERE id = $1
+ FROM club WHERE id = $1 AND id > 0
 `
 
 const NoParentClubID = 0
@@ -58,6 +58,7 @@ const getAllClub = `SELECT
  vk_url, 
  tg_url
 FROM club
+WHERE id > 0
 `
 
 func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
@@ -96,7 +97,7 @@ func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
 	return carr, nil
 }
 
-const getClubsByName = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE name ILIKE $1`
+const getClubsByName = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE name ILIKE $1 AND id > 0`
 
 func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club, error) {
 	carr := []domain.Club{}
@@ -134,7 +135,7 @@ func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club
 	return carr, nil
 }
 
-const getClubsByType = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE type ILIKE $1`
+const getClubsByType = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE type ILIKE $1 AND id > 0`
 
 func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Club, error) {
 	carr := []domain.Club{}
@@ -210,7 +211,7 @@ JOIN
     FROM club
 ) as clubs
 ON (club_org.club_id = clubs.id)
-WHERE club_id = $1
+WHERE club_id = $1 AND club_id > 0
 `
 
 func (s *Postgres) GetClubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg, error) {
@@ -282,7 +283,7 @@ JOIN
     FROM club
 ) as clubs
 ON (club_org.club_id = clubs.id)
-WHERE club_id = ANY($1)
+WHERE club_id = ANY($1) AND club_id > 0
 `
 
 func (s *Postgres) GetClubsOrgs(_ context.Context, clubIDs []int) ([]domain.ClubOrg, error) {
@@ -352,9 +353,10 @@ JOIN
 	    id,
         name
     FROM club
+	WHERE id > 0
 ) as clubs
 ON (club_org.club_id = clubs.id)
-WHERE club_id = ANY((SELECT id FROM club WHERE parent_id = $1))
+WHERE club_id = ANY((SELECT id FROM club WHERE parent_id = $1)) AND club_id > 0
 `
 
 func (s *Postgres) GetClubSubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg, error) {
@@ -425,6 +427,7 @@ JOIN
 	    id,
         name
     FROM club
+	WHERE id > 0
 ) as clubs
 ON (club_org.club_id = clubs.id)
 `
@@ -527,7 +530,7 @@ SELECT
 	club_id,
 	media_id
 FROM club_photo
-WHERE club_id = $1
+WHERE club_id = $1 AND club_id > 0
 `
 
 func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
@@ -562,12 +565,6 @@ func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 		return err
 	}
 
-	_, err = tx.Exec(deleteClub, clubID)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
 	_, err = tx.Exec(deleteClubOrgs, clubID)
 	if err != nil {
 		tx.Rollback()
@@ -598,6 +595,12 @@ func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 		return err
 	}
 
+	_, err = tx.Exec(deleteClub, clubID)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	return tx.Commit()
 }
 
@@ -611,7 +614,7 @@ SET name=$1,
     parent_id=$6,
     vk_url=$7, 
     tg_url=$8
-WHERE id = $9
+WHERE id = $9 AND id > 0
 `
 
 func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.ClubOrg) error {
