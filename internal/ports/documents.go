@@ -2,11 +2,13 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
@@ -38,10 +40,16 @@ func (h *DocumentsHandler) Routes() chi.Router {
 
 	r.Get("/", h.r.Wrap(h.GetAllDocuments))
 	r.Get("/{id}", h.r.Wrap(h.GetDocument))
-	r.Get("/search/{club_id}", h.r.Wrap(h.GetDocumentsByClubID))
+	r.Get("/search_category/{category_id}", h.r.Wrap(h.GetDocumentsByCategory))
+	r.Get("/search_club/{club_id}", h.r.Wrap(h.GetDocumentsByClubID))
+	// r.Get("/categories/", h.r.Wrap(h.GetAllCategories))
+	// r.Get("/categories/{id}", h.r.Wrap(h.GetCategory))
 	r.Post("/", h.r.Wrap(h.PostDocument))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteDocument))
 	r.Put("/{id}", h.r.Wrap(h.UpdateDocument))
+	// r.Post("/categories/", h.r.Wrap(h.PostCategory))
+	// r.Delete("/categories/{id}", h.r.Wrap(h.DeleteCategory))
+	// r.Put("/categories/{id}", h.r.Wrap(h.UpdateCategory))
 
 	return r
 }
@@ -54,7 +62,7 @@ func (h *DocumentsHandler) Routes() chi.Router {
 //	@Produce     json
 //	@Success     200 {object}  responses.GetAllDocuments
 //	@Failure     404
-//	@Router      /documents [get]
+//	@Router      /documents/ [get]
 //	@Security    public
 func (h *DocumentsHandler) GetAllDocuments(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got GetAllDocuments request")
@@ -106,6 +114,42 @@ func (h *DocumentsHandler) GetDocument(w http.ResponseWriter, req *http.Request)
 	return handler.OkResponse(res)
 }
 
+// GetDocumentsByCategory retrieves a slice of documents by its category
+//
+//	@Summary     Retrieve documents by category
+//	@Description Get documents corresponding to a certain category
+//	@Tags        public.documents
+//	@Produce     json
+//	@Param       category_id   path     string     true "category_id"
+//	@Success     200  {object} responses.GetDocumentsByCategory
+//	@Failure     400
+//	@Failure     404
+//	@Router      /documents/search_category/{category_id} [get]
+//	@Security    public
+func (h *DocumentsHandler) GetDocumentsByCategory(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got GetDocumentsByCategory request")
+
+	categoryId := &requests.GetDocumentsByCategory{}
+
+	err := categoryId.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: parse request GetDocumentsByCategory: %v", categoryId)
+
+	res, err := h.documents.GetDocumentsByCategory(context.Background(), categoryId.ID)
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetDocumentsByCategory: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("DocumentsHandler: request GetDocumentsByCategory done")
+
+	return handler.OkResponse(res)
+}
+
 // GetDocumentsByClubID retrieves a slice of documents by its club ID
 //
 //	@Summary     Retrieve documents by club ID
@@ -116,7 +160,7 @@ func (h *DocumentsHandler) GetDocument(w http.ResponseWriter, req *http.Request)
 //	@Success     200  {object} responses.GetDocumentsByClubID
 //	@Failure     400
 //	@Failure     404
-//	@Router      /documents/search/{club_id} [get]
+//	@Router      /documents/search_club/{club_id} [get]
 //	@Security    public
 func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got GetDocumentsByClubID request")
@@ -142,17 +186,79 @@ func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http
 	return handler.OkResponse(res)
 }
 
+// // GetAllCategories retrieves all available categories of documents
+// //
+// //	@Summary     Retrieve all document categories
+// //	@Description Get a list of all categories to which a document may be attributed to
+// //	@Tags        public.documents
+// //	@Produce     json
+// //	@Success     200 {object}  responses.GetAllCategories
+// //	@Failure     404
+// //	@Router      /documents/categories/ [get]
+// //	@Security    public
+// func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	h.logger.Info("DocumentsHandler: got GetAllCategories request")
+
+// 	res, err := h.documents.GetAllCategories(context.Background())
+// 	if err != nil {
+// 		h.logger.Warnf("can't DocumentsService.GetAllCategories: %v", err)
+// 		return handler.NotFoundResponse()
+// 	}
+
+// 	h.logger.Info("DocumentsHandler: request GetAllCategories done")
+
+// 	return handler.OkResponse(res)
+// }
+
+// // GetCategory retrieves a document category by its ID
+// //
+// //	@Summary     Retrieve document category by ID
+// //	@Description Get a specific document category using its ID
+// //	@Tags        public.documents
+// //	@Produce     json
+// //	@Param       id   path     string           true "id"
+// //	@Success     200  {object} responses.GetCategory
+// //	@Failure     400
+// //	@Failure     404
+// //	@Router      /documents/categories/{id} [get]
+// //	@Security    public
+// func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	h.logger.Info("DocumentsHandler: got GetCategory request")
+
+// 	catId := &requests.GetCategory{}
+
+// 	err := catId.Bind(req)
+// 	if err != nil {
+// 		h.logger.Warnf("can't requests.Bind: %v", err)
+// 		return handler.BadRequestResponse()
+// 	}
+
+// 	h.logger.Infof("DocumentsHandler: parse request GetCategory: %v", catId)
+
+// 	res, err := h.documents.GetCategory(context.Background(), catId.ID)
+// 	if err != nil {
+// 		h.logger.Warnf("can't DocumentsService.GetCategory: %v", err)
+// 		return handler.NotFoundResponse()
+// 	}
+
+// 	h.logger.Info("DocumentsHandler: request GetCategory done")
+
+// 	return handler.OkResponse(res)
+// }
+
 // PostDocument creates a new document item
 //
 //		@Summary     Create a new document item
-//		@Description Create a new document item with the provided data
+//		@Description Create a new document item with the provided data and returns the key for it
 //		@Tags        auth.documents
 //		@Accept      json
+//		@Produce     json
 //		@Param       request body requests.PostDocument true "Document data"
-//		@Success     201
+//		@Success     201 {object} responses.PostDocument
 //		@Failure     400
 //	 	@Failure     401
 //		@Failure     404
+//		@Failure     409
 //		@Router      /documents/ [post]
 //		@Security    Authorised
 func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -182,15 +288,18 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 
 	h.logger.Infof("DocumentsHandler: parse request PostDocument")
 
-	err = h.documents.PostDocument(context.Background(), doc)
+	res, err := h.documents.PostDocument(context.Background(), doc)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.PostDocument: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		}
 		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("DocumentsHandler: request PostDocument done")
 
-	return handler.CreatedResponse(nil)
+	return handler.CreatedResponse(res)
 }
 
 // DeleteDocument deletes a document item by ID
@@ -246,15 +355,17 @@ func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Reque
 // UpdateDocument updates a document item
 //
 //	@Summary     Update a document item
-//	@Description Update an existing document item with the provided data
+//	@Description Update an existing document item with the provided data and returns the new key for it
 //	@Tags        auth.documents
 //	@Accept      json
+//	@Produce     json
 //	@Param       id   path     string           true "Document ID"
 //	@Param       request body requests.UpdateDocument true "Document new data"
-//	@Success     200
+//	@Success     200 {object} responses.UpdateDocument
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     409
 //	@Router      /documents/{id} [put]
 //	@Security    Authorised
 func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -284,13 +395,16 @@ func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Reque
 
 	h.logger.Infof("DocumentsHandler: parse request UpdateDocument")
 
-	err = h.documents.UpdateDocument(context.Background(), doc)
+	res, err := h.documents.UpdateDocument(context.Background(), doc)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.UpdateDocument: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		}
 		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("DocumentsHandler: request UpdateDocument done")
 
-	return handler.OkResponse(nil)
+	return handler.OkResponse(res)
 }

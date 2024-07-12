@@ -5,12 +5,13 @@ import (
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/jackc/pgx"
 )
 
-const getAllDocumentsQuery = "SELECT id, name, key, club_id FROM document"
+const getAllDocumentsQuery = "SELECT id, name, key, club_id, category_id FROM document"
 
 func (p *Postgres) GetAllDocuments(_ context.Context) ([]domain.Document, error) {
-	var documentss []domain.Document
+	var documents []domain.Document
 
 	rows, err := p.db.Query(getAllDocumentsQuery)
 	if err != nil {
@@ -18,41 +19,72 @@ func (p *Postgres) GetAllDocuments(_ context.Context) ([]domain.Document, error)
 	}
 
 	for rows.Next() {
-		var documents domain.Document
+		var document domain.Document
 
-		err = rows.Scan(&documents.ID, &documents.Name, &documents.Key, &documents.ClubID)
+		err = rows.Scan(&document.ID, &document.Name, &document.Key,
+			&document.ClubID, &document.CategoryID)
 
 		if err != nil {
 			return []domain.Document{}, err
 		}
 
-		documentss = append(documentss, documents)
+		documents = append(documents, document)
 	}
 
-	if len(documentss) == 0 {
+	if len(documents) == 0 {
 		return []domain.Document{}, fmt.Errorf("no documents found")
-	}
-
-	return documentss, nil
-}
-
-const getDocumentsQuery = "SELECT id, name, key, club_id FROM document WHERE id=$1"
-
-func (p *Postgres) GetDocument(_ context.Context, id int) (domain.Document, error) {
-	var documents domain.Document
-
-	err := p.db.QueryRow(getDocumentsQuery, id).Scan(&documents.ID, &documents.Name, &documents.Key, &documents.ClubID)
-	if err != nil {
-		return domain.Document{}, err
 	}
 
 	return documents, nil
 }
 
-const getDocumentsByClubIDQuery = "SELECT id, name, key, club_id FROM document WHERE club_id=$1"
+const getDocumentsQuery = "SELECT id, name, key, club_id, category_id FROM document WHERE id=$1"
+
+func (p *Postgres) GetDocument(_ context.Context, id int) (domain.Document, error) {
+	var document domain.Document
+
+	err := p.db.QueryRow(getDocumentsQuery, id).Scan(&document.ID, &document.Name,
+		&document.Key, &document.ClubID, &document.CategoryID)
+	if err != nil {
+		return domain.Document{}, err
+	}
+
+	return document, nil
+}
+
+const getDocumentsByCategoryQuery = "SELECT id, name, key, club_id, category_id FROM document WHERE category_id=$1"
+
+func (p *Postgres) GetDocumentsByCategory(_ context.Context, categoryID int) ([]domain.Document, error) {
+	var documents []domain.Document
+
+	rows, err := p.db.Query(getDocumentsByCategoryQuery, categoryID)
+	if err != nil {
+		return []domain.Document{}, err
+	}
+
+	for rows.Next() {
+		var document domain.Document
+
+		err = rows.Scan(&document.ID, &document.Name, &document.Key, &document.ClubID, &document.CategoryID)
+
+		if err != nil {
+			return []domain.Document{}, err
+		}
+
+		documents = append(documents, document)
+	}
+
+	if len(documents) == 0 {
+		return []domain.Document{}, fmt.Errorf("no documents found for category_id=%d", categoryID)
+	}
+
+	return documents, nil
+}
+
+const getDocumentsByClubIDQuery = "SELECT id, name, key, club_id, category_id FROM document WHERE club_id=$1"
 
 func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain.Document, error) {
-	var documentss []domain.Document
+	var documents []domain.Document
 
 	rows, err := p.db.Query(getDocumentsByClubIDQuery, clubID)
 	if err != nil {
@@ -60,60 +92,65 @@ func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain
 	}
 
 	for rows.Next() {
-		var documents domain.Document
+		var document domain.Document
 
-		err = rows.Scan(&documents.ID, &documents.Name, &documents.Key, &documents.ClubID)
+		err = rows.Scan(&document.ID, &document.Name, &document.Key, &document.ClubID, &document.CategoryID)
 
 		if err != nil {
 			return []domain.Document{}, err
 		}
 
-		documentss = append(documentss, documents)
+		documents = append(documents, document)
 	}
 
-	if len(documentss) == 0 {
+	if len(documents) == 0 {
 		return []domain.Document{}, fmt.Errorf("no documents found for club_id=%d", clubID)
 	}
 
-	return documentss, nil
+	return documents, nil
 }
 
-const postDocumentQuery = "INSERT INTO document (name, key, club_id) VALUES ($1, $2, $3)"
+const postDocumentQuery = "INSERT INTO document (name, key, club_id, category_id) VALUES ($1, $2, $3, $4)"
 
-func (p *Postgres) PostDocument(ctx context.Context, name, key string, clubId int) error {
-	_, err := p.db.Exec(postDocumentQuery, name, key, clubId)
+func (p *Postgres) PostDocument(ctx context.Context, name, key string, clubId, categoryId int) error {
+	_, err := p.db.Exec(postDocumentQuery, name, key, clubId, categoryId)
 	if err != nil {
-		return fmt.Errorf("can't post document on postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil
 }
 
-const deleteDocumentQuery = "DELETE FROM document WHERE id=$1 RETURNING name"
+const getKeyQuery = "SELECT key FROM document WHERE id=$1"
+const deleteDocumentQuery = "DELETE FROM document WHERE id=$1"
 
 func (p *Postgres) DeleteDocument(ctx context.Context, id int) (string, error) {
-	var name string
-	err := p.db.QueryRow(deleteDocumentQuery, id).Scan(&name)
+	var key string
+	err := p.db.QueryRow(getKeyQuery, id).Scan(&key)
 	if err != nil {
-		return "", fmt.Errorf("can't delete document on postgres %w", err)
+		return "", fmt.Errorf("can't get key for document id=%d: %w", id, err)
 	}
 
-	return name, nil
+	_, err = p.db.Exec(deleteDocumentQuery, id)
+	if err != nil {
+		return "", wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+
+	return key, nil
 }
 
-const getOldKeyQuery = "SELECT key FROM document WHERE id=$1"
-const updateDocumentQuery = "UPDATE document SET name = $1, key = $2, club_id = $3 WHERE id = $4"
+const updateDocumentQuery = "UPDATE document SET name = $1, key = $2, club_id = $3, category_id=$4 WHERE id = $5"
 
-func (p *Postgres) UpdateDocument(ctx context.Context, id int, name, key string, clubId int) (string, error) {
+func (p *Postgres) UpdateDocument(ctx context.Context, id int, name, key string, clubId, categoryId int) (string, error) {
 	var oldKey string
-	err := p.db.QueryRow(getOldKeyQuery, id).Scan(&oldKey)
+	err := p.db.QueryRow(getKeyQuery, id).Scan(&oldKey)
 	if err != nil {
 		return "", fmt.Errorf("can't get old key for document id=%d: %w", id, err)
 	}
 
-	_, err = p.db.Exec(updateDocumentQuery, name, key, clubId, id)
+	_, err = p.db.Exec(updateDocumentQuery, name, key, clubId, categoryId, id)
 	if err != nil {
-		return "", fmt.Errorf("can't update document id=%d: %w", id, err)
+		return "", wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return oldKey, nil

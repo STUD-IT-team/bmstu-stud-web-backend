@@ -12,22 +12,25 @@ type API interface {
 }
 
 type apiService struct {
-	logger         *logrus.Logger
-	feedService    *FeedService
-	guardService   *GuardService
-	eventsService  *EventsService
-	clubsService   *ClubService
-	membersService *MembersService
+	logger           *logrus.Logger
+	feedService      *FeedService
+	guardService     *GuardService
+	eventsService    *EventsService
+	clubsService     *ClubService
+	membersService   *MembersService
+	documentsService *DocumentsService
 }
 
-func NewAPI(logger *logrus.Logger, feed *FeedService, events *EventsService, membs *MembersService, club *ClubService, guard *GuardService) API {
+func NewAPI(logger *logrus.Logger, feed *FeedService, events *EventsService,
+	membs *MembersService, club *ClubService, guard *GuardService, docs *DocumentsService) API {
 	return &apiService{
-		logger:         logger,
-		feedService:    feed,
-		guardService:   guard,
-		eventsService:  events,
-		clubsService:   club,
-		membersService: membs,
+		logger:           logger,
+		feedService:      feed,
+		guardService:     guard,
+		eventsService:    events,
+		clubsService:     club,
+		membersService:   membs,
+		documentsService: docs,
 	}
 }
 

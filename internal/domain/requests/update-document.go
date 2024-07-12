@@ -11,16 +11,18 @@ import (
 )
 
 type UpdateDocument struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
-	Data   []byte `json:"data"`
-	ClubID int    `json:"club_id"`
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Data       []byte `json:"data"`
+	ClubID     int    `json:"club_id"`
+	CategoryID int    `json:"category_id"`
 }
 
 type UpdateDocumentPointer struct {
-	Name   *string `json:"name"`
-	Data   []byte  `json:"data"`
-	ClubID *int    `json:"club_id"`
+	Name       *string `json:"name"`
+	Data       []byte  `json:"data"`
+	ClubID     *int    `json:"club_id"`
+	CategoryID *int    `json:"category_id"`
 }
 
 func (v *UpdateDocument) Bind(req *http.Request) error {
@@ -43,9 +45,10 @@ func (v *UpdateDocument) Bind(req *http.Request) error {
 	}
 
 	*v = UpdateDocument{
-		Name:   *pv.Name,
-		Data:   pv.Data,
-		ClubID: *pv.ClubID,
+		Name:       *pv.Name,
+		Data:       pv.Data,
+		ClubID:     *pv.ClubID,
+		CategoryID: *pv.CategoryID,
 	}
 
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
@@ -74,6 +77,9 @@ func (pv *UpdateDocumentPointer) validate() error {
 	}
 	if pv.ClubID == nil {
 		return fmt.Errorf("require: ClubID")
+	}
+	if pv.CategoryID == nil {
+		return fmt.Errorf("require: CategoryID")
 	}
 	return nil
 }

@@ -14,23 +14,20 @@ import (
 type documentsServiceStorage interface {
 	GetAllDocuments(ctx context.Context) ([]domain.Document, error)
 	GetDocument(ctx context.Context, id int) (domain.Document, error)
+	GetDocumentsByCategory(ctx context.Context, categoryID int) ([]domain.Document, error)
 	GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error)
-	PostDocument(ctx context.Context, name, key string, clubId int) error
-	DeleteDocument(ctx context.Context, id int) (string, error)
-	UpdateDocument(ctx context.Context, id int, name, key string, clubId int) (string, error)
-	GetAllDocumentKeys(ctx context.Context) ([]string, error)
-	UploadObject(ctx context.Context, name string, bucketName string, data []byte) (string, error)
-	DeleteObject(ctx context.Context, name string, bucketName string) error
-	GetAllObjectNames(ctx context.Context, bucketName string) ([]string, error)
+	PostDocument(ctx context.Context, name, key string, data []byte, clubId, categoryId int) error
+	DeleteDocument(ctx context.Context, id int) error
+	UpdateDocument(ctx context.Context, id int, name, key string, data []byte, clubId, categoryId int) error
+	CleanupDocuments(ctx context.Context, logger *logrus.Logger) error
 }
 
 type DocumentsService struct {
-	bucketName string
-	storage    documentsServiceStorage
+	storage documentsServiceStorage
 }
 
-func NewDocumentsService(storage documentsServiceStorage, bucketName string) *DocumentsService {
-	return &DocumentsService{bucketName: bucketName, storage: storage}
+func NewDocumentsService(storage documentsServiceStorage) *DocumentsService {
+	return &DocumentsService{storage: storage}
 }
 
 func (s *DocumentsService) GetAllDocuments(ctx context.Context) (*responses.GetAllDocuments, error) {
@@ -38,7 +35,7 @@ func (s *DocumentsService) GetAllDocuments(ctx context.Context) (*responses.GetA
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetAllDocuments: %w", err)
 	}
-	return mapper.MakeResponseAllDocuments(docs, s.bucketName)
+	return mapper.MakeResponseAllDocuments(docs)
 }
 
 func (s *DocumentsService) GetDocument(ctx context.Context, id int) (*responses.GetDocument, error) {
@@ -46,7 +43,15 @@ func (s *DocumentsService) GetDocument(ctx context.Context, id int) (*responses.
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetDocument: %w", err)
 	}
-	return mapper.MakeResponseDocument(&doc, s.bucketName)
+	return mapper.MakeResponseDocument(&doc)
+}
+
+func (s *DocumentsService) GetDocumentsByCategory(ctx context.Context, categoryID int) (*responses.GetDocumentsByCategory, error) {
+	docs, err := s.storage.GetDocumentsByCategory(ctx, categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetDocumentsByCategory: %w", err)
+	}
+	return mapper.MakeResponseDocumentsByCategory(docs)
 }
 
 func (s *DocumentsService) GetDocumentsByClubID(ctx context.Context, clubID int) (*responses.GetDocumentsByClubID, error) {
@@ -54,105 +59,40 @@ func (s *DocumentsService) GetDocumentsByClubID(ctx context.Context, clubID int)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetDocumentsByClubID: %w", err)
 	}
-	return mapper.MakeResponseDocumentsByClubID(docs, s.bucketName)
+	return mapper.MakeResponseDocumentsByClubID(docs)
 }
 
-func (s *DocumentsService) PostDocument(ctx context.Context, doc *requests.PostDocument) error {
-	_, err := s.storage.UploadObject(ctx, doc.Name, s.bucketName, doc.Data)
+func (s *DocumentsService) PostDocument(ctx context.Context, doc *requests.PostDocument) (*responses.PostDocument, error) {
+	var key = fmt.Sprintf("%d/%s", doc.ClubID, doc.Name)
+
+	err := s.storage.PostDocument(ctx, doc.Name, key, doc.Data, doc.ClubID, doc.CategoryID)
 	if err != nil {
-		return fmt.Errorf("can't storage.UploadObject: %w", err)
+		return nil, fmt.Errorf("can't storage.PostDocument: %w", err)
 	}
 
-	err = s.storage.PostDocument(ctx, doc.Name, doc.Name, doc.ClubID)
-	if err != nil {
-		s.storage.DeleteObject(ctx, doc.Name, s.bucketName)
-		return fmt.Errorf("can't storage.PostDocument: %w", err)
-	}
-
-	return nil
+	return mapper.MakeResponsePostDocument(key)
 }
 
 func (s *DocumentsService) DeleteDocument(ctx context.Context, id int) error {
-	name, err := s.storage.DeleteDocument(ctx, id)
+	err := s.storage.DeleteDocument(ctx, id)
 	if err != nil {
 		return fmt.Errorf("can't storage.DeleteDocument: %w", err)
 	}
 
-	err = s.storage.DeleteObject(ctx, name, s.bucketName)
-	if err != nil {
-		return fmt.Errorf("can't storage.DeleteObject: %w", err)
-	}
-
 	return nil
 }
 
-func (s *DocumentsService) UpdateDocument(ctx context.Context, doc *requests.UpdateDocument) error {
-	_, err := s.storage.UploadObject(ctx, doc.Name, s.bucketName, doc.Data)
+func (s *DocumentsService) UpdateDocument(ctx context.Context, doc *requests.UpdateDocument) (*responses.UpdateDocument, error) {
+	var key = fmt.Sprintf("%d/%s", doc.ClubID, doc.Name)
+
+	err := s.storage.UpdateDocument(ctx, doc.ID, doc.Name, key, doc.Data, doc.ClubID, doc.CategoryID)
 	if err != nil {
-		return fmt.Errorf("can't storage.UploadObject: %w", err)
+		return nil, fmt.Errorf("can't storage.UpdateDocument: %w", err)
 	}
 
-	prevName, err := s.storage.UpdateDocument(ctx, doc.ID, doc.Name, doc.Name, doc.ClubID)
-	if err != nil {
-		s.storage.DeleteObject(ctx, doc.Name, s.bucketName)
-		return fmt.Errorf("can't storage.UpdateDocument: %w", err)
-	}
-
-	if prevName != doc.Name {
-		err = s.storage.DeleteObject(ctx, prevName, s.bucketName)
-		if err != nil {
-			return fmt.Errorf("can't storage.DeleteObject: %w", err)
-		}
-	}
-
-	return nil
+	return mapper.MakeResponseUpdateDocument(key)
 }
 
-func (s *DocumentsService) ClearUnknownDocuments(ctx context.Context, logger *logrus.Logger) error {
-	logger.Infof("Started deleting unknown documents from object storage...")
-
-	keys, err := s.storage.GetAllDocumentKeys(ctx)
-	if err != nil {
-		logger.Warnf("Failed to get all document keys: %v", err)
-	}
-	logger.Infof("Found %d documents in database: %v", len(keys), keys)
-
-	logger.Infof("Trying to get all document names from object storage...")
-	objNames, err := s.storage.GetAllObjectNames(ctx, s.bucketName)
-	if err != nil {
-		logger.Warnf("Failed to get all object names: %v", err)
-		return err
-	}
-
-	logger.Infof("Found %d documents in object storage: %v", len(objNames), objNames)
-
-	unknownKeys := make([]string, 0, len(objNames))
-
-	keysMap := make(map[string]struct{}, len(keys))
-	for _, key := range keys {
-		keysMap[key] = struct{}{}
-	}
-	for _, key := range objNames {
-		if _, ok := keysMap[key]; !ok {
-			unknownKeys = append(unknownKeys, key)
-		}
-	}
-
-	if len(unknownKeys) == 0 {
-		logger.Infof("No unknown documents found")
-		return nil
-	} else {
-		logger.Infof("Found %d unknown documents: %v", len(unknownKeys), unknownKeys)
-	}
-	logger.Infof("Started deleting unknown documents from object storage...")
-	for _, key := range unknownKeys {
-		err := s.storage.DeleteObject(ctx, key, s.bucketName)
-		if err != nil {
-			logger.Warnf("Delete unknown document failed from object storage: %v", err)
-			return err
-		}
-	}
-	logger.Infof("Delete unknown documents from object storage successful!")
-
-	return nil
+func (s *DocumentsService) CleanupDocuments(ctx context.Context, logger *logrus.Logger) error {
+	return s.storage.CleanupDocuments(ctx, logger)
 }

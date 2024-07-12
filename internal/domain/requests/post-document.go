@@ -9,15 +9,17 @@ import (
 )
 
 type PostDocument struct {
-	Name   string `json:"name"`
-	Data   []byte `json:"data"`
-	ClubID int    `json:"club_id"`
+	Name       string `json:"name"`
+	Data       []byte `json:"data"`
+	ClubID     int    `json:"club_id"`
+	CategoryID int    `json:"category_id"`
 }
 
 type PostDocumentPointer struct {
-	Name   *string `json:"name"`
-	Data   []byte  `json:"data"`
-	ClubID *int    `json:"club_id"`
+	Name       *string `json:"name"`
+	Data       []byte  `json:"data"`
+	ClubID     *int    `json:"club_id"`
+	CategoryID *int    `json:"category_id"`
 }
 
 func (v *PostDocument) Bind(req *http.Request) error {
@@ -40,9 +42,10 @@ func (v *PostDocument) Bind(req *http.Request) error {
 	}
 
 	*v = PostDocument{
-		Name:   *pv.Name,
-		Data:   pv.Data,
-		ClubID: *pv.ClubID,
+		Name:       *pv.Name,
+		Data:       pv.Data,
+		ClubID:     *pv.ClubID,
+		CategoryID: *pv.CategoryID,
 	}
 
 	return v.validate()
@@ -61,6 +64,9 @@ func (pv *PostDocumentPointer) validate() error {
 	}
 	if pv.ClubID == nil {
 		return fmt.Errorf("require: ClubID")
+	}
+	if pv.CategoryID == nil {
+		return fmt.Errorf("require: CategoryID")
 	}
 	return nil
 }
