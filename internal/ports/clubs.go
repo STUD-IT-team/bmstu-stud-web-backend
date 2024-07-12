@@ -300,6 +300,8 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 		h.logger.Warnf("can't service.PostClub %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
 			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
@@ -352,7 +354,11 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 	err = h.clubs.DeleteClub(context.Background(), club.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.DeleteClub DeleteClub: %v", err)
-		return handler.InternalServerErrorResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 	h.logger.Info("ClubsHandler: request done")
 
@@ -406,6 +412,8 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 		h.logger.Warnf("can't service.UpdateClub UpdateClub: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
 			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}

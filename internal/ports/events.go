@@ -2,12 +2,14 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	log "github.com/sirupsen/logrus"
 
@@ -155,6 +157,7 @@ func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Reques
 //		@Failure     400
 //	 	@Failure     401
 //		@Failure     404
+//		@Failure     500
 //		@Router      /events [post]
 //		@Security    Authorised
 func (h *EventsHandler) PostEvent(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -187,7 +190,11 @@ func (h *EventsHandler) PostEvent(w http.ResponseWriter, req *http.Request) hand
 	err = h.events.PostEvent(context.Background(), *mapper.MakeRequestPostEvent(*event))
 	if err != nil {
 		h.logger.Warnf("can't EventsService.PostEvent: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("EventsHandler: request PostEvent done")
@@ -205,6 +212,7 @@ func (h *EventsHandler) PostEvent(w http.ResponseWriter, req *http.Request) hand
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /events/{id} [delete]
 //	@Security    Authorised
 func (h *EventsHandler) DeleteEvent(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -237,7 +245,11 @@ func (h *EventsHandler) DeleteEvent(w http.ResponseWriter, req *http.Request) ha
 	err = h.events.DeleteEvent(context.Background(), eventId.ID)
 	if err != nil {
 		h.logger.Warnf("can't EventService.DeleteEvent: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("EventsHandler: request DeleteEvent done")
@@ -257,6 +269,7 @@ func (h *EventsHandler) DeleteEvent(w http.ResponseWriter, req *http.Request) ha
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /events/{id} [put]
 //	@Security    Authorised
 func (h *EventsHandler) UpdateEvent(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -289,7 +302,11 @@ func (h *EventsHandler) UpdateEvent(w http.ResponseWriter, req *http.Request) ha
 	err = h.events.UpdateEvent(context.Background(), *mapper.MakeRequestUpdateEvent(*event))
 	if err != nil {
 		h.logger.Warnf("can't EventService.UpdateEvent: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("EventsHandler: request UpdateEvent done")

@@ -203,6 +203,7 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 //	@Failure     401
 //	@Failure     404
 //	@Failure     409
+//	@Failure     500
 //	@Router      /members [post]
 //	@Security    Authorised
 func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -237,8 +238,11 @@ func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) ha
 		h.logger.Warnf("can't MembersService.PostMember: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
 			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
 		}
-		return handler.NotFoundResponse()
 	}
 	handler.NotFoundResponse()
 
@@ -258,6 +262,7 @@ func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) ha
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /members/{id} [delete]
 //	@Security    Authorised
 func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -290,7 +295,11 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 	err = h.members.DeleteMember(context.Background(), memberId.ID)
 	if err != nil {
 		h.logger.Warnf("can't MembersService.DeleteMember: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("MembersHandler: request DeleteMember done")
@@ -310,6 +319,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Failure     401
 //	@Failure     404
 //	@Failure     409
+//	@Failure     500
 //	@Router      /members/update [put]
 //	@Security    Authorised
 func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -344,8 +354,11 @@ func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) 
 		h.logger.Warnf("can't MembersService.UpdateMember: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
 			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
 		}
-		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("MembersHandler: request UpdateMember done")

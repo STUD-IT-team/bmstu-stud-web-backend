@@ -2,12 +2,14 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	"github.com/go-chi/chi"
@@ -191,6 +193,7 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 //		@Failure     400
 //	 	@Failure     401
 //		@Failure     404
+//		@Failure     500
 //		@Router      /feed [post]
 //		@Security    Authorised
 func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -223,7 +226,11 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 	err = h.feed.PostFeed(context.Background(), *mapper.MakeRequestPostFeed(*feed))
 	if err != nil {
 		h.logger.Warnf("can't FeedService.PostFeed: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request PostFeed done")
@@ -241,6 +248,7 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/{id} [delete]
 //	@Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -273,7 +281,11 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	err = h.feed.DeleteFeed(context.Background(), feedId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.DeleteFeed: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request DeleteFeed done")
@@ -293,6 +305,7 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/{id} [put]
 //	@Security    Authorised
 func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -325,7 +338,11 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 	err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestUpdateFeed(*feed))
 	if err != nil {
 		h.logger.Warnf("can't FeedService.UpdateFeed: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request UpdateFeed done")
