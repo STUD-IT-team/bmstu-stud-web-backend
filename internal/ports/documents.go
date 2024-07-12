@@ -366,7 +366,7 @@ func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Reque
 //	@Accept      json
 //	@Produce     json
 //	@Param       id   path     string           true "Document ID"
-//	@Param       request body requests.UpdateDocument true "Document new data"
+//	@Param       request body requests.PostDocument true "Document new data"
 //	@Success     200 {object} responses.UpdateDocument
 //	@Failure     400
 //	@Failure     401
@@ -518,6 +518,9 @@ func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Reque
 	err = h.categories.DeleteDocumentCategory(context.Background(), catId.ID)
 	if err != nil {
 		h.logger.Warnf("can't DocumentCategoriesService.DeleteDocumentCategory: %v", err)
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		}
 		return handler.NotFoundResponse()
 	}
 
@@ -533,7 +536,7 @@ func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Reque
 //	@Tags        auth.documents
 //	@Accept      json
 //	@Param       id   path     string           true "DocumentCategory ID"
-//	@Param       request body requests.UpdateDocumentCategory true "DocumentCategory new data"
+//	@Param       request body requests.PostDocumentCategory true "DocumentCategory new data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401

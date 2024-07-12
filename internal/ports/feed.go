@@ -294,7 +294,7 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Tags        auth.feed
 //	@Accept      json
 //	@Param       id   path     string           true "Feed ID"
-//	@Param       request body requests.UpdateFeed true "Feed new data"
+//	@Param       request body requests.PostFeed true "Feed new data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401

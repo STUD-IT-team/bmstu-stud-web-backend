@@ -313,7 +313,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Description Update a member's information with the provided data
 //	@Tags        auth.members
 //	@Accept      json
-//	@Param       request body requests.UpdateMember true "Member data"
+//	@Param       request body requests.PostMember true "Member data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
