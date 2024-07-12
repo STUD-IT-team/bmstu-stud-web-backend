@@ -522,20 +522,11 @@ func (s *Postgres) AddOrgs(_ context.Context, orgs []domain.ClubOrg) error {
 
 const getClubMediaFiles = `
 SELECT
-    club_photo.id,
-	club_photo.ref_num,
-	photo.name,
-	photo.key
+    id,
+	ref_num,
+	club_id,
+	media_id
 FROM club_photo
-JOIN
-(
-	SELECT
-	    name,
-		key,
-		id
-	FROM mediafile
-) as photo
-ON (club_photo.media_id = photo.id)
 WHERE club_id = $1
 `
 
@@ -548,7 +539,7 @@ func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
 
 	for rows.Next() {
 		p := domain.ClubPhoto{}
-		err := rows.Scan(&p.ID, &p.RefNumber, &p.Name, &p.Key)
+		err := rows.Scan(&p.ID, &p.RefNumber, &p.ClubID, &p.MediaID)
 		if err != nil {
 			return []domain.ClubPhoto{}, err
 		}

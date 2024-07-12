@@ -7,7 +7,8 @@ type MediaFile struct {
 }
 
 type ClubPhoto struct {
-	MediaFile
+	ID        int `json:"id"`
+	MediaID   int `json:"media_id"`
 	ClubID    int `json:"club_id"`
 	RefNumber int `json:"ref_number"`
 }

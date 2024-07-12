@@ -47,8 +47,9 @@ func (s *storage) GetMediaFiles(_ context.Context, ids []int) (map[int]domain.Me
 		return nil, fmt.Errorf("can't get media file from postgres: %v", err)
 	}
 
-	for _, file := range media {
+	for id, file := range media {
 		file.Key = bucketName + "/" + file.Key
+		media[id] = file
 	}
 	return media, nil
 }
