@@ -192,7 +192,6 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 //		@Success     201
 //		@Failure     400
 //	 	@Failure     401
-//		@Failure     404
 //		@Failure     500
 //		@Router      /feed [post]
 //		@Security    Authorised
@@ -248,7 +247,6 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
-//	@Failure     500
 //	@Router      /feed/{id} [delete]
 //	@Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -281,11 +279,7 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	err = h.feed.DeleteFeed(context.Background(), feedId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.DeleteFeed: %v", err)
-		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
-			return handler.BadRequestResponse()
-		} else {
-			return handler.InternalServerErrorResponse()
-		}
+		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("FeedHandler: request DeleteFeed done")
@@ -304,7 +298,6 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
-//	@Failure     404
 //	@Failure     500
 //	@Router      /feed/{id} [put]
 //	@Security    Authorised

@@ -99,7 +99,8 @@ func main() {
 	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(appStorage)
 	documentsService := app.NewDocumentsService(appStorage)
-	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService, documentsService)
+	documentCategoriesSevice := app.NewDocumentCategoriesService(appStorage)
+	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService, documentsService, documentCategoriesSevice)
 
 	var mainGroupHandler *handler.GroupHandler
 	// Main API router.
@@ -112,7 +113,7 @@ func main() {
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
-			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
+			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, *documentCategoriesSevice, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
@@ -124,7 +125,7 @@ func main() {
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
-			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
+			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, *documentCategoriesSevice, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	}

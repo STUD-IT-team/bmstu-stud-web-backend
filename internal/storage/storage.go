@@ -16,6 +16,7 @@ type Storage interface {
 	mediaFileStorage
 	eventStorage
 	documentsStorage
+	documentCategoriesStorage
 }
 
 type storage struct {

@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
@@ -16,18 +17,20 @@ import (
 )
 
 type DocumentsHandler struct {
-	r         handler.Renderer
-	documents app.DocumentsService
-	logger    *log.Logger
-	guard     *app.GuardService
+	r          handler.Renderer
+	documents  app.DocumentsService
+	categories app.DocumentCategoriesService
+	logger     *log.Logger
+	guard      *app.GuardService
 }
 
-func NewDocumentsHandler(r handler.Renderer, documents app.DocumentsService, logger *log.Logger, guard *app.GuardService) *DocumentsHandler {
+func NewDocumentsHandler(r handler.Renderer, documents app.DocumentsService, categories app.DocumentCategoriesService, logger *log.Logger, guard *app.GuardService) *DocumentsHandler {
 	return &DocumentsHandler{
-		r:         r,
-		documents: documents,
-		logger:    logger,
-		guard:     guard,
+		r:          r,
+		documents:  documents,
+		categories: categories,
+		logger:     logger,
+		guard:      guard,
 	}
 }
 
@@ -42,14 +45,14 @@ func (h *DocumentsHandler) Routes() chi.Router {
 	r.Get("/{id}", h.r.Wrap(h.GetDocument))
 	r.Get("/search_category/{category_id}", h.r.Wrap(h.GetDocumentsByCategory))
 	r.Get("/search_club/{club_id}", h.r.Wrap(h.GetDocumentsByClubID))
-	// r.Get("/categories/", h.r.Wrap(h.GetAllCategories))
-	// r.Get("/categories/{id}", h.r.Wrap(h.GetCategory))
+	r.Get("/categories/", h.r.Wrap(h.GetAllCategories))
+	r.Get("/categories/{id}", h.r.Wrap(h.GetCategory))
 	r.Post("/", h.r.Wrap(h.PostDocument))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteDocument))
 	r.Put("/{id}", h.r.Wrap(h.UpdateDocument))
-	// r.Post("/categories/", h.r.Wrap(h.PostCategory))
-	// r.Delete("/categories/{id}", h.r.Wrap(h.DeleteCategory))
-	// r.Put("/categories/{id}", h.r.Wrap(h.UpdateCategory))
+	r.Post("/categories/", h.r.Wrap(h.PostCategory))
+	r.Delete("/categories/{id}", h.r.Wrap(h.DeleteCategory))
+	r.Put("/categories/{id}", h.r.Wrap(h.UpdateCategory))
 
 	return r
 }
@@ -186,65 +189,65 @@ func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http
 	return handler.OkResponse(res)
 }
 
-// // GetAllCategories retrieves all available categories of documents
-// //
-// //	@Summary     Retrieve all document categories
-// //	@Description Get a list of all categories to which a document may be attributed to
-// //	@Tags        public.documents
-// //	@Produce     json
-// //	@Success     200 {object}  responses.GetAllCategories
-// //	@Failure     404
-// //	@Router      /documents/categories/ [get]
-// //	@Security    public
-// func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Request) handler.Response {
-// 	h.logger.Info("DocumentsHandler: got GetAllCategories request")
+// GetAllCategories retrieves all available categories of documents
+//
+//	@Summary     Retrieve all document categories
+//	@Description Get a list of all categories to which a document may be attributed to
+//	@Tags        public.documents
+//	@Produce     json
+//	@Success     200 {object}  responses.GetAllDocumentCategories
+//	@Failure     404
+//	@Router      /documents/categories/ [get]
+//	@Security    public
+func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got GetAllCategories request")
 
-// 	res, err := h.documents.GetAllCategories(context.Background())
-// 	if err != nil {
-// 		h.logger.Warnf("can't DocumentsService.GetAllCategories: %v", err)
-// 		return handler.NotFoundResponse()
-// 	}
+	res, err := h.categories.GetAllDocumentCategories(context.Background())
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetAllCategories: %v", err)
+		return handler.NotFoundResponse()
+	}
 
-// 	h.logger.Info("DocumentsHandler: request GetAllCategories done")
+	h.logger.Info("DocumentsHandler: request GetAllCategories done")
 
-// 	return handler.OkResponse(res)
-// }
+	return handler.OkResponse(res)
+}
 
-// // GetCategory retrieves a document category by its ID
-// //
-// //	@Summary     Retrieve document category by ID
-// //	@Description Get a specific document category using its ID
-// //	@Tags        public.documents
-// //	@Produce     json
-// //	@Param       id   path     string           true "id"
-// //	@Success     200  {object} responses.GetCategory
-// //	@Failure     400
-// //	@Failure     404
-// //	@Router      /documents/categories/{id} [get]
-// //	@Security    public
-// func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request) handler.Response {
-// 	h.logger.Info("DocumentsHandler: got GetCategory request")
+// GetCategory retrieves a document category by its ID
+//
+//	@Summary     Retrieve document category by ID
+//	@Description Get a specific document category using its ID
+//	@Tags        public.documents
+//	@Produce     json
+//	@Param       id   path     string           true "id"
+//	@Success     200  {object} responses.GetDocumentCategory
+//	@Failure     400
+//	@Failure     404
+//	@Router      /documents/categories/{id} [get]
+//	@Security    public
+func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got GetCategory request")
 
-// 	catId := &requests.GetCategory{}
+	catId := &requests.GetDocumentCategory{}
 
-// 	err := catId.Bind(req)
-// 	if err != nil {
-// 		h.logger.Warnf("can't requests.Bind: %v", err)
-// 		return handler.BadRequestResponse()
-// 	}
+	err := catId.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind: %v", err)
+		return handler.BadRequestResponse()
+	}
 
-// 	h.logger.Infof("DocumentsHandler: parse request GetCategory: %v", catId)
+	h.logger.Infof("DocumentsHandler: parse request GetCategory: %v", catId)
 
-// 	res, err := h.documents.GetCategory(context.Background(), catId.ID)
-// 	if err != nil {
-// 		h.logger.Warnf("can't DocumentsService.GetCategory: %v", err)
-// 		return handler.NotFoundResponse()
-// 	}
+	res, err := h.categories.GetDocumentCategory(context.Background(), catId.ID)
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetCategory: %v", err)
+		return handler.NotFoundResponse()
+	}
 
-// 	h.logger.Info("DocumentsHandler: request GetCategory done")
+	h.logger.Info("DocumentsHandler: request GetCategory done")
 
-// 	return handler.OkResponse(res)
-// }
+	return handler.OkResponse(res)
+}
 
 // PostDocument creates a new document item
 //
@@ -257,8 +260,8 @@ func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http
 //		@Success     201 {object} responses.PostDocument
 //		@Failure     400
 //	 	@Failure     401
-//		@Failure     404
 //		@Failure     409
+//		@Failure     500
 //		@Router      /documents/ [post]
 //		@Security    Authorised
 func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -293,8 +296,11 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 		h.logger.Warnf("can't DocumentsService.PostDocument: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
 			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
 		}
-		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("DocumentsHandler: request PostDocument done")
@@ -364,8 +370,8 @@ func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Reque
 //	@Success     200 {object} responses.UpdateDocument
 //	@Failure     400
 //	@Failure     401
-//	@Failure     404
 //	@Failure     409
+//	@Failure     500
 //	@Router      /documents/{id} [put]
 //	@Security    Authorised
 func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -400,11 +406,181 @@ func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Reque
 		h.logger.Warnf("can't DocumentsService.UpdateDocument: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
 			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
 		}
-		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("DocumentsHandler: request UpdateDocument done")
 
 	return handler.OkResponse(res)
+}
+
+// PostCategory creates a new document category
+//
+// @Summary     Create a new document category
+// @Description Create a new category for documents with given name
+// @Tags        auth.documents
+// @Accept      json
+// @Param       request body requests.PostDocumentCategory true "DocumentCategory data"
+// @Success     201
+// @Failure     400
+// @Failure     401
+// @Failure     409
+// @Failure     500
+// @Router      /documents/categories/ [post]
+// @Security    Authorised
+func (h *DocumentsHandler) PostCategory(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got PostCategory request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token PostCategory: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on PostCategory: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: PostCategory Authenticated: %v", resp.MemberID)
+
+	cat := &requests.PostDocumentCategory{}
+
+	err = cat.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind PostDocumentCategory: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: parse request PostCategory")
+
+	err = h.categories.PostDocumentCategory(context.Background(), mapper.MakeRequestPostDocumentCategory(cat))
+	if err != nil {
+		h.logger.Warnf("can't DocumentCategoriesService.PostDocumentCategory: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
+	}
+
+	h.logger.Info("DocumentsHandler: request PostCategory done")
+
+	return handler.CreatedResponse(nil)
+}
+
+// DeleteCategory deletes a document category by ID
+//
+//	@Summary     Delete a document category by ID
+//	@Description Delete a specific document category using its ID
+//	@Tags        auth.documents
+//	@Param       id   path     string           true "DocumentCategory ID"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /documents/categories/{id} [delete]
+//	@Security    Authorised
+func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got DeleteCategory request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token DeleteDocumentCategory: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on DeleteDocumentCategory: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: DeleteCategory Authenticated: %v", resp.MemberID)
+
+	catId := &requests.DeleteDocumentCategory{}
+
+	err = catId.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind DeleteDocumentCategory: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: parse request DeleteCategory: %v", catId)
+
+	err = h.categories.DeleteDocumentCategory(context.Background(), catId.ID)
+	if err != nil {
+		h.logger.Warnf("can't DocumentCategoriesService.DeleteDocumentCategory: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("DocumentsHandler: request DeleteCategory done")
+
+	return handler.OkResponse(nil)
+}
+
+// UpdateCategory updates a document category
+//
+//	@Summary     Update a document category
+//	@Description Update an existing document category with the provided data
+//	@Tags        auth.documents
+//	@Accept      json
+//	@Param       id   path     string           true "DocumentCategory ID"
+//	@Param       request body requests.UpdateDocumentCategory true "DocumentCategory new data"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     409
+//	@Failure     500
+//	@Router      /documents/categories/{id} [put]
+//	@Security    Authorised
+func (h *DocumentsHandler) UpdateCategory(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got UpdateCategory request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token UpdateDocumentCategory: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on UpdateDocumentCategory: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: UpdateCategory Authenticated: %v", resp.MemberID)
+
+	cat := &requests.UpdateDocumentCategory{}
+
+	err = cat.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind UpdateDocumentCategory: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: parse request UpdateCategory")
+
+	err = h.categories.UpdateDocumentCategory(context.Background(), mapper.MakeRequestUpdateDocumentCategory(cat))
+	if err != nil {
+		h.logger.Warnf("can't DocumentCategoriesService.UpdateDocumentCategory: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
+	}
+
+	h.logger.Info("DocumentsHandler: request UpdateCategory done")
+
+	return handler.OkResponse(nil)
 }

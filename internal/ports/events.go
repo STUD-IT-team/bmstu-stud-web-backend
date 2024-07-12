@@ -305,7 +305,7 @@ func (h *EventsHandler) UpdateEvent(w http.ResponseWriter, req *http.Request) ha
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
 		} else {
-			return handler.InternalServerErrorResponse()
+			return handler.NotFoundResponse()
 		}
 	}
 
