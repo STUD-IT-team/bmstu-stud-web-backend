@@ -17,8 +17,8 @@ type eventsServiceStorage interface {
 	PostEvent(ctx context.Context, event domain.Event) error
 	DeleteEvent(ctx context.Context, id int) error
 	UpdateEvent(ctx context.Context, event domain.Event) error
-	GetMediaFile(id int) (*domain.MediaFile, error)
-	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
+	GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error)
+	GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error)
 }
 
 type EventsService struct {
@@ -43,7 +43,7 @@ func (s *EventsService) GetAllEvents(ctx context.Context) (*responses.GetAllEven
 		ids = append(ids, event.MediaID)
 	}
 
-	eventMediaFiles, err := s.storage.GetMediaFiles(ids)
+	eventMediaFiles, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetEventMediaFiles: %w", err)
 	}
@@ -57,7 +57,7 @@ func (s *EventsService) GetEvent(ctx context.Context, id int) (*responses.GetEve
 		return nil, fmt.Errorf("can't storage.GetEvent: %w", err)
 	}
 
-	feedMediaFile, err := s.storage.GetMediaFile(id)
+	feedMediaFile, err := s.storage.GetMediaFile(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetEventMediaFile: %w", err)
 	}
@@ -76,7 +76,7 @@ func (s *EventsService) GetEventsByRange(ctx context.Context, from, to time.Time
 		ids = append(ids, event.MediaID)
 	}
 
-	eventMediaFiles, err := s.storage.GetMediaFiles(ids)
+	eventMediaFiles, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetEventMediaFiles: %w", err)
 	}

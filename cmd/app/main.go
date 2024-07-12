@@ -98,7 +98,7 @@ func main() {
 	eventsService := app.NewEventsService(appStorage)
 	membersService := app.NewMembersService(appStorage)
 	guardService := app.NewGuardService(appStorage)
-	documentsService := app.NewDocumentsService(appStorage, os.Getenv("DOCUMENT_BUCKET"))
+	// documentsService := app.NewDocumentsService(appStorage, os.Getenv("DOCUMENT_BUCKET"))
 	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService)
 
 	var mainGroupHandler *handler.GroupHandler
@@ -112,7 +112,7 @@ func main() {
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
-			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
+			// internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	} else {
@@ -124,7 +124,7 @@ func main() {
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
 			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
-			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
+			// internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
 	}
@@ -174,23 +174,23 @@ func main() {
 		logger.Fatalf("failed to create gocron scheduler")
 	}
 
-	cleanupTime := gocron.NewAtTime(2, 0, 0)
-	cleanupJob := gocron.DailyJob(1, gocron.NewAtTimes(cleanupTime))
+	// cleanupTime := gocron.NewAtTime(2, 0, 0)
+	// cleanupJob := gocron.DailyJob(1, gocron.NewAtTimes(cleanupTime))
 
-	_, err = s.NewJob(
-		cleanupJob,
-		gocron.NewTask(mediaService.ClearUpMedia, context.Background(), logger),
-	)
-	if err != nil {
-		logger.Fatalf("gocron обдристался at ClearMediaStorages...")
-	}
-	_, err = s.NewJob(
-		cleanupJob,
-		gocron.NewTask(documentsService.ClearUnknownDocuments, context.Background(), logger),
-	)
-	if err != nil {
-		logger.Fatalf("gocron обдристался at ClearUnknownDocuments...")
-	}
+	// _, err = s.NewJob(
+	// 	cleanupJob,
+	// 	gocron.NewTask(mediaService.ClearUpMedia, context.Background(), logger),
+	// )
+	// if err != nil {
+	// 	logger.Fatalf("gocron обдристался at ClearMediaStorages...")
+	// }
+	// _, err = s.NewJob(
+	// 	cleanupJob,
+	// 	gocron.NewTask(documentsService.ClearUnknownDocuments, context.Background(), logger),
+	// )
+	// if err != nil {
+	// 	logger.Fatalf("gocron обдристался at ClearUnknownDocuments...")
+	// }
 	s.Start()
 	logger.Infof("Cron started")
 
