@@ -12,3 +12,8 @@ type ClubPhoto struct {
 	ClubID    int `json:"club_id"`
 	RefNumber int `json:"ref_number"`
 }
+
+type DefaultMedia struct {
+	ID      int `json:"id"`
+	MediaID int `json:"media_id"`
+}

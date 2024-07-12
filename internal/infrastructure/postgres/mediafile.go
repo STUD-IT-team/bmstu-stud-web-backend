@@ -12,11 +12,11 @@ const getMediaFile = "SELECT name, key FROM mediafile WHERE id = $1 AND id > 0"
 func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	f := domain.MediaFile{}
 	err := p.db.QueryRow(getMediaFile, id).Scan(&f.Name, &f.Key)
-	if err == nil {
-		return &f, nil
+	if err != nil {
+		return nil, err
 	}
 	f.ID = id
-	return nil, err
+	return &f, nil
 }
 
 const getMediaFiles = "SELECT id, name, key FROM mediafile WHERE id = ANY($1) AND id > 0"
@@ -119,4 +119,46 @@ func (p *Postgres) GetAllMediaKeys(ctx context.Context) ([]string, error) {
 		keys = append(keys, key)
 	}
 	return keys, nil
+}
+
+const getDefautlMedia = "SELECT id, media_id FROM default_media WHERE id = $1"
+
+func (p *Postgres) GetDefautlMedia(ctx context.Context, id int) (*domain.DefaultMedia, error) {
+	var d domain.DefaultMedia
+	err := p.db.QueryRow(getDefautlMedia, id).Scan(&d.ID, &d.MediaID)
+	if err == nil {
+		return &d, nil
+	}
+	return nil, err
+}
+
+const getAllDefaultMedia = "SELECT id, media_id FROM default_media"
+
+func (p *Postgres) GetAllDefaultMedia(ctx context.Context) ([]domain.DefaultMedia, error) {
+	defaultMedia := make([]domain.DefaultMedia, 0)
+	rows, err := p.db.Query(getAllDefaultMedia)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		d := domain.DefaultMedia{}
+		err := rows.Scan(&d.ID, &d.MediaID)
+		if err != nil {
+			return nil, err
+		}
+		defaultMedia = append(defaultMedia, d)
+	}
+
+	return defaultMedia, nil
+}
+
+const addDefaultMedia = "INSERT INTO default_media (media_id) VALUES ($1) RETURNING id"
+
+func (p *Postgres) AddDefaultMedia(ctx context.Context, mediaID int) (int, error) {
+	err := p.db.QueryRow(addDefaultMedia, mediaID).Scan(&mediaID)
+	if err != nil {
+		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return mediaID, nil
 }
