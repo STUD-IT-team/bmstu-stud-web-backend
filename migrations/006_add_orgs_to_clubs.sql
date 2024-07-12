@@ -15,12 +15,12 @@ VALUES
 INSERT INTO club_org (club_id, member_id, role_name, role_spec)
 VALUES
 (1, 1, 'Молодец', 'IT'),
-(2, 2, 'Красава', 'NIT'),
-(3, 3, 'Веселый', 'Finance'),
-(4, 4, 'Хорошо', 'HR'),
-(5, 5, 'Богатый', 'Marketing'),
-(6, 6, 'Молодец', 'Sales'),
-(7, 7, 'Умный', 'Engineering');
+(1, 1, 'Красава', 'NIT'),
+(1, 2, 'Веселый', 'Finance'),
+(1, 2, 'Хорошо', 'HR'),
+(1, 3, 'Богатый', 'Marketing'),
+(1, 3, 'Молодец', 'Sales'),
+(2, 4, 'Умный', 'Engineering');
 
 UPDATE club
 SET parent_id = 1
@@ -31,7 +31,6 @@ WHERE id = 2;
 -- +goose Down
 -- +goose StatementBegin
 
-DELETE FROM member;
 DELETE FROM club_org;
 
 -- +goose StatementEnd

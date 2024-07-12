@@ -56,13 +56,23 @@ create table IF NOT EXISTS event
     reg_open_date timestamp not null, 
     feedback_url  text    default ''
 );
+
+alter table member add foreign key (media_id) references mediafile(id);
+alter table member add foreign key (role_id) references member_role(role_id);
+
+alter table feed add foreign key (media_id) references mediafile(id);
+alter table feed add foreign key (created_by) references member(id);
+
+alter table event add foreign key (media_id) references mediafile(id);
+alter table event add foreign key (created_by) references member(id);
+
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-drop table IF EXISTS member_role;
-drop table IF EXISTS member;
-drop table IF EXISTS feed;
-drop table IF EXISTS event;
-drop table IF EXISTS mediafile;
+drop table IF EXISTS member_role CASCADE;
+drop table IF EXISTS member CASCADE;
+drop table IF EXISTS feed CASCADE;
+drop table IF EXISTS event CASCADE;
+drop table IF EXISTS mediafile CASCADE;
 -- +goose StatementEnd

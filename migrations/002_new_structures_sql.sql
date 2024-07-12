@@ -19,7 +19,6 @@ create table if not exists club (
     tg_url text default ''
 );
 
-
 -- TODO in domain
 create table if not exists club_photo (
     id serial primary key,
@@ -36,12 +35,22 @@ create table if not exists club_org (
     role_spec text default ''
 );
 
+alter table encounter add foreign key (club_id) references club(id);
+
+alter table club add FOREIGN KEY (logo) REFERENCES mediafile(id);
+
+alter table club_photo add FOREIGN KEY (media_id) REFERENCES mediafile(id);
+alter table club_photo add FOREIGN KEY (club_id) REFERENCES club(id);
+
+alter table club_org add FOREIGN KEY (club_id) REFERENCES club(id);
+alter table club_org add FOREIGN KEY (member_id) REFERENCES member(id);
+
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-drop table if exists encounter;
-drop table if exists club_photo;
-drop table if exists club_org;
-drop table if exists club;
+drop table if exists encounter CASCADE;
+drop table if exists club_photo CASCADE;
+drop table if exists club_org CASCADE;
+drop table if exists club CASCADE;
 -- +goose StatementEnd

@@ -15,5 +15,5 @@ create table IF NOT EXISTS main_video
 
 -- +goose Down
 -- +goose StatementBegin
-drop table IF EXISTS main_video;
+drop table IF EXISTS main_video CASCADE;
 -- +goose StatementEnd

@@ -22,5 +22,5 @@ ALTER TABLE mediafile ADD CONSTRAINT key_unique UNIQUE (key)
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE FROM mediafile;
+
 -- +goose StatementEnd
