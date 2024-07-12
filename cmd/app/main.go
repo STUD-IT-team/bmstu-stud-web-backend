@@ -92,7 +92,7 @@ func main() {
 	appStorage := storage.NewStorage(*appPostgres, sessionCache, minioStorage)
 
 	// services
-	mediaService := app.NewMediaService(appStorage, os.Getenv("IMAGE_BUCKET"))
+	mediaService := app.NewMediaService(appStorage)
 	clubService := app.NewClubService(appStorage, mediaService)
 	feedService := app.NewFeedService(appStorage)
 	eventsService := app.NewEventsService(appStorage)
@@ -111,7 +111,7 @@ func main() {
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
-			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger, guardService),
+			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
 			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
@@ -123,7 +123,7 @@ func main() {
 			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
 			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
 			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
-			internalhttp.NewMediaHandler(jsonRenderer, *mediaService, logger, guardService),
+			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
 			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, logger, guardService),
 			internalhttp.NewSwagHandler(jsonRenderer),
 		)
@@ -169,10 +169,6 @@ func main() {
 		}
 	}()
 
-	// Run the cron jobs
-	// mediaService.DeleteUnknownMedia(context.Background(), logger)
-	// mediaService.DeleteUnusedMedia(context.Background(), logger)
-
 	s, err := gocron.NewScheduler()
 	if err != nil {
 		logger.Fatalf("failed to create gocron scheduler")
@@ -183,7 +179,7 @@ func main() {
 
 	_, err = s.NewJob(
 		cleanupJob,
-		gocron.NewTask(mediaService.ClearMediaStorages, context.Background(), logger),
+		gocron.NewTask(mediaService.ClearUpMedia, context.Background(), logger),
 	)
 	if err != nil {
 		logger.Fatalf("gocron обдристался at ClearMediaStorages...")

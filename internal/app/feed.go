@@ -18,8 +18,8 @@ type feedServiceStorage interface {
 	PostFeed(ctx context.Context, feed domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed domain.Feed) error
-	GetMediaFile(id int) (*domain.MediaFile, error)
-	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
+	GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error)
+	GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error)
 	// GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
 	// GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
 }
@@ -46,7 +46,7 @@ func (s *FeedService) GetAllFeed(ctx context.Context) (*responses.GetAllFeed, er
 		ids = append(ids, feed.MediaID)
 	}
 
-	feedMediaFiles, err := s.storage.GetMediaFiles(ids)
+	feedMediaFiles, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %w", err)
 	}
@@ -60,7 +60,7 @@ func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, 
 		return nil, fmt.Errorf("can't storage.GetFeed: %w", err)
 	}
 
-	feedMediaFile, err := s.storage.GetMediaFile(id)
+	feedMediaFile, err := s.storage.GetMediaFile(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %w", err)
 	}
@@ -97,7 +97,7 @@ func (s *FeedService) GetFeedByTitle(
 		ids = append(ids, feed.MediaID)
 	}
 
-	feedMediaFiles, err := s.storage.GetMediaFiles(ids)
+	feedMediaFiles, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetFeedMediaFiles: %w", err)
 	}

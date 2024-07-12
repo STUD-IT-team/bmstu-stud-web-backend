@@ -15,8 +15,8 @@ type clubStorage interface {
 	GetAllClub(ctx context.Context) ([]domain.Club, error)
 	GetClubsByName(ctx context.Context, name string) ([]domain.Club, error)
 	GetClubsByType(ctx context.Context, type_ string) ([]domain.Club, error)
-	GetMediaFile(id int) (*domain.MediaFile, error)
-	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
+	GetMediaFile(_ context.Context, id int) (*domain.MediaFile, error)
+	GetMediaFiles(_ context.Context, ids []int) (map[int]domain.MediaFile, error)
 	GetClubMediaFiles(ctx context.Context, clubID int) ([]domain.ClubPhoto, error)
 	GetClubOrgs(ctx context.Context, clubID int) ([]domain.ClubOrg, error)
 	GetClubsOrgs(ctx context.Context, clubIDs []int) ([]domain.ClubOrg, error)
@@ -30,13 +30,11 @@ type clubStorage interface {
 
 type ClubService struct {
 	storage clubStorage
-	media   *MediaService
 }
 
 func NewClubService(storage clubStorage, media *MediaService) *ClubService {
 	return &ClubService{
 		storage: storage,
-		media:   media,
 	}
 }
 
@@ -68,7 +66,7 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 	}
 	ids = append(ids, club.LogoId)
 
-	ims, err := s.media.GetMediaFiles(ctx, ids)
+	ims, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
@@ -93,7 +91,7 @@ func (s *ClubService) GetClubsByName(ctx context.Context, name string) (*respons
 		ids = append(ids, club.LogoId)
 	}
 
-	logos, err := s.media.GetMediaFiles(ctx, ids)
+	logos, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
@@ -125,7 +123,7 @@ func (s *ClubService) GetClubsByType(ctx context.Context, type_ string) (*respon
 		ids = append(ids, club.LogoId)
 	}
 
-	logos, err := s.media.GetMediaFiles(ctx, ids)
+	logos, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
@@ -158,7 +156,7 @@ func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, 
 		ids = append(ids, club.LogoId)
 	}
 
-	logos, err := s.media.GetMediaFiles(ctx, ids)
+	logos, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 		return nil, err
@@ -195,7 +193,7 @@ func (s *ClubService) GetClubMembers(ctx context.Context, clubID int) (*response
 		ids = append(ids, org.MediaID)
 	}
 
-	media, err := s.media.GetMediaFiles(ctx, ids)
+	media, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetMediaFiles: %w", err)
 	}

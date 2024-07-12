@@ -17,12 +17,12 @@ import (
 
 type MediaHandler struct {
 	r      handler.Renderer
-	media  app.MediaService
+	media  *app.MediaService
 	logger *log.Logger
 	guard  *app.GuardService
 }
 
-func NewMediaHandler(r handler.Renderer, media app.MediaService, logger *log.Logger, guard *app.GuardService) *MediaHandler {
+func NewMediaHandler(r handler.Renderer, media *app.MediaService, logger *log.Logger, guard *app.GuardService) *MediaHandler {
 	return &MediaHandler{
 		r:      r,
 		media:  media,

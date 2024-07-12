@@ -15,7 +15,6 @@ type Storage interface {
 	clubStorage
 	mediaFileStorage
 	eventStorage
-	minioStorage
 	documentsStorage
 }
 

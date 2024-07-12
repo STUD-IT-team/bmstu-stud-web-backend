@@ -16,8 +16,8 @@ type membersServiceStorage interface {
 	PostMember(ctx context.Context, member domain.Member) error
 	DeleteMember(ctx context.Context, id int) error
 	UpdateMember(ctx context.Context, member domain.Member) error
-	GetMediaFile(id int) (*domain.MediaFile, error)
-	GetMediaFiles(ids []int) (map[int]domain.MediaFile, error)
+	GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error)
+	GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error)
 }
 
 type MembersService struct {
@@ -42,7 +42,7 @@ func (s *MembersService) GetAllMembers(ctx context.Context) (*responses.GetAllMe
 		ids = append(ids, member.MediaID)
 	}
 
-	membersMediaFiles, err := s.storage.GetMediaFiles(ids)
+	membersMediaFiles, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %w", err)
 	}
@@ -56,7 +56,7 @@ func (s *MembersService) GetMember(ctx context.Context, id int) (*responses.GetM
 		return nil, fmt.Errorf("can't storage.GetMember: %w", err)
 	}
 
-	feedMediaFile, err := s.storage.GetMediaFile(id)
+	feedMediaFile, err := s.storage.GetMediaFile(ctx, id)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %w", err)
 	}
@@ -75,7 +75,7 @@ func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*re
 		ids = append(ids, member.MediaID)
 	}
 
-	membersMediaFiles, err := s.storage.GetMediaFiles(ids)
+	membersMediaFiles, err := s.storage.GetMediaFiles(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetmemberMediaFiles: %w", err)
 	}
