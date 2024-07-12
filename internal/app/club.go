@@ -245,14 +245,22 @@ func (s *ClubService) UpdateClub(ctx context.Context, req *requests.UpdateClub) 
 }
 
 func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*responses.GetClubMedia, error) {
-	res, err := s.storage.GetClubMediaFiles(ctx, clubID)
+	clubPhotos, err := s.storage.GetClubMediaFiles(ctx, clubID)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
 	}
 
-	if len(res) == 0 {
+	if len(clubPhotos) == 0 {
 		return nil, fmt.Errorf("no club photo found")
 	}
+	ids := make([]int, 0, len(clubPhotos))
+	for _, photo := range clubPhotos {
+		ids = append(ids, photo.MediaID)
+	}
+	media, err := s.storage.GetMediaFiles(ctx, ids)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetMediaFiles: %w", err)
+	}
 
-	return mapper.MakeResponseClubMediaFiles(clubID, res)
+	return mapper.MakeResponseClubMediaFiles(clubID, clubPhotos, media)
 }

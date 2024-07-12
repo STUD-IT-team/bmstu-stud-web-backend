@@ -19,6 +19,9 @@ type mediaFileStorage interface {
 	DeleteUnusedMedia(ctx context.Context, logger *logrus.Logger) error
 	DeleteUnknownMedia(ctx context.Context, logger *logrus.Logger) error
 	ClearUpMedia(ctx context.Context, logger *logrus.Logger) error
+	GetDefaultMedia(ctx context.Context, id int) (*domain.DefaultMedia, error)
+	GetAllDefaultMedia(ctx context.Context) ([]domain.DefaultMedia, error)
+	PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, mediaId int, err error)
 }
 
 func (s *storage) GetMediaFile(_ context.Context, id int) (*domain.MediaFile, error) {
@@ -47,8 +50,9 @@ func (s *storage) GetMediaFiles(_ context.Context, ids []int) (map[int]domain.Me
 		return nil, fmt.Errorf("can't get media file from postgres: %v", err)
 	}
 
-	for _, file := range media {
+	for id, file := range media {
 		file.Key = bucketName + "/" + file.Key
+		media[id] = file
 	}
 	return media, nil
 }
@@ -193,4 +197,24 @@ func (s *storage) ClearUpMedia(ctx context.Context, logger *logrus.Logger) error
 		return err
 	}
 	return s.DeleteUnknownMedia(ctx, logger)
+}
+
+func (s *storage) GetDefaultMedia(ctx context.Context, id int) (*domain.DefaultMedia, error) {
+	return s.postgres.GetDefautlMedia(ctx, id)
+}
+
+func (s *storage) GetAllDefaultMedia(ctx context.Context) ([]domain.DefaultMedia, error) {
+	return s.postgres.GetAllDefaultMedia(ctx)
+}
+
+func (s *storage) PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, mediaId int, err error) {
+	id, err = s.PutMediaFile(ctx, name, key, data)
+	if err != nil {
+		return 0, 0, fmt.Errorf("can't put media file: %v", err)
+	}
+	mediaId, err = s.postgres.AddDefaultMedia(ctx, id)
+	if err != nil {
+		return 0, 0, fmt.Errorf("can't add default media: %v", err)
+	}
+	return id, mediaId, nil
 }
