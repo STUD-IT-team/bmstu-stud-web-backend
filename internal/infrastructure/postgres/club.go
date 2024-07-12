@@ -513,7 +513,7 @@ func (s *Postgres) AddOrgs(_ context.Context, orgs []domain.ClubOrg) error {
 		_, err = tx.Exec(addOrgs, org.RoleName, org.RoleSpec, org.ID, org.ClubID)
 		if err != nil {
 			tx.Rollback()
-			return err
+			return wrapPostgresError(err.(pgx.PgError).Code, err)
 		}
 	}
 
@@ -568,43 +568,43 @@ const updateClubParents = "UPDATE club SET parent_id=null WHERE parent_id = $1"
 func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(deleteClub, clubID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(deleteClubOrgs, clubID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(deleteClubPhotos, clubID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(deleteClubEncounters, clubID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(deleteClubDocuments, clubID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	_, err = tx.Exec(updateClubParents, clubID)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return tx.Commit()

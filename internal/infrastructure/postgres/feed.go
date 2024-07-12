@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/jackc/pgx"
 )
 
 const getAllFeedQuery = "SELECT id, title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by FROM feed"
@@ -130,7 +131,7 @@ func (p *Postgres) PostFeed(_ context.Context, feed domain.Feed) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("can't insert feed into postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil
@@ -141,7 +142,7 @@ const deleteFeedQuery = "DELETE FROM feed WHERE id=$1"
 func (p *Postgres) DeleteFeed(_ context.Context, id int) error {
 	_, err := p.db.Exec(deleteFeedQuery, id)
 	if err != nil {
-		return fmt.Errorf("can't delete feed on postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil
@@ -173,7 +174,7 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 		feed.ID,
 	)
 	if err != nil {
-		return fmt.Errorf("can't update feed on postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil

@@ -133,8 +133,7 @@ func (p *Postgres) PostMember(ctx context.Context, member domain.Member) error {
 	)
 
 	if err != nil {
-		pgErr := err.(pgx.PgError)
-		return wrapPostgresError(pgErr.Code, ErrPostgresUniqueConstraintViolation)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil
@@ -149,7 +148,7 @@ func (p *Postgres) DeleteMember(ctx context.Context, id int) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("can't delete member on postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil
@@ -182,8 +181,7 @@ func (p *Postgres) UpdateMember(ctx context.Context, member domain.Member) error
 	)
 
 	if err != nil {
-		pgErr := err.(pgx.PgError)
-		return wrapPostgresError(pgErr.Code, ErrPostgresUniqueConstraintViolation)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil

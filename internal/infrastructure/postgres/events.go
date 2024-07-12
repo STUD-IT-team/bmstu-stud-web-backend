@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/jackc/pgx"
 )
 
 const getAllEventQuery = `SELECT 
@@ -144,7 +145,7 @@ func (p *Postgres) PostEvent(_ context.Context, event domain.Event) error {
 	)
 
 	if err != nil {
-		return fmt.Errorf("can't insert event into postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil
@@ -155,7 +156,7 @@ const deleteEventQuery = "DELETE FROM event WHERE id=$1"
 func (p *Postgres) DeleteEvent(_ context.Context, id int) error {
 	_, err := p.db.Exec(deleteEventQuery, id)
 	if err != nil {
-		return fmt.Errorf("can't delete event on postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil
@@ -185,7 +186,7 @@ func (p *Postgres) UpdateEvent(_ context.Context, event domain.Event) error {
 		event.ID,
 	)
 	if err != nil {
-		return fmt.Errorf("can't update event on postgres %w", err)
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
 	return nil

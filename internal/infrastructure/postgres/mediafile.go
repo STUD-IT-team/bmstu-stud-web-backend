@@ -53,7 +53,10 @@ const deleteMediaFile = "DELETE FROM mediafile WHERE id = $1"
 
 func (p *Postgres) DeleteMediaFile(id int) error {
 	_, err := p.db.Exec(deleteMediaFile, id)
-	return err
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return nil
 }
 
 const getUnusedMedia = `
@@ -97,7 +100,10 @@ const deleteMediaFiles = "DELETE FROM mediafile WHERE key = ANY($1)"
 
 func (p *Postgres) DeleteMediaFiles(ctx context.Context, keys []string) error {
 	_, err := p.db.Exec(deleteMediaFiles, keys)
-	return err
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return nil
 }
 
 const getAllMediaKeys = "SELECT key FROM mediafile"
