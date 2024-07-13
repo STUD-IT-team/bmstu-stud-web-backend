@@ -180,6 +180,39 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed *domain.Feed) error {
 	return nil
 }
 
+const postEncounterquery = `INSERT INTO encounter (count, description, club_id) VALUES ($1, $2, $3)`
+
+func (p *Postgres) PostEncounter(_ context.Context, enc *domain.Encounter) error {
+	_, err := p.db.Exec(postEncounterquery, enc.Count, enc.Description, enc.ClubID)
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+
+	return nil
+}
+
+const deleteEncounterQuery = "DELETE FROM encounter WHERE id=$1"
+
+func (p *Postgres) DeleteEncounter(_ context.Context, id int) error {
+	_, err := p.db.Exec(deleteEncounterQuery, id)
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+
+	return nil
+}
+
+const updateEncounterQuery = `UPDATE encounter SET count=$1, description=$2, club_id=$3 WHERE id=$4`
+
+func (p *Postgres) UpdateEncounter(_ context.Context, enc *domain.Encounter) error {
+	_, err := p.db.Exec(updateEncounterQuery, enc.Count, enc.Description, enc.ClubID, enc.ID)
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+
+	return nil
+}
+
 // const getFeedByFilterLimitAndOffsetQuery = `SELECT id, title, description, created_at, created_by
 // 											FROM feed ORDER BY id LIMIT $1 OFFSET $2`
 

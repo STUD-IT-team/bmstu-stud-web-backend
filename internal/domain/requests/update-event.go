@@ -75,7 +75,7 @@ func (ev *UpdateEvent) Bind(req *http.Request) error {
 
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
 	if err != nil {
-		return fmt.Errorf("can't Atoi id on UpdateFeed.Bind: %w", err)
+		return fmt.Errorf("can't Atoi id on UpdateEvent.Bind: %w", err)
 	}
 
 	ev.ID = id

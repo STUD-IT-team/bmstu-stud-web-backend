@@ -9,16 +9,16 @@ import (
 )
 
 type GetFeedEncounters struct {
-	ID int `json:"id"`
+	ClubID int `json:"club_id"`
 }
 
 func (f *GetFeedEncounters) Bind(req *http.Request) error {
-	id, err := strconv.Atoi(chi.URLParam(req, "id"))
+	id, err := strconv.Atoi(chi.URLParam(req, "club_id"))
 	if err != nil {
 		return fmt.Errorf("can't Atoi id on GetFeedEncounters.Bind: %w", err)
 	}
 
-	f.ID = id
+	f.ClubID = id
 
 	return nil
 }

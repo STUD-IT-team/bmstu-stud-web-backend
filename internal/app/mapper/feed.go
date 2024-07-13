@@ -116,3 +116,20 @@ func MakeRequestUpdateFeed(f *requests.UpdateFeed) *domain.Feed {
 		Views:       f.Views,
 	}
 }
+
+func MakeRequestPostEncounter(f *requests.PostEncounter) *domain.Encounter {
+	return &domain.Encounter{
+		Count:       f.Count,
+		Description: f.Description,
+		ClubID:      f.ClubID,
+	}
+}
+
+func MakeRequestUpdateEncounter(f *requests.UpdateEncounter) *domain.Encounter {
+	return &domain.Encounter{
+		ID:          f.ID,
+		Count:       f.Count,
+		Description: f.Description,
+		ClubID:      f.ClubID,
+	}
+}

@@ -46,6 +46,9 @@ func (h *FeedHandler) Routes() chi.Router {
 	r.Post("/", h.r.Wrap(h.PostFeed))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
 	r.Put("/{id}", h.r.Wrap(h.UpdateFeed))
+	// r.Post("/encounters/", h.r.Wrap(h.PostEncounter))
+	// r.Delete("/encounters/{id}", h.r.Wrap(h.DeleteEncounter))
+	// r.Put("/encounters/{id}", h.r.Wrap(h.UpdateEncounter))
 
 	return r
 }
@@ -58,7 +61,7 @@ func (h *FeedHandler) Routes() chi.Router {
 //	@Produce     json
 //	@Success     200 {object}  responses.GetAllFeed
 //	@Failure     404
-//	@Router      /feed [get]
+//	@Router      /feed/ [get]
 //	@Security    public
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got GetAllFeed request")
@@ -110,17 +113,17 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 	return handler.OkResponse(res)
 }
 
-// GetFeedEncounters retrieves by id
+// GetFeedEncounters retrieves by club_id
 //
-//	@Summary     Retrieve encounters by ID
-//	@Description Get encounters using ID (0 for main page)
+//	@Summary     Retrieve encounters by club_id
+//	@Description Get all encounters for a given club (0 for main page)
 //	@Tags        public.feed
 //	@Produce     json
-//	@Param       id   path     string           true "id"
+//	@Param       club_id   path     string           true "club_id"
 //	@Success     200  {object} responses.GetFeedEncounters
 //	@Failure     400
 //	@Failure     404
-//	@Router      /feed/encounters/{id} [get]
+//	@Router      /feed/encounters/{club_id} [get]
 //	@Security    public
 func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got GetFeedEncounters request")
@@ -135,7 +138,7 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 
 	h.logger.Infof("FeedHandler: parse request GetFeedEncounters: %v", encounterId)
 
-	res, err := h.feed.GetFeedEncounters(context.Background(), encounterId.ID)
+	res, err := h.feed.GetFeedEncounters(context.Background(), encounterId.ClubID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeedEncounters: %v", err)
 		return handler.NotFoundResponse()
@@ -193,7 +196,7 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 //		@Failure     400
 //	 	@Failure     401
 //		@Failure     500
-//		@Router      /feed [post]
+//		@Router      /feed/ [post]
 //		@Security    Authorised
 func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got PostFeed request")
@@ -339,6 +342,168 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 	}
 
 	h.logger.Info("FeedHandler: request UpdateFeed done")
+
+	return handler.OkResponse(nil)
+}
+
+// PostEncounter creates a new encounter item
+//
+//		@Summary     Create a new encounter item
+//		@Description Create a new encounter item with the provided data
+//		@Tags        auth.feed
+//		@Accept      json
+//		@Param       request body requests.PostEncounter true "Encounter data"
+//		@Success     201
+//		@Failure     400
+//	 	@Failure     401
+//		@Failure     500
+//		@Router      /feed/encounters/ [post]
+//		@Security    Authorised
+func (h *FeedHandler) PostEncounter(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got PostEncounter request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token PostEncounter: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on PostEncounter: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("FeedHandler: PostEncounter Authenticated: %v", resp.MemberID)
+
+	encounter := &requests.PostEncounter{}
+
+	err = encounter.Bind(req)
+
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind PostEncounter: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("FeedHandler: parse request PostEncounter: %v", encounter)
+
+	err = h.feed.PostEncounter(context.Background(), mapper.MakeRequestPostEncounter(encounter))
+
+	if err != nil {
+		h.logger.Warnf("can't FeedService.PostEncounter: %v", err)
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
+	}
+	h.logger.Info("FeedHandler: request PostEncounter done")
+
+	return handler.CreatedResponse(nil)
+}
+
+// DeleteEncounter deletes an encounter item by ID
+//
+//	@Summary     Delete a encounter item by ID
+//	@Description Delete a specific encounter item using its ID
+//	@Tags        auth.feed
+//	@Param       id   path     string           true "Encounter ID"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     404
+//	@Router      /feed/encounters/{id} [delete]
+//	@Security    Authorised
+func (h *FeedHandler) DeleteEncounter(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got DeleteEncounter request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token DeleteEncounter: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on DeleteEncounter: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("FeedHandler: DeleteEncounter Authenticated: %v", resp.MemberID)
+
+	encId := &requests.DeleteEncounter{}
+
+	err = encId.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind DeleteEncounter: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("FeedHandler: parse request DeleteEncounter: %v", encId)
+
+	err = h.feed.DeleteEncounter(context.Background(), encId.ID)
+	if err != nil {
+		h.logger.Warnf("can't FeedService.DeleteEncounter: %v", err)
+		return handler.NotFoundResponse()
+	}
+
+	h.logger.Info("FeedHandler: request DeleteEncounter done")
+
+	return handler.OkResponse(nil)
+}
+
+// UpdateEncounter updates an encounter item
+//
+//	@Summary     Update an encounter item
+//	@Description Update an existing encounter item with the provided data
+//	@Tags        auth.feed
+//	@Accept      json
+//	@Param       id   path     string           true "Encounter ID"
+//	@Param       request body requests.PostEncounter true "Encounter new data"
+//	@Success     200
+//	@Failure     400
+//	@Failure     401
+//	@Failure     500
+//	@Router      /feed/encounters/{id} [put]
+//	@Security    Authorised
+func (h *FeedHandler) UpdateEncounter(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got UpdateEncounter request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token UpdateEncounter: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("can't GuardService.Check on UpdateEncounter: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("FeedHandler: UpdateEncounter Authenticated: %v", resp.MemberID)
+
+	enc := &requests.UpdateEncounter{}
+
+	err = enc.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't requests.Bind UpdateEncounter: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("FeedHandler: parse request UpdateEncounter: %v", enc)
+
+	err = h.feed.UpdateEncounter(context.Background(), mapper.MakeRequestUpdateEncounter(enc))
+	if err != nil {
+		h.logger.Warnf("can't FeedService.UpdateEncounter: %v", err)
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
+	}
+
+	h.logger.Info("FeedHandler: request UpdateEncounter done")
 
 	return handler.OkResponse(nil)
 }

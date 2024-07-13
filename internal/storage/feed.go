@@ -14,6 +14,9 @@ type feedStorage interface {
 	PostFeed(ctx context.Context, feed *domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(_ context.Context, feed *domain.Feed) error
+	PostEncounter(ctx context.Context, encounter *domain.Encounter) error
+	DeleteEncounter(ctx context.Context, id int) error
+	UpdateEncounter(ctx context.Context, encounter *domain.Encounter) error
 	// GetFeedByFilter(ctx context.Context, limit, offset int) ([]domain.Feed, error)
 	// GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error)
 }
@@ -44,6 +47,18 @@ func (s *storage) DeleteFeed(ctx context.Context, id int) error {
 
 func (s *storage) UpdateFeed(ctx context.Context, feed *domain.Feed) error {
 	return s.postgres.UpdateFeed(ctx, feed)
+}
+
+func (s *storage) PostEncounter(ctx context.Context, encounter *domain.Encounter) error {
+	return s.postgres.PostEncounter(ctx, encounter)
+}
+
+func (s *storage) DeleteEncounter(ctx context.Context, id int) error {
+	return s.postgres.DeleteEncounter(ctx, id)
+}
+
+func (s *storage) UpdateEncounter(ctx context.Context, encounter *domain.Encounter) error {
+	return s.postgres.UpdateEncounter(ctx, encounter)
 }
 
 // func (s *storage) GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error) {

@@ -18,6 +18,9 @@ type feedServiceStorage interface {
 	PostFeed(ctx context.Context, feed *domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
 	UpdateFeed(ctx context.Context, feed *domain.Feed) error
+	PostEncounter(ctx context.Context, encounter *domain.Encounter) error
+	DeleteEncounter(ctx context.Context, id int) error
+	UpdateEncounter(ctx context.Context, encounter *domain.Encounter) error
 	GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error)
 	GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error)
 	// GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
@@ -125,6 +128,31 @@ func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 func (s *FeedService) UpdateFeed(ctx context.Context, feed *domain.Feed) error {
 	if err := s.storage.UpdateFeed(ctx, feed); err != nil {
 		return fmt.Errorf("can't storage.UpdateFeed: %w", err)
+	}
+
+	return nil
+}
+
+func (s *FeedService) PostEncounter(ctx context.Context, encounter *domain.Encounter) error {
+	err := s.storage.PostEncounter(ctx, encounter)
+	if err != nil {
+		return fmt.Errorf("can't storage.PostEncounter: %w", err)
+	}
+
+	return nil
+}
+
+func (s *FeedService) DeleteEncounter(ctx context.Context, id int) error {
+	if err := s.storage.DeleteEncounter(ctx, id); err != nil {
+		return fmt.Errorf("can't storage.DeleteEncounter: %w", err)
+	}
+
+	return nil
+}
+
+func (s *FeedService) UpdateEncounter(ctx context.Context, encounter *domain.Encounter) error {
+	if err := s.storage.UpdateEncounter(ctx, encounter); err != nil {
+		return fmt.Errorf("can't storage.UpdateEncounter: %w", err)
 	}
 
 	return nil

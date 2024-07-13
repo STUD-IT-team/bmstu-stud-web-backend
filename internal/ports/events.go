@@ -57,7 +57,7 @@ func (h *EventsHandler) Routes() chi.Router {
 //	@Produce     json
 //	@Success     200 {object}  responses.GetAllEvents
 //	@Failure     404
-//	@Router      /events [get]
+//	@Router      /events/ [get]
 //	@Security    public
 func (h *EventsHandler) GetAllEvents(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("EventsHandler: got GetAllEvents request")
@@ -158,7 +158,7 @@ func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Reques
 //	 	@Failure     401
 //		@Failure     404
 //		@Failure     500
-//		@Router      /events [post]
+//		@Router      /events/ [post]
 //		@Security    Authorised
 func (h *EventsHandler) PostEvent(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("EventsHandler: got PostEvent request")

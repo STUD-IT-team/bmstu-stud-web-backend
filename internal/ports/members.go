@@ -59,7 +59,7 @@ func (h *MembersHandler) Routes() chi.Router {
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
-//	@Router      /members [get]
+//	@Router      /members/ [get]
 //	@Security    Authorised
 func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got GetAllMembers request")
@@ -204,7 +204,7 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 //	@Failure     404
 //	@Failure     409
 //	@Failure     500
-//	@Router      /members [post]
+//	@Router      /members/ [post]
 //	@Security    Authorised
 func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got PostMember request")
