@@ -17,7 +17,7 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 
 	rows, err := p.db.Query(getAllMembersQuery)
 	if err != nil {
-		return []domain.Member{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -36,14 +36,14 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 		)
 
 		if err != nil {
-			return []domain.Member{}, err
+			return nil, err
 		}
 
 		members = append(members, member)
 	}
 
 	if len(members) == 0 {
-		return []domain.Member{}, fmt.Errorf("no members found")
+		return nil, fmt.Errorf("no members found")
 	}
 
 	return members, nil
@@ -51,7 +51,7 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 
 const getMemberQuery = "SELECT id, hash_password, login, media_id, telegram, vk, name, role_id, is_admin FROM member WHERE id=$1"
 
-func (p *Postgres) GetMember(ctx context.Context, id int) (domain.Member, error) {
+func (p *Postgres) GetMember(ctx context.Context, id int) (*domain.Member, error) {
 	var member domain.Member
 
 	err := p.db.QueryRow(
@@ -70,10 +70,10 @@ func (p *Postgres) GetMember(ctx context.Context, id int) (domain.Member, error)
 	)
 
 	if err != nil {
-		return domain.Member{}, err
+		return nil, err
 	}
 
-	return member, nil
+	return &member, nil
 }
 
 const getMembersByNameQuery = "SELECT id, hash_password, login, media_id, telegram, vk, name, role_id, is_admin FROM member WHERE name ILIKE $1"
@@ -83,7 +83,7 @@ func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Me
 
 	rows, err := p.db.Query(getMembersByNameQuery, "%"+name+"%")
 	if err != nil {
-		return []domain.Member{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -102,14 +102,14 @@ func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Me
 		)
 
 		if err != nil {
-			return []domain.Member{}, err
+			return nil, err
 		}
 
 		members = append(members, member)
 	}
 
 	if len(members) == 0 {
-		return []domain.Member{}, fmt.Errorf("no members found")
+		return nil, fmt.Errorf("no members found")
 	}
 
 	return members, nil
@@ -119,7 +119,7 @@ const postMemberQuery = `INSERT INTO member
 	(hash_password, login, media_id, telegram, vk, name, role_id, is_admin) 
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
 
-func (p *Postgres) PostMember(ctx context.Context, member domain.Member) error {
+func (p *Postgres) PostMember(ctx context.Context, member *domain.Member) error {
 	_, err := p.db.Exec(
 		postMemberQuery,
 		member.HashPassword,
@@ -166,7 +166,7 @@ role_id=$7,
 is_admin=$8
 WHERE id=$9`
 
-func (p *Postgres) UpdateMember(ctx context.Context, member domain.Member) error {
+func (p *Postgres) UpdateMember(ctx context.Context, member *domain.Member) error {
 	_, err := p.db.Exec(
 		updateMemberQuery,
 		member.HashPassword,
@@ -189,7 +189,7 @@ func (p *Postgres) UpdateMember(ctx context.Context, member domain.Member) error
 
 const getMemberByLoginQuery = "SELECT id, login, hash_password FROM member WHERE login=$1;"
 
-func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (domain.Member, error) {
+func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (*domain.Member, error) {
 	const op = "postgres.GetUserByLogin"
 
 	var user domain.Member
@@ -197,11 +197,11 @@ func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (domain.Mem
 	err := p.db.QueryRow(getMemberByLoginQuery, login).Scan(&user.ID, &user.Login, &user.HashPassword)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return domain.Member{}, fmt.Errorf("%s: %w", op, domain.ErrNotFound)
+			return nil, fmt.Errorf("%s: %w", op, domain.ErrNotFound)
 		}
 
-		return domain.Member{}, fmt.Errorf("%s: %w", op, err)
+		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return user, nil
+	return &user, nil
 }

@@ -12,12 +12,12 @@ import (
 
 type feedServiceStorage interface {
 	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
-	GetFeed(ctx context.Context, id int) (domain.Feed, error)
+	GetFeed(ctx context.Context, id int) (*domain.Feed, error)
 	GetFeedEncounters(ctx context.Context, id int) ([]domain.Encounter, error)
 	GetFeedByTitle(ctx context.Context, title string) ([]domain.Feed, error)
-	PostFeed(ctx context.Context, feed domain.Feed) error
+	PostFeed(ctx context.Context, feed *domain.Feed) error
 	DeleteFeed(ctx context.Context, id int) error
-	UpdateFeed(ctx context.Context, feed domain.Feed) error
+	UpdateFeed(ctx context.Context, feed *domain.Feed) error
 	GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error)
 	GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error)
 	// GetFeedByFilterLimitAndOffset(ctx context.Context, limit, offset int) ([]domain.Feed, error)
@@ -65,7 +65,7 @@ func (s *FeedService) GetFeed(ctx context.Context, id int) (*responses.GetFeed, 
 		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %w", err)
 	}
 
-	return mapper.MakeResponseFeed(&res, feedMediaFile)
+	return mapper.MakeResponseFeed(res, feedMediaFile)
 }
 
 func (s *FeedService) GetFeedEncounters(ctx context.Context, id int) (*responses.GetFeedEncounters, error) {
@@ -105,7 +105,7 @@ func (s *FeedService) GetFeedByTitle(
 	return mapper.MakeResponseFeedByTitle(res, feedMediaFiles)
 }
 
-func (s *FeedService) PostFeed(ctx context.Context, feed domain.Feed) error {
+func (s *FeedService) PostFeed(ctx context.Context, feed *domain.Feed) error {
 	err := s.storage.PostFeed(ctx, feed)
 	if err != nil {
 		return fmt.Errorf("can't storage.PostFeed: %w", err)
@@ -122,7 +122,7 @@ func (s *FeedService) DeleteFeed(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *FeedService) UpdateFeed(ctx context.Context, feed domain.Feed) error {
+func (s *FeedService) UpdateFeed(ctx context.Context, feed *domain.Feed) error {
 	if err := s.storage.UpdateFeed(ctx, feed); err != nil {
 		return fmt.Errorf("can't storage.UpdateFeed: %w", err)
 	}

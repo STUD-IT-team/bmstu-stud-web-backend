@@ -34,5 +34,5 @@ func wrapPostgresError(code string, err error) error {
 	if err == nil {
 		return nil
 	}
-	return fmt.Errorf("%w: %w", mapPostgresError(code), err)
+	return fmt.Errorf("%s %w: %w", code, mapPostgresError(code), err)
 }

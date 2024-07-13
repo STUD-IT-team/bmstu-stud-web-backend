@@ -15,7 +15,7 @@ func (p *Postgres) GetAllDocumentCategories(_ context.Context) ([]domain.Documen
 
 	rows, err := p.db.Query(getAllDocumentCategoriesQuery)
 	if err != nil {
-		return []domain.DocumentCategory{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -24,14 +24,14 @@ func (p *Postgres) GetAllDocumentCategories(_ context.Context) ([]domain.Documen
 		err = rows.Scan(&category.ID, &category.Name)
 
 		if err != nil {
-			return []domain.DocumentCategory{}, err
+			return nil, err
 		}
 
 		categories = append(categories, category)
 	}
 
 	if len(categories) == 0 {
-		return []domain.DocumentCategory{}, fmt.Errorf("no categories found")
+		return nil, fmt.Errorf("no categories found")
 	}
 
 	return categories, nil
@@ -39,15 +39,15 @@ func (p *Postgres) GetAllDocumentCategories(_ context.Context) ([]domain.Documen
 
 const getDocumentCategoryQuery = "SELECT id, name FROM category WHERE id=$1"
 
-func (p *Postgres) GetDocumentCategory(_ context.Context, id int) (domain.DocumentCategory, error) {
+func (p *Postgres) GetDocumentCategory(_ context.Context, id int) (*domain.DocumentCategory, error) {
 	var category domain.DocumentCategory
 
 	err := p.db.QueryRow(getDocumentCategoryQuery, id).Scan(&category.ID, &category.Name)
 	if err != nil {
-		return domain.DocumentCategory{}, err
+		return nil, err
 	}
 
-	return category, nil
+	return &category, nil
 }
 
 const postDocumentCategoryQuery = "INSERT INTO category (name) VALUES ($1)"

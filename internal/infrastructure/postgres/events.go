@@ -29,7 +29,7 @@ func (p *Postgres) GetAllEvents(_ context.Context) ([]domain.Event, error) {
 
 	rows, err := p.db.Query(getAllEventQuery)
 	if err != nil {
-		return []domain.Event{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -42,14 +42,14 @@ func (p *Postgres) GetAllEvents(_ context.Context) ([]domain.Event, error) {
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
 		if err != nil {
-			return []domain.Event{}, err
+			return nil, err
 		}
 
 		events = append(events, event)
 	}
 
 	if len(events) == 0 {
-		return []domain.Event{}, fmt.Errorf("no events found")
+		return nil, fmt.Errorf("no events found")
 	}
 
 	return events, nil
@@ -70,7 +70,7 @@ reg_open_date,
 feedback_url
 FROM event WHERE id=$1`
 
-func (p *Postgres) GetEvent(_ context.Context, id int) (domain.Event, error) {
+func (p *Postgres) GetEvent(_ context.Context, id int) (*domain.Event, error) {
 	var event domain.Event
 
 	err := p.db.QueryRow(getEventQuery, id).Scan(
@@ -79,10 +79,10 @@ func (p *Postgres) GetEvent(_ context.Context, id int) (domain.Event, error) {
 		&event.Approved, &event.CreatedAt, &event.CreatedBy,
 		&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 	if err != nil {
-		return domain.Event{}, err
+		return nil, err
 	}
 
-	return event, nil
+	return &event, nil
 }
 
 const getEventsByRangeQuery = `
@@ -107,7 +107,7 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 
 	rows, err := p.db.Query(getEventsByRangeQuery, from, to)
 	if err != nil {
-		return []domain.Event{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -120,14 +120,14 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
 		if err != nil {
-			return []domain.Event{}, err
+			return nil, err
 		}
 
 		events = append(events, event)
 	}
 
 	if len(events) == 0 {
-		return []domain.Event{}, fmt.Errorf("no events found")
+		return nil, fmt.Errorf("no events found")
 	}
 
 	return events, nil
@@ -136,7 +136,7 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 const postEventQuery = `INSERT INTO event (title, description, prompt,  media_id,  date, approved, created_at, created_by, reg_url, reg_open_date, feedback_url)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
 
-func (p *Postgres) PostEvent(_ context.Context, event domain.Event) error {
+func (p *Postgres) PostEvent(_ context.Context, event *domain.Event) error {
 	_, err := p.db.Exec(postEventQuery,
 		event.Title, event.Description,
 		event.Prompt, event.MediaID, event.Date,
@@ -177,7 +177,7 @@ reg_open_date=$10,
 feedback_url=$11
 WHERE id=$12`
 
-func (p *Postgres) UpdateEvent(_ context.Context, event domain.Event) error {
+func (p *Postgres) UpdateEvent(_ context.Context, event *domain.Event) error {
 	_, err := p.db.Exec(updateEventQuery,
 		event.Title, event.Description,
 		event.Prompt, event.MediaID, event.Date,

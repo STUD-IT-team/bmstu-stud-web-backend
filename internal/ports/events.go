@@ -187,7 +187,7 @@ func (h *EventsHandler) PostEvent(w http.ResponseWriter, req *http.Request) hand
 
 	h.logger.Infof("EventsHandler: parse request PostEvent: %v", event)
 
-	err = h.events.PostEvent(context.Background(), *mapper.MakeRequestPostEvent(*event))
+	err = h.events.PostEvent(context.Background(), mapper.MakeRequestPostEvent(event))
 	if err != nil {
 		h.logger.Warnf("can't EventsService.PostEvent: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
@@ -299,7 +299,7 @@ func (h *EventsHandler) UpdateEvent(w http.ResponseWriter, req *http.Request) ha
 
 	h.logger.Infof("EventsHandler: parse request UpdateEvent: %v", event)
 
-	err = h.events.UpdateEvent(context.Background(), *mapper.MakeRequestUpdateEvent(*event))
+	err = h.events.UpdateEvent(context.Background(), mapper.MakeRequestUpdateEvent(event))
 	if err != nil {
 		h.logger.Warnf("can't EventService.UpdateEvent: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {

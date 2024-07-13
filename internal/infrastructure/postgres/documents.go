@@ -15,7 +15,7 @@ func (p *Postgres) GetAllDocuments(_ context.Context) ([]domain.Document, error)
 
 	rows, err := p.db.Query(getAllDocumentsQuery)
 	if err != nil {
-		return []domain.Document{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -25,14 +25,14 @@ func (p *Postgres) GetAllDocuments(_ context.Context) ([]domain.Document, error)
 			&document.ClubID, &document.CategoryID)
 
 		if err != nil {
-			return []domain.Document{}, err
+			return nil, err
 		}
 
 		documents = append(documents, document)
 	}
 
 	if len(documents) == 0 {
-		return []domain.Document{}, fmt.Errorf("no documents found")
+		return nil, fmt.Errorf("no documents found")
 	}
 
 	return documents, nil
@@ -40,16 +40,16 @@ func (p *Postgres) GetAllDocuments(_ context.Context) ([]domain.Document, error)
 
 const getDocumentsQuery = "SELECT id, name, key, club_id, category_id FROM document WHERE id=$1"
 
-func (p *Postgres) GetDocument(_ context.Context, id int) (domain.Document, error) {
+func (p *Postgres) GetDocument(_ context.Context, id int) (*domain.Document, error) {
 	var document domain.Document
 
 	err := p.db.QueryRow(getDocumentsQuery, id).Scan(&document.ID, &document.Name,
 		&document.Key, &document.ClubID, &document.CategoryID)
 	if err != nil {
-		return domain.Document{}, err
+		return nil, err
 	}
 
-	return document, nil
+	return &document, nil
 }
 
 const getDocumentsByCategoryQuery = "SELECT id, name, key, club_id, category_id FROM document WHERE category_id=$1"
@@ -59,7 +59,7 @@ func (p *Postgres) GetDocumentsByCategory(_ context.Context, categoryID int) ([]
 
 	rows, err := p.db.Query(getDocumentsByCategoryQuery, categoryID)
 	if err != nil {
-		return []domain.Document{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -68,14 +68,14 @@ func (p *Postgres) GetDocumentsByCategory(_ context.Context, categoryID int) ([]
 		err = rows.Scan(&document.ID, &document.Name, &document.Key, &document.ClubID, &document.CategoryID)
 
 		if err != nil {
-			return []domain.Document{}, err
+			return nil, err
 		}
 
 		documents = append(documents, document)
 	}
 
 	if len(documents) == 0 {
-		return []domain.Document{}, fmt.Errorf("no documents found for category_id=%d", categoryID)
+		return nil, fmt.Errorf("no documents found for category_id=%d", categoryID)
 	}
 
 	return documents, nil
@@ -88,7 +88,7 @@ func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain
 
 	rows, err := p.db.Query(getDocumentsByClubIDQuery, clubID)
 	if err != nil {
-		return []domain.Document{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -97,14 +97,14 @@ func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain
 		err = rows.Scan(&document.ID, &document.Name, &document.Key, &document.ClubID, &document.CategoryID)
 
 		if err != nil {
-			return []domain.Document{}, err
+			return nil, err
 		}
 
 		documents = append(documents, document)
 	}
 
 	if len(documents) == 0 {
-		return []domain.Document{}, fmt.Errorf("no documents found for club_id=%d", clubID)
+		return nil, fmt.Errorf("no documents found for club_id=%d", clubID)
 	}
 
 	return documents, nil
@@ -163,7 +163,7 @@ func (p *Postgres) GetAllDocumentKeys(_ context.Context) ([]string, error) {
 
 	rows, err := p.db.Query(getAllDocumentKeysQuery)
 	if err != nil {
-		return []string{}, fmt.Errorf("can't get all document keys: %w", err)
+		return nil, fmt.Errorf("can't get all document keys: %w", err)
 	}
 
 	for rows.Next() {
@@ -171,14 +171,14 @@ func (p *Postgres) GetAllDocumentKeys(_ context.Context) ([]string, error) {
 
 		err = rows.Scan(&key)
 		if err != nil {
-			return []string{}, fmt.Errorf("can't scan row: %w", err)
+			return nil, fmt.Errorf("can't scan row: %w", err)
 		}
 
 		keys = append(keys, key)
 	}
 
 	if len(keys) == 0 {
-		return []string{}, fmt.Errorf("no document keys found")
+		return nil, fmt.Errorf("no document keys found")
 	}
 
 	return keys, nil

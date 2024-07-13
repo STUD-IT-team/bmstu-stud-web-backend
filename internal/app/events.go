@@ -12,11 +12,11 @@ import (
 
 type eventsServiceStorage interface {
 	GetAllEvents(ctx context.Context) ([]domain.Event, error)
-	GetEvent(ctx context.Context, id int) (domain.Event, error)
+	GetEvent(ctx context.Context, id int) (*domain.Event, error)
 	GetEventsByRange(ctx context.Context, from, to time.Time) ([]domain.Event, error)
-	PostEvent(ctx context.Context, event domain.Event) error
+	PostEvent(ctx context.Context, event *domain.Event) error
 	DeleteEvent(ctx context.Context, id int) error
-	UpdateEvent(ctx context.Context, event domain.Event) error
+	UpdateEvent(ctx context.Context, event *domain.Event) error
 	GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error)
 	GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error)
 }
@@ -62,7 +62,7 @@ func (s *EventsService) GetEvent(ctx context.Context, id int) (*responses.GetEve
 		return nil, fmt.Errorf("can't storage.GetEventMediaFile: %w", err)
 	}
 
-	return mapper.MakeResponseEvent(&res, feedMediaFile)
+	return mapper.MakeResponseEvent(res, feedMediaFile)
 }
 
 func (s *EventsService) GetEventsByRange(ctx context.Context, from, to time.Time) (*responses.GetEventsByRange, error) {
@@ -84,7 +84,7 @@ func (s *EventsService) GetEventsByRange(ctx context.Context, from, to time.Time
 	return mapper.MakeResponseEventsByRange(res, eventMediaFiles)
 }
 
-func (s *EventsService) PostEvent(ctx context.Context, event domain.Event) error {
+func (s *EventsService) PostEvent(ctx context.Context, event *domain.Event) error {
 	err := s.storage.PostEvent(ctx, event)
 	if err != nil {
 		return fmt.Errorf("can't storage.PostEvent: %w", err)
@@ -101,7 +101,7 @@ func (s *EventsService) DeleteEvent(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *EventsService) UpdateEvent(ctx context.Context, event domain.Event) error {
+func (s *EventsService) UpdateEvent(ctx context.Context, event *domain.Event) error {
 	if err := s.storage.UpdateEvent(ctx, event); err != nil {
 		return fmt.Errorf("can't storage.UpdateEvent: %w", err)
 	}

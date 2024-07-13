@@ -13,7 +13,7 @@ import (
 
 type documentsServiceStorage interface {
 	GetAllDocuments(ctx context.Context) ([]domain.Document, error)
-	GetDocument(ctx context.Context, id int) (domain.Document, error)
+	GetDocument(ctx context.Context, id int) (*domain.Document, error)
 	GetDocumentsByCategory(ctx context.Context, categoryID int) ([]domain.Document, error)
 	GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error)
 	PostDocument(ctx context.Context, name, key string, data []byte, clubId, categoryId int) error
@@ -43,7 +43,7 @@ func (s *DocumentsService) GetDocument(ctx context.Context, id int) (*responses.
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetDocument: %w", err)
 	}
-	return mapper.MakeResponseDocument(&doc)
+	return mapper.MakeResponseDocument(doc)
 }
 
 func (s *DocumentsService) GetDocumentsByCategory(ctx context.Context, categoryID int) (*responses.GetDocumentsByCategory, error) {

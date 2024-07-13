@@ -222,7 +222,7 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 
 	h.logger.Infof("FeedHandler: parse request PostFeed: %v", feed)
 
-	err = h.feed.PostFeed(context.Background(), *mapper.MakeRequestPostFeed(*feed))
+	err = h.feed.PostFeed(context.Background(), mapper.MakeRequestPostFeed(feed))
 	if err != nil {
 		h.logger.Warnf("can't FeedService.PostFeed: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
@@ -328,7 +328,7 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 
 	h.logger.Infof("FeedHandler: parse request UpdateFeed: %v", feed)
 
-	err = h.feed.UpdateFeed(context.Background(), *mapper.MakeRequestUpdateFeed(*feed))
+	err = h.feed.UpdateFeed(context.Background(), mapper.MakeRequestUpdateFeed(feed))
 	if err != nil {
 		h.logger.Warnf("can't FeedService.UpdateFeed: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {

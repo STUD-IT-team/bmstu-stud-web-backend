@@ -11,11 +11,11 @@ import (
 
 type membersServiceStorage interface {
 	GetAllMembers(ctx context.Context) ([]domain.Member, error)
-	GetMember(ctx context.Context, id int) (domain.Member, error)
+	GetMember(ctx context.Context, id int) (*domain.Member, error)
 	GetMembersByName(ctx context.Context, name string) ([]domain.Member, error)
-	PostMember(ctx context.Context, member domain.Member) error
+	PostMember(ctx context.Context, member *domain.Member) error
 	DeleteMember(ctx context.Context, id int) error
-	UpdateMember(ctx context.Context, member domain.Member) error
+	UpdateMember(ctx context.Context, member *domain.Member) error
 	GetMediaFile(ctx context.Context, id int) (*domain.MediaFile, error)
 	GetMediaFiles(ctx context.Context, ids []int) (map[int]domain.MediaFile, error)
 }
@@ -61,7 +61,7 @@ func (s *MembersService) GetMember(ctx context.Context, id int) (*responses.GetM
 		return nil, fmt.Errorf("can't storage.GetFeedMediaFile: %w", err)
 	}
 
-	return mapper.MakeResponseMember(&res, feedMediaFile)
+	return mapper.MakeResponseMember(res, feedMediaFile)
 }
 
 func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*responses.GetMembersByName, error) {
@@ -83,7 +83,7 @@ func (s *MembersService) GetMembersByName(ctx context.Context, name string) (*re
 	return mapper.MakeResponseMembersByName(res, membersMediaFiles)
 }
 
-func (s *MembersService) PostMember(ctx context.Context, member domain.Member) error {
+func (s *MembersService) PostMember(ctx context.Context, member *domain.Member) error {
 	err := s.storage.PostMember(ctx, member)
 	if err != nil {
 		return fmt.Errorf("can't storage.PostMember: %w", err)
@@ -101,7 +101,7 @@ func (s *MembersService) DeleteMember(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *MembersService) UpdateMember(ctx context.Context, member domain.Member) error {
+func (s *MembersService) UpdateMember(ctx context.Context, member *domain.Member) error {
 	err := s.storage.UpdateMember(ctx, member)
 	if err != nil {
 		return fmt.Errorf("can't storage.UpdateMember: %w", err)

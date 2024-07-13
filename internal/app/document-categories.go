@@ -11,7 +11,7 @@ import (
 
 type documentCategoriesServiceStorage interface {
 	GetAllDocumentCategories(ctx context.Context) ([]domain.DocumentCategory, error)
-	GetDocumentCategory(ctx context.Context, id int) (domain.DocumentCategory, error)
+	GetDocumentCategory(ctx context.Context, id int) (*domain.DocumentCategory, error)
 	PostDocumentCategory(ctx context.Context, cat *domain.DocumentCategory) error
 	DeleteDocumentCategory(ctx context.Context, id int) error
 	UpdateDocumentCategory(ctx context.Context, cat *domain.DocumentCategory) error
@@ -38,7 +38,7 @@ func (s *DocumentCategoriesService) GetDocumentCategory(ctx context.Context, id 
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetDocumentCategory: %w", err)
 	}
-	return mapper.MakeResponseDocumentCategory(&cat)
+	return mapper.MakeResponseDocumentCategory(cat)
 }
 
 func (s *DocumentCategoriesService) PostDocumentCategory(ctx context.Context, cat *domain.DocumentCategory) error {

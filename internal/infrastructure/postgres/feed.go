@@ -15,7 +15,7 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 
 	rows, err := p.db.Query(getAllFeedQuery)
 	if err != nil {
-		return []domain.Feed{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -26,14 +26,14 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 			&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 
 		if err != nil {
-			return []domain.Feed{}, err
+			return nil, err
 		}
 
 		feeds = append(feeds, feed)
 	}
 
 	if len(feeds) == 0 {
-		return []domain.Feed{}, fmt.Errorf("no feeds found")
+		return nil, fmt.Errorf("no feeds found")
 	}
 
 	return feeds, nil
@@ -41,17 +41,17 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 
 const getFeedQuery = "SELECT id, title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by FROM feed WHERE id=$1"
 
-func (p *Postgres) GetFeed(_ context.Context, id int) (domain.Feed, error) {
+func (p *Postgres) GetFeed(_ context.Context, id int) (*domain.Feed, error) {
 	var feed domain.Feed
 
 	err := p.db.QueryRow(getFeedQuery, id).Scan(&feed.ID, &feed.Title, &feed.Approved,
 		&feed.Description, &feed.MediaID, &feed.VkPostUrl,
 		&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 	if err != nil {
-		return domain.Feed{}, err
+		return nil, err
 	}
 
-	return feed, nil
+	return &feed, nil
 }
 
 const getFeedEncountersQuery = "SELECT id, count, description, club_id FROM encounter WHERE club_id=$1"
@@ -90,7 +90,7 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 
 	rows, err := p.db.Query(getFeedByTitleQuery, "%"+title+"%")
 	if err != nil {
-		return []domain.Feed{}, err
+		return nil, err
 	}
 
 	for rows.Next() {
@@ -101,14 +101,14 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 			&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 
 		if err != nil {
-			return []domain.Feed{}, err
+			return nil, err
 		}
 
 		feeds = append(feeds, feed)
 	}
 
 	if len(feeds) == 0 {
-		return []domain.Feed{}, fmt.Errorf("no feeds found")
+		return nil, fmt.Errorf("no feeds found")
 	}
 
 	return feeds, nil
@@ -117,7 +117,7 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 const postFeedQuery = `INSERT INTO feed (title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 
-func (p *Postgres) PostFeed(_ context.Context, feed domain.Feed) error {
+func (p *Postgres) PostFeed(_ context.Context, feed *domain.Feed) error {
 	_, err := p.db.Exec(postFeedQuery,
 		feed.Title,
 		feed.Approved,
@@ -160,7 +160,7 @@ created_at=$7,
 views=$8, 
 created_by=$9 WHERE id=$10`
 
-func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
+func (p *Postgres) UpdateFeed(_ context.Context, feed *domain.Feed) error {
 	_, err := p.db.Exec(updateFeedQuery,
 		feed.Title,
 		feed.Approved,
@@ -188,7 +188,7 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 
 // 	rows, err := p.db.Query(getFeedByFilterLimitAndOffsetQuery, limit, offset)
 // 	if err != nil {
-// 		return []domain.Feed{}, err
+// 		return nil, err
 // 	}
 
 // 	for rows.Next() {
@@ -196,7 +196,7 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 
 // 		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description, &feed.CreatedAt, &feed.CreatedBy)
 // 		if err != nil {
-// 			return []domain.Feed{}, err
+// 			return nil, err
 // 		}
 
 // 		feeds = append(feeds, feed)
@@ -213,7 +213,7 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 
 // 	rows, err := p.db.Query(getFeedByFilterIdLastAndOffsetQuery, idLast, offset)
 // 	if err != nil {
-// 		return []domain.Feed{}, err
+// 		return nil, err
 // 	}
 
 // 	for rows.Next() {
@@ -221,7 +221,7 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed domain.Feed) error {
 
 // 		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description, &feed.CreatedAt, &feed.CreatedBy)
 // 		if err != nil {
-// 			return []domain.Feed{}, err
+// 			return nil, err
 // 		}
 
 // 		feeds = append(feeds, feed)

@@ -88,7 +88,7 @@ func MakeResponseFeedByTitle(f []domain.Feed, feedMediaFiles map[int]domain.Medi
 	return &responses.GetFeedByTitle{Feed: feed}, nil
 }
 
-func MakeRequestPostFeed(f requests.PostFeed) *domain.Feed {
+func MakeRequestPostFeed(f *requests.PostFeed) *domain.Feed {
 	return &domain.Feed{
 		Title:       f.Title,
 		Description: f.Description,
@@ -102,7 +102,7 @@ func MakeRequestPostFeed(f requests.PostFeed) *domain.Feed {
 	}
 }
 
-func MakeRequestUpdateFeed(f requests.UpdateFeed) *domain.Feed {
+func MakeRequestUpdateFeed(f *requests.UpdateFeed) *domain.Feed {
 	return &domain.Feed{
 		ID:          f.ID,
 		Title:       f.Title,

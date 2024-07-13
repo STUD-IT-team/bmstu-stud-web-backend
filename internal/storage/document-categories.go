@@ -8,7 +8,7 @@ import (
 
 type documentCategoriesStorage interface {
 	GetAllDocumentCategories(ctx context.Context) ([]domain.DocumentCategory, error)
-	GetDocumentCategory(ctx context.Context, id int) (domain.DocumentCategory, error)
+	GetDocumentCategory(ctx context.Context, id int) (*domain.DocumentCategory, error)
 	PostDocumentCategory(ctx context.Context, cat *domain.DocumentCategory) error
 	DeleteDocumentCategory(ctx context.Context, id int) error
 	UpdateDocumentCategory(ctx context.Context, cat *domain.DocumentCategory) error
@@ -18,7 +18,7 @@ func (s *storage) GetAllDocumentCategories(ctx context.Context) ([]domain.Docume
 	return s.postgres.GetAllDocumentCategories(ctx)
 }
 
-func (s *storage) GetDocumentCategory(ctx context.Context, id int) (domain.DocumentCategory, error) {
+func (s *storage) GetDocumentCategory(ctx context.Context, id int) (*domain.DocumentCategory, error) {
 	return s.postgres.GetDocumentCategory(ctx, id)
 }
 

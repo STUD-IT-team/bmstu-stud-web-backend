@@ -39,7 +39,7 @@ func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string
 		return domain.Member{}, err
 	}
 
-	return user, nil
+	return *user, nil
 }
 
 func (s *storage) SetSession(id int64, value domain.Session) {

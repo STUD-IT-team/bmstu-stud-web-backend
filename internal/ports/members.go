@@ -233,7 +233,7 @@ func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) ha
 
 	h.logger.Infof("MembersHandler: parse request PostMember: %v", member)
 
-	err = h.members.PostMember(context.Background(), *mapper.MakeRequestPostMember(*member))
+	err = h.members.PostMember(context.Background(), mapper.MakeRequestPostMember(member))
 	if err != nil {
 		h.logger.Warnf("can't MembersService.PostMember: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
@@ -349,7 +349,7 @@ func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) 
 
 	h.logger.Infof("MembersHandler: parse request UpdateMember: %v", member)
 
-	err = h.members.UpdateMember(context.Background(), *mapper.MakeRequestUpdateMember(*member))
+	err = h.members.UpdateMember(context.Background(), mapper.MakeRequestUpdateMember(member))
 	if err != nil {
 		h.logger.Warnf("can't MembersService.UpdateMember: %v", err)
 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
