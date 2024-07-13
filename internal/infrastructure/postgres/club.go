@@ -601,18 +601,6 @@ func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 		return wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 
-	_, err = tx.Exec(deleteClub, clubID)
-	if err != nil {
-		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
-	}
-
-	_, err = tx.Exec(deleteClub, clubID)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
 	return tx.Commit()
 }
 
