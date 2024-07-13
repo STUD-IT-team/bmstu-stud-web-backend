@@ -41,14 +41,14 @@ func (h *FeedHandler) Routes() chi.Router {
 
 	r.Get("/", h.r.Wrap(h.GetAllFeed))
 	r.Get("/{id}", h.r.Wrap(h.GetFeed))
-	r.Get("/encounters/{id}", h.r.Wrap(h.GetFeedEncounters))
+	r.Get("/encounters/{club_id}", h.r.Wrap(h.GetFeedEncounters))
 	r.Get("/search/{title}", h.r.Wrap(h.GetFeedByTitle))
 	r.Post("/", h.r.Wrap(h.PostFeed))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteFeed))
 	r.Put("/{id}", h.r.Wrap(h.UpdateFeed))
-	// r.Post("/encounters/", h.r.Wrap(h.PostEncounter))
-	// r.Delete("/encounters/{id}", h.r.Wrap(h.DeleteEncounter))
-	// r.Put("/encounters/{id}", h.r.Wrap(h.UpdateEncounter))
+	r.Post("/encounters/", h.r.Wrap(h.PostEncounter))
+	r.Delete("/encounters/{id}", h.r.Wrap(h.DeleteEncounter))
+	r.Put("/encounters/{id}", h.r.Wrap(h.UpdateEncounter))
 
 	return r
 }

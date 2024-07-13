@@ -67,7 +67,7 @@ func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encoun
 	for rows.Next() {
 		var enc domain.Encounter
 
-		err = rows.Scan(&enc.ClubID, &enc.Count, &enc.Description, &enc.ClubID)
+		err = rows.Scan(&enc.ID, &enc.Count, &enc.Description, &enc.ClubID)
 
 		if err != nil {
 			return []domain.Encounter{}, err
