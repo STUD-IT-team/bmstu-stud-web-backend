@@ -175,23 +175,23 @@ func main() {
 		logger.Fatalf("failed to create gocron scheduler")
 	}
 
-	// cleanupTime := gocron.NewAtTime(2, 0, 0)
-	// cleanupJob := gocron.DailyJob(1, gocron.NewAtTimes(cleanupTime))
+	cleanupTime := gocron.NewAtTime(2, 0, 0)
+	cleanupJob := gocron.DailyJob(1, gocron.NewAtTimes(cleanupTime))
 
-	// _, err = s.NewJob(
-	// 	cleanupJob,
-	// 	gocron.NewTask(mediaService.ClearUpMedia, context.Background(), logger),
-	// )
-	// if err != nil {
-	// 	logger.Fatalf("gocron обдристался at ClearMediaStorages...")
-	// }
-	// _, err = s.NewJob(
-	// 	cleanupJob,
-	// 	gocron.NewTask(documentsService.ClearUnknownDocuments, context.Background(), logger),
-	// )
-	// if err != nil {
-	// 	logger.Fatalf("gocron обдристался at ClearUnknownDocuments...")
-	// }
+	_, err = s.NewJob(
+		cleanupJob,
+		gocron.NewTask(mediaService.ClearUpMedia, context.Background(), logger),
+	)
+	if err != nil {
+		logger.Fatalf("gocron обдристался at ClearMediaStorages...")
+	}
+	_, err = s.NewJob(
+		cleanupJob,
+		gocron.NewTask(documentsService.CleanupDocuments, context.Background(), logger),
+	)
+	if err != nil {
+		logger.Fatalf("gocron обдристался at ClearUnknownDocuments...")
+	}
 	s.Start()
 	logger.Infof("Cron started")
 
