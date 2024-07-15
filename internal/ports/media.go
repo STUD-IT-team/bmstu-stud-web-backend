@@ -157,6 +157,16 @@ func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request
 	return handler.OkResponse(response)
 }
 
+// GetMediaDefault
+//
+// @Summary    Возвращает все дефольные изображения
+// @Description Возвращает все дефольные изображения
+// @Tags      public.media
+// @Produce    json
+// @Success    200   {object}  responses.GetAllDefaultMedia
+// @Failure    404
+// @Router      /media/default [get]
+// @Security    Public
 func (h *MediaHandler) GetMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got GetMediaDefault request")
 
@@ -169,6 +179,19 @@ func (h *MediaHandler) GetMediaDefault(w http.ResponseWriter, req *http.Request)
 	return handler.OkResponse(resp)
 }
 
+// GetMediaDefaultByID
+//
+// @Summary    Возвращает дефолтное изображение по ID
+// @Description  Возвращает дефолтное изображение по ID
+// @Tags      public.media
+// @Produce    json
+// @Param      id    path    int  true  "id"
+// @Success    200      {object}  responses.GetDefaultMedia
+// @Failure    400
+// @Failure    404
+//
+// @Router      /media/default/{id} [get]
+// @Security    Public
 func (h *MediaHandler) GetMediaDefaultByID(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got GetMediaDefaultById request")
 	defaultMedia := requests.GetDefaultMedia{}
@@ -191,6 +214,21 @@ func (h *MediaHandler) GetMediaDefaultByID(w http.ResponseWriter, req *http.Requ
 	return handler.OkResponse(response)
 }
 
+// PostMediaDefault
+//
+// @Summary    Загружает дефолтное изображение в базу данных
+// @Description  Загружает дефолтное изображение в базу данных
+// @Tags      auth.media
+// @Produce    json
+// @Param      request  body    requests.PostDefaultMedia  true  "post media data"
+// @Success    200      {object}  responses.PostDefaultMedia
+// @Failure    400
+// @Failure    401
+// @Failure    409
+// @Failure    500
+//
+// @Router      /media/default/ [post]
+// @Security    Authorized
 func (h *MediaHandler) PostMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got PostMediaDefault request")
 
@@ -230,6 +268,20 @@ func (h *MediaHandler) PostMediaDefault(w http.ResponseWriter, req *http.Request
 	return handler.OkResponse(response)
 }
 
+// DeleteMediaDefault
+//
+// @Summary    Удаляет дефолтное изображение из базы данных
+// @Description  Удаляет дефолтное изображение их базы данных
+// @Tags      auth.media
+// @Produce    json
+// @Param      id    path    int  true  "id"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    500
+//
+// @Router      /media/default/ [delete]
+// @Security    Authorized
 func (h *MediaHandler) DeleteMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got DeleteMediaDefault request")
 
@@ -268,6 +320,22 @@ func (h *MediaHandler) DeleteMediaDefault(w http.ResponseWriter, req *http.Reque
 	return handler.OkResponse(nil)
 }
 
+// UpdateMediaDefault
+//
+// @Summary    Обновляет дефолтное изображение в базе данных
+// @Description  Обновляет дефолтное изображение в базе данных
+// @Tags      auth.media
+// @Produce    json
+// @Param      id    path    int  true  "id"
+// @Param      request  body    requests.UpdateDefaultMedia  true  "post media data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    409
+// @Failure    500
+//
+// @Router      /media/default/ [put]
+// @Security    Authorized
 func (h *MediaHandler) UpdateMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got UpdateMediaDefault request")
 
@@ -295,6 +363,9 @@ func (h *MediaHandler) UpdateMediaDefault(w http.ResponseWriter, req *http.Reque
 	err = h.media.UpdateMediaDefault(context.Background(), defaultMedia.ID, defaultMedia.Name, defaultMedia.Data)
 	if err != nil {
 		h.logger.Warnf("can't service.UpdateMediaDefault UpdateMediaDefault: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		}
 		return handler.InternalServerErrorResponse()
 	}
 	h.logger.Infof("MediaHandler: done UpdateMediaDefault request")
