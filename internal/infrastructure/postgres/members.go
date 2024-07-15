@@ -190,8 +190,6 @@ func (p *Postgres) UpdateMember(ctx context.Context, member *domain.Member) erro
 const getMemberByLoginQuery = "SELECT id, login, hash_password FROM member WHERE login=$1;"
 
 func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (*domain.Member, error) {
-	const op = "postgres.GetUserByLogin"
-
 	var user domain.Member
 
 	err := p.db.QueryRow(getMemberByLoginQuery, login).Scan(&user.ID, &user.Login, &user.HashPassword)

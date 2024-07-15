@@ -100,7 +100,7 @@ func MakeRequestUpdateEvent(v *requests.UpdateEvent) *domain.Event {
 		ID:          v.ID,
 		Title:       v.Title,
 		Description: v.Description,
-		Prompt:      v.Propmt,
+		Prompt:      v.Prompt,
 		MediaID:     v.MediaID,
 		Date:        v.Date,
 		Approved:    v.Approved,

@@ -61,6 +61,7 @@ func (h *FeedHandler) Routes() chi.Router {
 //	@Produce     json
 //	@Success     200 {object}  responses.GetAllFeed
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/ [get]
 //	@Security    public
 func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -69,7 +70,11 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 	res, err := h.feed.GetAllFeed(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetAllFeed: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request GetAllFeed done")
@@ -87,6 +92,7 @@ func (h *FeedHandler) GetAllFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Success     200  {object} responses.GetFeed
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/{id} [get]
 //	@Security    public
 func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -105,7 +111,11 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 	res, err := h.feed.GetFeed(context.Background(), feedId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeed: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request GetFeed done")
@@ -123,6 +133,7 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 //	@Success     200  {object} responses.GetFeedEncounters
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/encounters/{club_id} [get]
 //	@Security    public
 func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -141,7 +152,11 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 	res, err := h.feed.GetFeedEncounters(context.Background(), encounterId.ClubID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeedEncounters: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request GetFeedEncounters done")
@@ -159,6 +174,7 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 //	@Success     200  {object} responses.GetFeedByTitle
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/search/{title} [get]
 //	@Security    public
 func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -177,7 +193,11 @@ func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) h
 	res, err := h.feed.GetFeedByTitle(context.Background(), *filter)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.GetFeedByTitle: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request GetFeedByTitle done")
@@ -250,6 +270,7 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/{id} [delete]
 //	@Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -282,7 +303,11 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 	err = h.feed.DeleteFeed(context.Background(), feedId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.DeleteFeed: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request DeleteFeed done")
@@ -301,6 +326,7 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
+//	@Failure     404
 //	@Failure     500
 //	@Router      /feed/{id} [put]
 //	@Security    Authorised
@@ -336,6 +362,8 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 		h.logger.Warnf("can't FeedService.UpdateFeed: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
@@ -412,6 +440,7 @@ func (h *FeedHandler) PostEncounter(w http.ResponseWriter, req *http.Request) ha
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /feed/encounters/{id} [delete]
 //	@Security    Authorised
 func (h *FeedHandler) DeleteEncounter(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -444,7 +473,11 @@ func (h *FeedHandler) DeleteEncounter(w http.ResponseWriter, req *http.Request) 
 	err = h.feed.DeleteEncounter(context.Background(), encId.ID)
 	if err != nil {
 		h.logger.Warnf("can't FeedService.DeleteEncounter: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("FeedHandler: request DeleteEncounter done")
@@ -463,6 +496,7 @@ func (h *FeedHandler) DeleteEncounter(w http.ResponseWriter, req *http.Request) 
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
+//	@Failure     404
 //	@Failure     500
 //	@Router      /feed/encounters/{id} [put]
 //	@Security    Authorised
@@ -498,6 +532,8 @@ func (h *FeedHandler) UpdateEncounter(w http.ResponseWriter, req *http.Request) 
 		h.logger.Warnf("can't FeedService.UpdateEncounter: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}

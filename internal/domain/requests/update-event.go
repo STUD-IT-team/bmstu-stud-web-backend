@@ -15,7 +15,7 @@ type UpdateEvent struct {
 	ID          int       `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
-	Propmt      string    `json:"propmt"`
+	Prompt      string    `json:"prompt"`
 	MediaID     int       `json:"media_id"`
 	Date        time.Time `json:"date"`
 	Approved    bool      `json:"approved"`
@@ -29,7 +29,7 @@ type UpdateEvent struct {
 type UpdateEventPointer struct {
 	Title       *string    `json:"title"`
 	Description *string    `json:"description"`
-	Propmt      *string    `json:"propmt"`
+	Prompt      *string    `json:"prompt"`
 	MediaID     *int       `json:"media_id"`
 	Date        *time.Time `json:"date"`
 	Approved    *bool      `json:"approved"`
@@ -62,7 +62,7 @@ func (ev *UpdateEvent) Bind(req *http.Request) error {
 	*ev = UpdateEvent{
 		Title:       *pf.Title,
 		Description: *pf.Description,
-		Propmt:      *pf.Propmt,
+		Prompt:      *pf.Prompt,
 		MediaID:     *pf.MediaID,
 		Date:        *pf.Date,
 		Approved:    *pf.Approved,
@@ -94,8 +94,8 @@ func (pf *UpdateEventPointer) validate() error {
 	if pf.Description == nil {
 		return fmt.Errorf("require: Description")
 	}
-	if pf.Propmt == nil {
-		return fmt.Errorf("require: Propmt")
+	if pf.Prompt == nil {
+		return fmt.Errorf("require: Prompt")
 	}
 	if pf.MediaID == nil {
 		return fmt.Errorf("require: MediaID")

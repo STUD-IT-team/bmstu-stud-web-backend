@@ -103,7 +103,7 @@ func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain
 	}
 
 	if len(documents) == 0 {
-		return nil, fmt.Errorf("no documents found for club_id=%d", clubID)
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return documents, nil
@@ -127,7 +127,7 @@ func (p *Postgres) DeleteDocument(ctx context.Context, id int) (string, error) {
 	var key string
 	err := p.db.QueryRow(getKeyQuery, id).Scan(&key)
 	if err != nil {
-		return "", fmt.Errorf("can't get key for document id=%d: %w", id, err)
+		return "", wrapPostgresError(err)
 	}
 
 	tag, err := p.db.Exec(deleteDocumentQuery, id)
@@ -147,7 +147,7 @@ func (p *Postgres) UpdateDocument(ctx context.Context, id int, name, key string,
 	var oldKey string
 	err := p.db.QueryRow(getKeyQuery, id).Scan(&oldKey)
 	if err != nil {
-		return "", fmt.Errorf("can't get old key for document id=%d: %w", id, err)
+		return "", wrapPostgresError(err)
 	}
 
 	tag, err := p.db.Exec(updateDocumentQuery, name, key, clubId, categoryId, id)
