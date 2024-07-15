@@ -133,7 +133,6 @@ func (h *FeedHandler) GetFeed(w http.ResponseWriter, req *http.Request) handler.
 //	@Success     200  {object} responses.GetFeedEncounters
 //	@Failure     400
 //	@Failure     404
-//	@Failure     500
 //	@Router      /feed/encounters/{club_id} [get]
 //	@Security    public
 func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -174,7 +173,6 @@ func (h *FeedHandler) GetFeedEncounters(w http.ResponseWriter, req *http.Request
 //	@Success     200  {object} responses.GetFeedByTitle
 //	@Failure     400
 //	@Failure     404
-//	@Failure     500
 //	@Router      /feed/search/{title} [get]
 //	@Security    public
 func (h *FeedHandler) GetFeedByTitle(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -271,6 +269,7 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 //	@Failure     401
 //	@Failure     404
 //	@Failure     500
+
 //	@Router      /feed/{id} [delete]
 //	@Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -308,6 +307,7 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
+
 	}
 
 	h.logger.Info("FeedHandler: request DeleteFeed done")
@@ -326,7 +326,6 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
-//	@Failure     404
 //	@Failure     500
 //	@Router      /feed/{id} [put]
 //	@Security    Authorised

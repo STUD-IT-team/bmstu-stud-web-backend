@@ -15,6 +15,7 @@ type UpdateEvent struct {
 	ID          int       `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
+
 	Prompt      string    `json:"prompt"`
 	MediaID     int       `json:"media_id"`
 	Date        time.Time `json:"date"`
