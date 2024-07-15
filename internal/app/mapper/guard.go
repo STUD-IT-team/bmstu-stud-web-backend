@@ -1,54 +1,58 @@
 package mapper
 
 import (
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	"strconv"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	grpc "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
 )
 
-func CreateRequestLogin(req *grpc.LoginRequest) *requests.LoginRequest {
-	return &requests.LoginRequest{
-		Login:    req.Login,
-		Password: req.Password,
-	}
-}
+//func CreateRequestLogin(req *grpc.LoginRequest) *requests.LoginRequest {
+//	//return &requests.LoginRequest{
+//	//	Login:    req.Login,
+//	//	Password: req.Password,
+//	//}
+//}
 
-func CreateResponseLogin(token, expires string) *responses.LoginResponse {
+func CreateResponseLogin(token int64) *responses.LoginResponse {
 	return &responses.LoginResponse{
-		Token:   token,
-		Expires: expires,
+		AccessToken: strconv.FormatInt(token, 10),
 	}
 }
 
-func CreateGPRCResponseLogin(res *responses.LoginResponse) *grpc.LoginResponse {
-	return &grpc.LoginResponse{
-		AccessToken: res.Token,
-		Expires:     res.Expires,
-	}
-}
+//func CreateGPRCResponseLogin(res *responses.LoginResponse) *grpc.LoginResponse {
+//	return &grpc.LoginResponse{
+//		AccessToken: res.Token,
+//		Expires:     res.Expires,
+//	}
+//}
 
-func CreateRequestLogout(req *grpc.LogoutRequest) *requests.LogoutRequest {
-	return &requests.LogoutRequest{
-		AccessToken: req.AccessToken,
-	}
-}
+//func CreateRequestLogout(req *grpc.LogoutRequest) *requests.LogoutRequest {
+//	//return &requests.LogoutRequest{
+//	//	AccessToken: req.AccessToken,
+//	//}
+//	return nil
+//}
 
-func CreateRequestCheck(req *grpc.CheckRequest) *requests.CheckRequest {
-	return &requests.CheckRequest{
-		AccessToken: req.AccessToken,
-	}
-}
+//func CreateRequestCheck(req *grpc.CheckRequest) *requests.CheckRequest {
+//	//return &requests.CheckRequest{
+//	//	AccessToken: req.AccessToken,
+//	//}
+//	return nil
+//}
 
-func CreateResponseCheck(valid bool, memberID int64) *responses.CheckResponse {
+func CreateResponseCheck(valid bool, sess domain.Session) *responses.CheckResponse {
 	return &responses.CheckResponse{
 		Valid:    valid,
-		MemberID: memberID,
+		MemberID: sess.MemberID,
+		IsAdmin:  sess.IsAdmin,
 	}
 }
 
-func CreateGPRCResponseCheck(res *responses.CheckResponse) *grpc.CheckResponse {
-	return &grpc.CheckResponse{
-		Valid:    res.Valid,
-		MemberID: res.MemberID,
-	}
-}
+//func CreateGPRCResponseCheck(res *responses.CheckResponse) *grpc.CheckResponse {
+//	//return &grpc.CheckResponse{
+//	//	Valid:    res.Valid,
+//	//	MemberID: res.MemberID,
+//	//}
+//	return nil
+//}

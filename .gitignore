@@ -23,6 +23,7 @@ vendor
 .pkg
 .cache
 bin
+data
 
 test-logs
 test-logs/*

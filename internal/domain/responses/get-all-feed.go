@@ -1,8 +1,9 @@
 package responses
 
 import (
-	"encoding/base64"
 	"time"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
 type GetAllFeed struct {
@@ -10,11 +11,14 @@ type GetAllFeed struct {
 }
 
 type Feed struct {
-	ID              int             `json:"id"`
-	Title           string          `json:"title"`
-	Description     string          `json:"description"`
-	RegistrationURL string          `json:"registration_url"`
-	Media           base64.Encoding `json:"media"`
-	CreatedBy       int             `json:"created_by"`
-	UpdatedAt       time.Time       `json:"updated_at"`
+	ID          int              `json:"id"`
+	Title       string           `json:"title"`
+	Description string           `json:"description"`
+	Approved    bool             `json:"approved"`
+	Media       domain.MediaFile `json:"media"`
+	VkPostUrl   string           `json:"vk_post_url"`
+	UpdatedAt   time.Time        `json:"updated_at"`
+	CreatedAt   time.Time        `json:"created_at"`
+	CreatedBy   int              `json:"created_by"`
+	Views       int              `json:"views"`
 }

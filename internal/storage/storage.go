@@ -1,36 +1,34 @@
 package storage
 
 import (
-	"context"
+	// "github.com/STUD-IT-team/bauman-legends-backend/pkg/cache"
 
-	"github.com/STUD-IT-team/bauman-legends-backend/pkg/cache"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infra/postgres"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/cache"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/miniostorage"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 )
 
 type Storage interface {
-	GetAllFeed(ctx context.Context) ([]domain.Feed, error)
-	GetFeed(ctx context.Context, id int) (domain.Feed, error)
-	DeleteFeed(ctx context.Context, id int) error
-	UpdateFeed(_ context.Context, id int, feed domain.Feed) error
-	GetFeedByFilter(ctx context.Context, limit, offset int) ([]domain.Feed, error)
-	GetMemberByLogin(ctx context.Context, login string) (domain.Member, error)
-	SetSession(id string, value domain.Session)
-	FindSession(id string) *domain.Session
-	DeleteSession(id string)
-	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
-	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
-	CheckSession(accessToken string) (*domain.Session, error)
+	feedStorage
+	memberStorage
+	guardStorage
+	clubStorage
+	mediaFileStorage
+	eventStorage
+	documentsStorage
+	documentCategoriesStorage
 }
 
 type storage struct {
 	postgres     postgres.Postgres
-	sessionCache cache.ICache[string, domain.Session]
+	sessionCache cache.SessionCache
+	minio        miniostorage.ObjectStorage
 }
 
-func NewStorage(postgres postgres.Postgres, sessionCache cache.ICache[string, domain.Session]) *storage {
+func NewStorage(postgres postgres.Postgres, sessionCache cache.SessionCache, minio miniostorage.ObjectStorage) *storage {
 	return &storage{
 		postgres:     postgres,
 		sessionCache: sessionCache,
+		minio:        minio,
 	}
 }

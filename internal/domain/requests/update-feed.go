@@ -1,28 +1,71 @@
 package requests
 
 import (
+	"encoding/json"
+	"strconv"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/go-chi/chi"
 
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 )
 
 type UpdateFeed struct {
-	ID              int       `json:"id"`
-	Title           string    `json:"title"`
-	Description     string    `json:"description"`
-	RegistrationURL string    `json:"registration_url"`
-	CreatedBy       int       `json:"created_by"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID          int       `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Approved    bool      `json:"approved"`
+	MediaID     int       `json:"media_id"`
+	VkPostUrl   string    `json:"vk_post_url"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	CreatedAt   time.Time `json:"created_at"`
+	CreatedBy   int       `json:"created_by"`
+	Views       int       `json:"views"`
+}
+
+type UpdateFeedPointer struct {
+	Title       *string    `json:"title"`
+	Description *string    `json:"description"`
+	Approved    *bool      `json:"approved"`
+	MediaID     *int       `json:"media_id"`
+	VkPostUrl   *string    `json:"vk_post_url"`
+	UpdatedAt   *time.Time `json:"updated_at"`
+	CreatedAt   *time.Time `json:"created_at"`
+	CreatedBy   *int       `json:"created_by"`
+	Views       *int       `json:"views"`
 }
 
 func (f *UpdateFeed) Bind(req *http.Request) error {
-	err := json.NewDecoder(req.Body).Decode(f)
+	decoder := json.NewDecoder(req.Body)
+	decoder.DisallowUnknownFields()
+	pf := UpdateFeedPointer{}
+
+	err := decoder.Decode(&pf)
 	if err != nil {
-		return fmt.Errorf("can't json decoder on UpdateFeed.Bind: %w", err)
+		return fmt.Errorf("can't json decoder on UpdateFeed.Bind: %v", err)
+	}
+
+	if decoder.More() {
+		return fmt.Errorf("extraneous data after JSON object on UpdateFeed.Bind")
+	}
+
+	err = pf.validate()
+	if err != nil {
+		return fmt.Errorf("%v on UpdateFeed.Bind: %v", domain.ErrIncorrectRequest, err)
+	}
+
+	*f = UpdateFeed{
+		Title:       *pf.Title,
+		Description: *pf.Description,
+		Approved:    *pf.Approved,
+		MediaID:     *pf.MediaID,
+		VkPostUrl:   *pf.VkPostUrl,
+		UpdatedAt:   *pf.UpdatedAt,
+		CreatedAt:   *pf.CreatedAt,
+		CreatedBy:   *pf.CreatedBy,
+		Views:       *pf.Views,
 	}
 
 	id, err := strconv.Atoi(chi.URLParam(req, "id"))
@@ -39,6 +82,36 @@ func (f *UpdateFeed) validate() error {
 	if f.ID == 0 {
 		return fmt.Errorf("require: id")
 	}
+	return nil
+}
 
+func (pf *UpdateFeedPointer) validate() error {
+	if pf.Title == nil {
+		return fmt.Errorf("require: Title")
+	}
+	if pf.Description == nil {
+		return fmt.Errorf("require: Description")
+	}
+	if pf.Approved == nil {
+		return fmt.Errorf("require: Approved")
+	}
+	if pf.MediaID == nil {
+		return fmt.Errorf("require: MediaID")
+	}
+	if pf.VkPostUrl == nil {
+		return fmt.Errorf("require: VkPostUrl")
+	}
+	if pf.UpdatedAt == nil {
+		return fmt.Errorf("require: UpdatedAt")
+	}
+	if pf.CreatedAt == nil {
+		return fmt.Errorf("require: CreatedAt")
+	}
+	if pf.CreatedBy == nil {
+		return fmt.Errorf("require: CreatedBy")
+	}
+	if pf.Views == nil {
+		return fmt.Errorf("require: Views")
+	}
 	return nil
 }

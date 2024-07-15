@@ -4,32 +4,25 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sirupsen/logrus"
-
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/consts"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-	grpc "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/ports/grpc"
 )
 
 type guardServiceStorage interface {
-	DeleteSession(id string)
-	SaveSessoinFromMemberID(memberID int64) (session domain.Session)
+	DeleteSession(id int64)
+	CreateSession(memberID int, isAdmin bool) (domain.Session, error)
 	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
-	CheckSession(accessToken string) (*domain.Session, error)
+	CheckSession(accessToken int64) (domain.Session, error)
 }
 
 type GuardService struct {
-	logger  *logrus.Logger
 	storage guardServiceStorage
-	grpc.UnimplementedGuardServer
 }
 
-func NewGuardService(log *logrus.Logger, storage guardServiceStorage) *GuardService {
+func NewGuardService(storage guardServiceStorage) *GuardService {
 	return &GuardService{
-		logger:  log,
 		storage: storage,
 	}
 }
@@ -40,21 +33,19 @@ func (s *GuardService) Login(ctx context.Context, req *requests.LoginRequest,
 
 	member, err := s.storage.GetMemberAndValidatePassword(ctx, req.Login, req.Password)
 	if err != nil {
-		s.logger.WithError(err).Warnf("can't storage.GetUserAndValidatePassword %s", op)
 		return nil, fmt.Errorf("can't storage.GetUserAndValidatePassword %s: %w", op, err)
 	}
 
-	session := s.storage.SaveSessoinFromMemberID(member.ID)
+	session, err := s.storage.CreateSession(member.ID, member.IsAdmin)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.CreateSession %s: %w", op, err)
+	}
 
-	s.logger.Infof("user %s logged in successfully", member.Login)
-
-	return mapper.CreateResponseLogin(session.SessionID, session.ExpireAt.Format(consts.GrpcTimeFormat)), nil
+	return mapper.CreateResponseLogin(session.SessionID), nil
 }
 
 func (s *GuardService) Logout(_ context.Context, req *requests.LogoutRequest) error {
 	s.storage.DeleteSession(req.AccessToken)
-
-	s.logger.Infof("user with session %s uccessfully logged out", req.AccessToken)
 
 	return nil
 }
@@ -64,13 +55,9 @@ func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (r
 
 	session, err := s.storage.CheckSession(req.AccessToken)
 	if err != nil {
-		s.logger.WithError(err).Warnf("can't storage.CheckSession %s", op)
-
-		return mapper.CreateResponseCheck(false, 0),
+		return mapper.CreateResponseCheck(false, session),
 			fmt.Errorf("can't storage.CheckSession %s: %w", op, err)
 	}
 
-	s.logger.Infof("user %d is authorized", session.MemberID)
-
-	return mapper.CreateResponseCheck(true, session.MemberID), nil
+	return mapper.CreateResponseCheck(true, session), nil
 }
