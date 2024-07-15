@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/jackc/pgx"
 )
 
 const getClub = `SELECT 
@@ -36,7 +35,7 @@ func (pgs *Postgres) GetClub(_ context.Context, id int) (*domain.Club, error) {
 		&c.TgUrl,
 	)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 	c.ID = id
 	if parentID.Valid {
@@ -66,7 +65,7 @@ func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
 	rows, err := s.db.Query(getAllClub)
 
 	if err != nil {
-		return []domain.Club{}, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -84,7 +83,7 @@ func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
 			&c.TgUrl,
 		)
 		if err != nil {
-			return []domain.Club{}, err
+			return nil, wrapPostgresError(err)
 		}
 		if parentID.Valid {
 			c.ParentID = int(parentID.Int64)
@@ -93,7 +92,9 @@ func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
 		}
 		carr = append(carr, c)
 	}
-
+	if len(carr) == 0 {
+		return nil, ErrPostgresNotFoundError
+	}
 	return carr, nil
 }
 
@@ -104,7 +105,7 @@ func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club
 	rows, err := s.db.Query(getClubsByName, "%"+name+"%")
 
 	if err != nil {
-		return []domain.Club{}, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -122,7 +123,7 @@ func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club
 			&c.TgUrl,
 		)
 		if err != nil {
-			return []domain.Club{}, err
+			return nil, wrapPostgresError(err)
 		}
 		if parentID.Valid {
 			c.ParentID = int(parentID.Int64)
@@ -131,6 +132,9 @@ func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club
 		}
 		carr = append(carr, c)
 
+	}
+	if len(carr) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 	return carr, nil
 }
@@ -142,7 +146,7 @@ func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Clu
 	rows, err := s.db.Query(getClubsByType, "%"+type_+"%")
 
 	if err != nil {
-		return []domain.Club{}, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -160,7 +164,7 @@ func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Clu
 			&c.TgUrl,
 		)
 		if err != nil {
-			return []domain.Club{}, err
+			return nil, wrapPostgresError(err)
 		}
 		if parentID.Valid {
 			c.ParentID = int(parentID.Int64)
@@ -169,6 +173,9 @@ func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Clu
 		}
 		carr = append(carr, c)
 
+	}
+	if len(carr) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 	return carr, nil
 }
@@ -218,7 +225,7 @@ func (s *Postgres) GetClubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg,
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getClubOrgs, clubID)
 	if err != nil {
-		return []domain.ClubOrg{}, err
+		return nil, wrapPostgresError(err)
 	}
 	for rows.Next() {
 		c := domain.ClubOrg{}
@@ -237,9 +244,12 @@ func (s *Postgres) GetClubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg,
 			&c.ClubName,
 		)
 		if err != nil {
-			return []domain.ClubOrg{}, err
+			return nil, wrapPostgresError(err)
 		}
 		oarr = append(oarr, c)
+	}
+	if len(oarr) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 	return oarr, nil
 }
@@ -290,7 +300,7 @@ func (s *Postgres) GetClubsOrgs(_ context.Context, clubIDs []int) ([]domain.Club
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getClubsOrgs, clubIDs)
 	if err != nil {
-		return []domain.ClubOrg{}, err
+		return nil, wrapPostgresError(err)
 	}
 	for rows.Next() {
 		c := domain.ClubOrg{}
@@ -310,9 +320,12 @@ func (s *Postgres) GetClubsOrgs(_ context.Context, clubIDs []int) ([]domain.Club
 			&c.ClubID,
 		)
 		if err != nil {
-			return []domain.ClubOrg{}, err
+			return nil, wrapPostgresError(err)
 		}
 		oarr = append(oarr, c)
+	}
+	if len(oarr) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 	return oarr, nil
 }
@@ -363,7 +376,7 @@ func (s *Postgres) GetClubSubOrgs(_ context.Context, clubID int) ([]domain.ClubO
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getClubSubOrgs, clubID)
 	if err != nil {
-		return []domain.ClubOrg{}, err
+		return nil, wrapPostgresError(err)
 	}
 	for rows.Next() {
 		c := domain.ClubOrg{}
@@ -382,10 +395,13 @@ func (s *Postgres) GetClubSubOrgs(_ context.Context, clubID int) ([]domain.ClubO
 			&c.ClubName,
 		)
 		if err != nil {
-			return []domain.ClubOrg{}, err
+			return nil, wrapPostgresError(err)
 		}
 		c.ClubID = clubID
 		oarr = append(oarr, c)
+	}
+	if len(oarr) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 	return oarr, nil
 }
@@ -436,7 +452,7 @@ func (s *Postgres) GetAllClubOrgs(_ context.Context) ([]domain.ClubOrg, error) {
 	oarr := []domain.ClubOrg{}
 	rows, err := s.db.Query(getAllClubOrgs)
 	if err != nil {
-		return []domain.ClubOrg{}, err
+		return nil, wrapPostgresError(err)
 	}
 	for rows.Next() {
 		c := domain.ClubOrg{}
@@ -456,9 +472,12 @@ func (s *Postgres) GetAllClubOrgs(_ context.Context) ([]domain.ClubOrg, error) {
 			&c.ClubName,
 		)
 		if err != nil {
-			return []domain.ClubOrg{}, err
+			return nil, wrapPostgresError(err)
 		}
 		oarr = append(oarr, c)
+	}
+	if len(oarr) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 	return oarr, nil
 }
@@ -492,7 +511,7 @@ func (s *Postgres) AddClub(_ context.Context, c *domain.Club) (int, error) {
 	var id int
 	err := row.Scan(&id)
 	if err != nil {
-		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
+		return 0, wrapPostgresError(err)
 	}
 	return id, nil
 }
@@ -509,14 +528,14 @@ INSERT INTO club_org (
 func (s *Postgres) AddOrgs(_ context.Context, orgs []domain.ClubOrg) error {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return err
+		return wrapPostgresError(err)
 	}
 
 	for _, org := range orgs {
 		_, err = tx.Exec(addOrgs, org.RoleName, org.RoleSpec, org.ID, org.ClubID)
 		if err != nil {
 			tx.Rollback()
-			return wrapPostgresError(err.(pgx.PgError).Code, err)
+			return wrapPostgresError(err)
 		}
 	}
 
@@ -537,17 +556,20 @@ func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
 	ph := []domain.ClubPhoto{}
 	rows, err := s.db.Query(getClubMediaFiles, clubID)
 	if err != nil {
-		return []domain.ClubPhoto{}, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
 		p := domain.ClubPhoto{}
 		err := rows.Scan(&p.ID, &p.RefNumber, &p.ClubID, &p.MediaID)
 		if err != nil {
-			return []domain.ClubPhoto{}, err
+			return nil, wrapPostgresError(err)
 		}
 		p.ClubID = clubID
 		ph = append(ph, p)
+	}
+	if len(ph) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 	return ph, nil
 }
@@ -562,43 +584,47 @@ const updateClubParents = "UPDATE club SET parent_id=null WHERE parent_id = $1"
 func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
-	}
-
-	_, err = tx.Exec(deleteClub, clubID)
-	if err != nil {
-		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(deleteClubOrgs, clubID)
 	if err != nil {
 		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(deleteClubPhotos, clubID)
 	if err != nil {
 		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(deleteClubEncounters, clubID)
 	if err != nil {
 		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(deleteClubDocuments, clubID)
 	if err != nil {
 		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(updateClubParents, clubID)
 	if err != nil {
 		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+
+	tag, err := tx.Exec(deleteClub, clubID)
+	if err != nil {
+		tx.Rollback()
+		return wrapPostgresError(err)
+	}
+
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return tx.Commit()
@@ -620,10 +646,10 @@ WHERE id = $9 AND id > 0
 func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.ClubOrg) error {
 	tx, err := s.db.Begin()
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
-	_, err = tx.Exec(updateClub,
+	tag, err := tx.Exec(updateClub,
 		c.Name,
 		c.ShortName,
 		c.Description,
@@ -636,22 +662,25 @@ func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.Club
 	)
 	if err != nil {
 		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	_, err = tx.Exec(deleteClubOrgs, c.ID)
 	if err != nil {
 		tx.Rollback()
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	for _, org := range o {
 		_, err = tx.Exec(addOrgs, org.RoleName, org.RoleSpec, org.ID, c.ID)
 		if err != nil {
 			tx.Rollback()
-			return wrapPostgresError(err.(pgx.PgError).Code, err)
+			return wrapPostgresError(err)
 		}
 	}
 	err = tx.Commit()
-	return wrapPostgresError(err.(pgx.PgError).Code, err)
+	return wrapPostgresError(err)
 }

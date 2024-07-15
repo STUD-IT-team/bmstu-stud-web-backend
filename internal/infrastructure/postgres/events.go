@@ -2,11 +2,9 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/jackc/pgx"
 )
 
 const getAllEventQuery = `SELECT 
@@ -29,7 +27,7 @@ func (p *Postgres) GetAllEvents(_ context.Context) ([]domain.Event, error) {
 
 	rows, err := p.db.Query(getAllEventQuery)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -42,14 +40,14 @@ func (p *Postgres) GetAllEvents(_ context.Context) ([]domain.Event, error) {
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		events = append(events, event)
 	}
 
 	if len(events) == 0 {
-		return nil, fmt.Errorf("no events found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return events, nil
@@ -79,7 +77,7 @@ func (p *Postgres) GetEvent(_ context.Context, id int) (*domain.Event, error) {
 		&event.Approved, &event.CreatedAt, &event.CreatedBy,
 		&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	return &event, nil
@@ -107,7 +105,7 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 
 	rows, err := p.db.Query(getEventsByRangeQuery, from, to)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -120,14 +118,14 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		events = append(events, event)
 	}
 
 	if len(events) == 0 {
-		return nil, fmt.Errorf("no events found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return events, nil
@@ -145,7 +143,7 @@ func (p *Postgres) PostEvent(_ context.Context, event *domain.Event) error {
 	)
 
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	return nil
@@ -154,9 +152,12 @@ func (p *Postgres) PostEvent(_ context.Context, event *domain.Event) error {
 const deleteEventQuery = "DELETE FROM event WHERE id=$1"
 
 func (p *Postgres) DeleteEvent(_ context.Context, id int) error {
-	_, err := p.db.Exec(deleteEventQuery, id)
+	tag, err := p.db.Exec(deleteEventQuery, id)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil
@@ -178,7 +179,7 @@ feedback_url=$11
 WHERE id=$12`
 
 func (p *Postgres) UpdateEvent(_ context.Context, event *domain.Event) error {
-	_, err := p.db.Exec(updateEventQuery,
+	tag, err := p.db.Exec(updateEventQuery,
 		event.Title, event.Description,
 		event.Prompt, event.MediaID, event.Date,
 		event.Approved, event.CreatedAt, event.CreatedBy,
@@ -186,7 +187,10 @@ func (p *Postgres) UpdateEvent(_ context.Context, event *domain.Event) error {
 		event.ID,
 	)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil

@@ -2,10 +2,8 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/jackc/pgx"
 )
 
 const getAllFeedQuery = "SELECT id, title, approved, description, media_id, vk_post_url, updated_at, created_at, views, created_by FROM feed"
@@ -15,7 +13,7 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 
 	rows, err := p.db.Query(getAllFeedQuery)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -26,14 +24,14 @@ func (p *Postgres) GetAllFeed(_ context.Context) ([]domain.Feed, error) {
 			&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		feeds = append(feeds, feed)
 	}
 
 	if len(feeds) == 0 {
-		return nil, fmt.Errorf("no feeds found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return feeds, nil
@@ -48,7 +46,7 @@ func (p *Postgres) GetFeed(_ context.Context, id int) (*domain.Feed, error) {
 		&feed.Description, &feed.MediaID, &feed.VkPostUrl,
 		&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	return &feed, nil
@@ -61,7 +59,7 @@ func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encoun
 
 	rows, err := p.db.Query(getFeedEncountersQuery, id)
 	if err != nil {
-		return []domain.Encounter{}, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -70,14 +68,14 @@ func (p *Postgres) GetFeedEncounters(_ context.Context, id int) ([]domain.Encoun
 		err = rows.Scan(&enc.ID, &enc.Count, &enc.Description, &enc.ClubID)
 
 		if err != nil {
-			return []domain.Encounter{}, err
+			return nil, wrapPostgresError(err)
 		}
 
 		encs = append(encs, enc)
 	}
 
 	if len(encs) == 0 {
-		return []domain.Encounter{}, fmt.Errorf("no encounters found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return encs, nil
@@ -90,7 +88,7 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 
 	rows, err := p.db.Query(getFeedByTitleQuery, "%"+title+"%")
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -101,14 +99,14 @@ func (p *Postgres) GetFeedByTitle(_ context.Context, title string) ([]domain.Fee
 			&feed.UpdatedAt, &feed.CreatedAt, &feed.Views, &feed.CreatedBy)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		feeds = append(feeds, feed)
 	}
 
 	if len(feeds) == 0 {
-		return nil, fmt.Errorf("no feeds found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return feeds, nil
@@ -131,7 +129,7 @@ func (p *Postgres) PostFeed(_ context.Context, feed *domain.Feed) error {
 	)
 
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	return nil
@@ -140,9 +138,12 @@ func (p *Postgres) PostFeed(_ context.Context, feed *domain.Feed) error {
 const deleteFeedQuery = "DELETE FROM feed WHERE id=$1"
 
 func (p *Postgres) DeleteFeed(_ context.Context, id int) error {
-	_, err := p.db.Exec(deleteFeedQuery, id)
+	tag, err := p.db.Exec(deleteFeedQuery, id)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil
@@ -161,7 +162,7 @@ views=$8,
 created_by=$9 WHERE id=$10`
 
 func (p *Postgres) UpdateFeed(_ context.Context, feed *domain.Feed) error {
-	_, err := p.db.Exec(updateFeedQuery,
+	tag, err := p.db.Exec(updateFeedQuery,
 		feed.Title,
 		feed.Approved,
 		feed.Description,
@@ -174,7 +175,10 @@ func (p *Postgres) UpdateFeed(_ context.Context, feed *domain.Feed) error {
 		feed.ID,
 	)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil
@@ -185,7 +189,7 @@ const postEncounterquery = `INSERT INTO encounter (count, description, club_id) 
 func (p *Postgres) PostEncounter(_ context.Context, enc *domain.Encounter) error {
 	_, err := p.db.Exec(postEncounterquery, enc.Count, enc.Description, enc.ClubID)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	return nil
@@ -194,9 +198,12 @@ func (p *Postgres) PostEncounter(_ context.Context, enc *domain.Encounter) error
 const deleteEncounterQuery = "DELETE FROM encounter WHERE id=$1"
 
 func (p *Postgres) DeleteEncounter(_ context.Context, id int) error {
-	_, err := p.db.Exec(deleteEncounterQuery, id)
+	tag, err := p.db.Exec(deleteEncounterQuery, id)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil
@@ -205,60 +212,13 @@ func (p *Postgres) DeleteEncounter(_ context.Context, id int) error {
 const updateEncounterQuery = `UPDATE encounter SET count=$1, description=$2, club_id=$3 WHERE id=$4`
 
 func (p *Postgres) UpdateEncounter(_ context.Context, enc *domain.Encounter) error {
-	_, err := p.db.Exec(updateEncounterQuery, enc.Count, enc.Description, enc.ClubID, enc.ID)
+	tag, err := p.db.Exec(updateEncounterQuery, enc.Count, enc.Description, enc.ClubID, enc.ID)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil
 }
-
-// const getFeedByFilterLimitAndOffsetQuery = `SELECT id, title, description, created_at, created_by
-// 											FROM feed ORDER BY id LIMIT $1 OFFSET $2`
-
-// func (p *Postgres) GetFeedByFilterLimitAndOffset(_ context.Context, limit, offset int) ([]domain.Feed, error) {
-// 	var feeds []domain.Feed
-
-// 	rows, err := p.db.Query(getFeedByFilterLimitAndOffsetQuery, limit, offset)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	for rows.Next() {
-// 		var feed domain.Feed
-
-// 		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description, &feed.CreatedAt, &feed.CreatedBy)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		feeds = append(feeds, feed)
-// 	}
-
-// 	return feeds, nil
-// }
-
-// const getFeedByFilterIdLastAndOffsetQuery = `SELECT id, title, description, created_at, created_by
-// 											FROM feed  WHERE id > $1 ORDER BY id LIMIT $2`
-
-// func (p *Postgres) GetFeedByFilterIdLastAndOffset(_ context.Context, idLast, offset int) ([]domain.Feed, error) {
-// 	var feeds []domain.Feed
-
-// 	rows, err := p.db.Query(getFeedByFilterIdLastAndOffsetQuery, idLast, offset)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	for rows.Next() {
-// 		var feed domain.Feed
-
-// 		err = rows.Scan(&feed.ID, &feed.Title, &feed.Description, &feed.CreatedAt, &feed.CreatedBy)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		feeds = append(feeds, feed)
-// 	}
-
-// 	return feeds, nil
-// }

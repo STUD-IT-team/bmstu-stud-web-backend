@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/jackc/pgx"
 )
 
 const getAllDocumentsQuery = "SELECT id, name, key, club_id, category_id FROM document"
@@ -15,7 +14,7 @@ func (p *Postgres) GetAllDocuments(_ context.Context) ([]domain.Document, error)
 
 	rows, err := p.db.Query(getAllDocumentsQuery)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -25,14 +24,14 @@ func (p *Postgres) GetAllDocuments(_ context.Context) ([]domain.Document, error)
 			&document.ClubID, &document.CategoryID)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		documents = append(documents, document)
 	}
 
 	if len(documents) == 0 {
-		return nil, fmt.Errorf("no documents found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return documents, nil
@@ -46,7 +45,7 @@ func (p *Postgres) GetDocument(_ context.Context, id int) (*domain.Document, err
 	err := p.db.QueryRow(getDocumentsQuery, id).Scan(&document.ID, &document.Name,
 		&document.Key, &document.ClubID, &document.CategoryID)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	return &document, nil
@@ -59,7 +58,7 @@ func (p *Postgres) GetDocumentsByCategory(_ context.Context, categoryID int) ([]
 
 	rows, err := p.db.Query(getDocumentsByCategoryQuery, categoryID)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -68,14 +67,14 @@ func (p *Postgres) GetDocumentsByCategory(_ context.Context, categoryID int) ([]
 		err = rows.Scan(&document.ID, &document.Name, &document.Key, &document.ClubID, &document.CategoryID)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		documents = append(documents, document)
 	}
 
 	if len(documents) == 0 {
-		return nil, fmt.Errorf("no documents found for category_id=%d", categoryID)
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return documents, nil
@@ -88,7 +87,7 @@ func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain
 
 	rows, err := p.db.Query(getDocumentsByClubIDQuery, clubID)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -97,7 +96,7 @@ func (p *Postgres) GetDocumentsByClubID(_ context.Context, clubID int) ([]domain
 		err = rows.Scan(&document.ID, &document.Name, &document.Key, &document.ClubID, &document.CategoryID)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		documents = append(documents, document)
@@ -115,7 +114,7 @@ const postDocumentQuery = "INSERT INTO document (name, key, club_id, category_id
 func (p *Postgres) PostDocument(ctx context.Context, name, key string, clubId, categoryId int) error {
 	_, err := p.db.Exec(postDocumentQuery, name, key, clubId, categoryId)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	return nil
@@ -131,9 +130,12 @@ func (p *Postgres) DeleteDocument(ctx context.Context, id int) (string, error) {
 		return "", fmt.Errorf("can't get key for document id=%d: %w", id, err)
 	}
 
-	_, err = p.db.Exec(deleteDocumentQuery, id)
+	tag, err := p.db.Exec(deleteDocumentQuery, id)
 	if err != nil {
-		return "", wrapPostgresError(err.(pgx.PgError).Code, err)
+		return "", wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return "", ErrPostgresNotFoundError
 	}
 
 	return key, nil
@@ -148,9 +150,12 @@ func (p *Postgres) UpdateDocument(ctx context.Context, id int, name, key string,
 		return "", fmt.Errorf("can't get old key for document id=%d: %w", id, err)
 	}
 
-	_, err = p.db.Exec(updateDocumentQuery, name, key, clubId, categoryId, id)
+	tag, err := p.db.Exec(updateDocumentQuery, name, key, clubId, categoryId, id)
 	if err != nil {
-		return "", wrapPostgresError(err.(pgx.PgError).Code, err)
+		return "", wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return "", ErrPostgresNotFoundError
 	}
 
 	return oldKey, nil
@@ -178,7 +183,7 @@ func (p *Postgres) GetAllDocumentKeys(_ context.Context) ([]string, error) {
 	}
 
 	if len(keys) == 0 {
-		return nil, fmt.Errorf("no document keys found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return keys, nil

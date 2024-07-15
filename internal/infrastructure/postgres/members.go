@@ -2,12 +2,8 @@ package postgres
 
 import (
 	"context"
-	"database/sql"
-	"errors"
-	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/jackc/pgx"
 )
 
 const getAllMembersQuery = "SELECT id, hash_password, login, media_id, telegram, vk, name, role_id, is_admin FROM member"
@@ -17,7 +13,7 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 
 	rows, err := p.db.Query(getAllMembersQuery)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -36,14 +32,14 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		members = append(members, member)
 	}
 
 	if len(members) == 0 {
-		return nil, fmt.Errorf("no members found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return members, nil
@@ -70,7 +66,7 @@ func (p *Postgres) GetMember(ctx context.Context, id int) (*domain.Member, error
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	return &member, nil
@@ -83,7 +79,7 @@ func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Me
 
 	rows, err := p.db.Query(getMembersByNameQuery, "%"+name+"%")
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
@@ -102,14 +98,14 @@ func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Me
 		)
 
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 
 		members = append(members, member)
 	}
 
 	if len(members) == 0 {
-		return nil, fmt.Errorf("no members found")
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return members, nil
@@ -133,7 +129,7 @@ func (p *Postgres) PostMember(ctx context.Context, member *domain.Member) error 
 	)
 
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 
 	return nil
@@ -142,13 +138,15 @@ func (p *Postgres) PostMember(ctx context.Context, member *domain.Member) error 
 const deleteMemberQuery = "DELETE FROM member WHERE id=$1"
 
 func (p *Postgres) DeleteMember(ctx context.Context, id int) error {
-	_, err := p.db.Exec(
+	tag, err := p.db.Exec(
 		deleteMemberQuery,
 		id,
 	)
-
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil
@@ -167,7 +165,7 @@ is_admin=$8
 WHERE id=$9`
 
 func (p *Postgres) UpdateMember(ctx context.Context, member *domain.Member) error {
-	_, err := p.db.Exec(
+	tag, err := p.db.Exec(
 		updateMemberQuery,
 		member.HashPassword,
 		member.Login,
@@ -179,9 +177,11 @@ func (p *Postgres) UpdateMember(ctx context.Context, member *domain.Member) erro
 		member.IsAdmin,
 		member.ID,
 	)
-
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrPostgresNotFoundError
 	}
 
 	return nil
@@ -196,11 +196,7 @@ func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (*domain.Me
 
 	err := p.db.QueryRow(getMemberByLoginQuery, login).Scan(&user.ID, &user.Login, &user.HashPassword)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("%s: %w", op, domain.ErrNotFound)
-		}
-
-		return nil, fmt.Errorf("%s: %w", op, err)
+		return nil, wrapPostgresError(err)
 	}
 
 	return &user, nil
