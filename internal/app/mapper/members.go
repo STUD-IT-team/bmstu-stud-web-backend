@@ -24,7 +24,6 @@ func MakeResponseAllMembers(f []domain.Member, membersMediaFiles map[int]domain.
 				Telegram:     v.Telegram,
 				Vk:           v.Vk,
 				Name:         v.Name,
-				RoleID:       v.RoleID,
 				IsAdmin:      v.IsAdmin,
 			})
 	}
@@ -41,7 +40,6 @@ func MakeResponseMember(f *domain.Member, membersMediaFile *domain.MediaFile) (*
 		Telegram:     f.Telegram,
 		Vk:           f.Vk,
 		Name:         f.Name,
-		RoleID:       f.RoleID,
 		IsAdmin:      f.IsAdmin,
 	}, nil
 }
@@ -62,7 +60,6 @@ func MakeResponseMembersByName(f []domain.Member, membersMediaFiles map[int]doma
 				Telegram:     v.Telegram,
 				Vk:           v.Vk,
 				Name:         v.Name,
-				RoleID:       v.RoleID,
 				IsAdmin:      v.IsAdmin,
 			})
 	}
@@ -78,7 +75,6 @@ func MakeRequestPostMember(f *requests.PostMember) *domain.Member {
 		Telegram:     f.Telegram,
 		Vk:           f.Vk,
 		Name:         f.Name,
-		RoleID:       f.RoleID,
 		IsAdmin:      f.IsAdmin,
 	}
 }
@@ -92,7 +88,6 @@ func MakeRequestUpdateMember(f *requests.UpdateMember) *domain.Member {
 		Telegram:     f.Telegram,
 		Vk:           f.Vk,
 		Name:         f.Name,
-		RoleID:       f.RoleID,
 		IsAdmin:      f.IsAdmin,
 	}
 }
