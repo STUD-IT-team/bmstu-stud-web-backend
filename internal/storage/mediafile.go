@@ -2,11 +2,13 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/miniostorage"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,6 +24,8 @@ type mediaFileStorage interface {
 	GetDefaultMedia(ctx context.Context, id int) (*domain.DefaultMedia, error)
 	GetAllDefaultMedia(ctx context.Context) ([]domain.DefaultMedia, error)
 	PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, mediaId int, err error)
+	DeleteDefaultMedia(ctx context.Context, id int) error
+	UpdateDefaultMedia(ctx context.Context, id int, name string, data []byte) error
 }
 
 func (s *storage) GetMediaFile(_ context.Context, id int) (*domain.MediaFile, error) {
@@ -65,7 +69,7 @@ func (s *storage) PutMediaFile(ctx context.Context, name string, key string, dat
 
 	minioKey, err := s.minio.UploadObject(ctx, &miniostorage.UploadObject{
 		BucketName:  bucketName,
-		ObjectName:  name,
+		ObjectName:  key,
 		Data:        data,
 		Size:        int64(len(data)),
 		ContentType: "",
@@ -217,4 +221,50 @@ func (s *storage) PutDefaultMedia(ctx context.Context, name string, key string, 
 		return 0, 0, fmt.Errorf("can't add default media: %v", err)
 	}
 	return id, mediaId, nil
+}
+
+func (s *storage) DeleteDefaultMedia(ctx context.Context, id int) error {
+	return s.postgres.DeleteDefaultMedia(ctx, id)
+}
+
+func (s *storage) UpdateMediaFile(ctx context.Context, id int, name string, key string, data []byte) error {
+	bucketName := os.Getenv(MEDIA_BUCKET_ENV)
+	if bucketName == "" {
+		return fmt.Errorf("missing %s environment variable", MEDIA_BUCKET_ENV)
+	}
+
+	minioKey, err := s.minio.UploadObject(ctx, &miniostorage.UploadObject{
+		BucketName:  bucketName,
+		ObjectName:  key,
+		Data:        data,
+		Size:        int64(len(data)),
+		ContentType: "",
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return s.postgres.UpdateMediaFile(id, name, minioKey)
+}
+
+func (s *storage) UpdateDefaultMedia(ctx context.Context, id int, name string, key string, data []byte) error {
+	bucketName := os.Getenv(MEDIA_BUCKET_ENV)
+	if bucketName == "" {
+		return fmt.Errorf("missing %s environment variable", MEDIA_BUCKET_ENV)
+	}
+
+	mediaID, err := s.PutMediaFile(ctx, name, key, data)
+	if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+		media, err := s.postgres.GetMediaFileByKey(ctx, key)
+		if err != nil {
+			return fmt.Errorf("can't get media file by key: %v", err)
+		}
+		return s.UpdateMediaFile(ctx, media.ID, name, key, data)
+	}
+	if err != nil {
+		return fmt.Errorf("can't put media file: %v", err)
+	}
+
+	return s.postgres.UpdateDefaultMedia(ctx, id, mediaID)
 }

@@ -43,7 +43,7 @@ func (h *MediaHandler) Routes() chi.Router {
 	r.Get("/default", h.r.Wrap(h.GetMediaDefault))
 	r.Get("/default/{id}", h.r.Wrap(h.GetMediaDefaultByID))
 	r.Post("/default", h.r.Wrap(h.PostMediaDefault))
-	r.Delete("/default", h.r.Wrap(h.DeleteMediaDefault))
+	r.Delete("/default/{id}", h.r.Wrap(h.DeleteMediaDefault))
 	r.Put("/default/{id}", h.r.Wrap(h.UpdateMediaDefault))
 
 	return r
@@ -231,9 +231,73 @@ func (h *MediaHandler) PostMediaDefault(w http.ResponseWriter, req *http.Request
 }
 
 func (h *MediaHandler) DeleteMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
-	return nil
+	h.logger.Infof("Mediahandler: got DeleteMediaDefault request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token DeleteMediaDefault: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("MediaHandler: authenticated: %v", resp.MemberID)
+
+	defaultMedia := requests.DeleteDefaultMedia{}
+
+	err = defaultMedia.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse request DeleteMediaDefault: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("MediaHandler: parsed DeleteMediaDefault request")
+
+	err = h.media.DeleteMediaDefault(context.Background(), defaultMedia.ID)
+	if err != nil {
+		h.logger.Warnf("can't service.DeleteMediaDefault DeleteMediaDefault: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	h.logger.Infof("MediaHandler: done DeleteMediaDefault request")
+
+	return handler.OkResponse(nil)
 }
 
 func (h *MediaHandler) UpdateMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
-	return nil
+	h.logger.Infof("Mediahandler: got UpdateMediaDefault request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token DeleteMediaDefault: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("MediaHandler: authenticated: %v", resp.MemberID)
+
+	defaultMedia := requests.UpdateDefaultMedia{}
+	err = defaultMedia.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse request UpdateMediaDefault: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	err = h.media.UpdateMediaDefault(context.Background(), defaultMedia.ID, defaultMedia.Name, defaultMedia.Data)
+	if err != nil {
+		h.logger.Warnf("can't service.UpdateMediaDefault UpdateMediaDefault: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	h.logger.Infof("MediaHandler: done UpdateMediaDefault request")
+
+	return handler.OkResponse(nil)
 }

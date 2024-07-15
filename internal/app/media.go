@@ -20,6 +20,8 @@ type mediaStorage interface {
 	GetDefaultMedia(ctx context.Context, id int) (*domain.DefaultMedia, error)
 	GetAllDefaultMedia(ctx context.Context) ([]domain.DefaultMedia, error)
 	PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, mediaId int, err error)
+	DeleteDefaultMedia(ctx context.Context, id int) error
+	UpdateDefaultMedia(ctx context.Context, id int, name string, key string, data []byte) error
 }
 
 type MediaService struct {
@@ -103,4 +105,12 @@ func (s *MediaService) PutMediaDefault(ctx context.Context, name string, data []
 		return nil, fmt.Errorf("can't storage.PutDefaultMedia: %v", err)
 	}
 	return mapper.MakeResponsePostDefaultMedia(id, mediaID), nil
+}
+
+func (s *MediaService) DeleteMediaDefault(ctx context.Context, ID int) error {
+	return s.storage.DeleteDefaultMedia(ctx, ID)
+}
+
+func (s *MediaService) UpdateMediaDefault(ctx context.Context, ID int, name string, data []byte) error {
+	return s.storage.UpdateDefaultMedia(ctx, ID, name, name, data)
 }

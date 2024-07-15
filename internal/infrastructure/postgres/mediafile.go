@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/jackc/pgx"
@@ -47,6 +48,19 @@ func (p *Postgres) AddMediaFile(name, key string) (int, error) {
 		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 	return id, nil
+}
+
+const updateMediaFile = "UPDATE mediafile SET name = $1, key = $2 WHERE id = $3"
+
+func (p *Postgres) UpdateMediaFile(id int, name, key string) error {
+	tag, err := p.db.Exec(updateMediaFile, name, key, id)
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("media file not found by id=%d", id)
+	}
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return nil
 }
 
 const deleteMediaFile = "DELETE FROM mediafile WHERE id = $1 AND id > 0"
@@ -167,4 +181,41 @@ func (p *Postgres) AddDefaultMedia(ctx context.Context, mediaID int) (int, error
 		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
 	}
 	return mediaID, nil
+}
+
+const deleteDefaultMedia = "DELETE FROM default_media WHERE id = $1"
+
+func (p *Postgres) DeleteDefaultMedia(ctx context.Context, id int) error {
+	tag, err := p.db.Exec(deleteDefaultMedia, id)
+	if tag.RowsAffected() == 0 {
+		return fmt.Errorf("no rows deleted")
+	}
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return nil
+}
+
+const updateDefaultMedia = "UPDATE default_media SET media_id = $1 WHERE id = $2"
+
+func (p *Postgres) UpdateDefaultMedia(ctx context.Context, id, mediaID int) error {
+	res, err := p.db.Exec(updateDefaultMedia, mediaID, id)
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("no rows updated")
+	}
+	if err != nil {
+		return wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return nil
+}
+
+const getMediaFileByKey = "SELECT id, name, key FROM mediafile WHERE key = $1"
+
+func (p *Postgres) GetMediaFileByKey(ctx context.Context, key string) (*domain.MediaFile, error) {
+	f := domain.MediaFile{}
+	err := p.db.QueryRow(getMediaFileByKey, key).Scan(&f.ID, &f.Name, &f.Key)
+	if err != nil {
+		return nil, wrapPostgresError(err.(pgx.PgError).Code, err)
+	}
+	return &f, nil
 }
