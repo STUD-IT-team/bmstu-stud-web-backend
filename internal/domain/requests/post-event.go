@@ -20,7 +20,7 @@ type PostEvent struct {
 	CreatedBy   int       `json:"created_by"`
 	RegUrl      string    `json:"reg_url"`
 	RegOpenDate time.Time `json:"reg_open_date"`
-	FeedbackUrl string    `json:"eventback_url"`
+	FeedbackUrl string    `json:"feedback_url"`
 }
 
 type PostEventPointer struct {
@@ -34,7 +34,7 @@ type PostEventPointer struct {
 	CreatedBy   *int       `json:"created_by"`
 	RegUrl      *string    `json:"reg_url"`
 	RegOpenDate *time.Time `json:"reg_open_date"`
-	FeedbackUrl *string    `json:"eventback_url"`
+	FeedbackUrl *string    `json:"feedback_url"`
 }
 
 func (f *PostEvent) Bind(req *http.Request) error {

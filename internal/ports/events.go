@@ -57,6 +57,7 @@ func (h *EventsHandler) Routes() chi.Router {
 //	@Produce     json
 //	@Success     200 {object}  responses.GetAllEvents
 //	@Failure     404
+//	@Failure     500
 //	@Router      /events/ [get]
 //	@Security    public
 func (h *EventsHandler) GetAllEvents(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -65,7 +66,11 @@ func (h *EventsHandler) GetAllEvents(w http.ResponseWriter, req *http.Request) h
 	res, err := h.events.GetAllEvents(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't EventsService.GetAllEvents: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("EventsHandler: request GetAllEvents done")
@@ -83,6 +88,7 @@ func (h *EventsHandler) GetAllEvents(w http.ResponseWriter, req *http.Request) h
 //	@Success     200  {object} responses.GetEvent
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /events/{id} [get]
 //	@Security    public
 func (h *EventsHandler) GetEvent(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -101,7 +107,11 @@ func (h *EventsHandler) GetEvent(w http.ResponseWriter, req *http.Request) handl
 	res, err := h.events.GetEvent(context.Background(), eventId.ID)
 	if err != nil {
 		h.logger.Warnf("can't EventsService.GetEvent: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("EventsHandler: request GetEvent done")
@@ -120,6 +130,7 @@ func (h *EventsHandler) GetEvent(w http.ResponseWriter, req *http.Request) handl
 //	@Success     200  {object} responses.GetEventsByRange
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /events/range/ [get]
 //	@Security    public
 func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -138,7 +149,11 @@ func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Reques
 	res, err := h.events.GetEventsByRange(context.Background(), timeRange.From, timeRange.To)
 	if err != nil {
 		h.logger.Warnf("can't EventsService.GetEventsByRange: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("EventsHandler: request GetEventsByRange done")
@@ -156,7 +171,6 @@ func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Reques
 //		@Success     201
 //		@Failure     400
 //	 	@Failure     401
-//		@Failure     404
 //		@Failure     500
 //		@Router      /events/ [post]
 //		@Security    Authorised
@@ -247,6 +261,8 @@ func (h *EventsHandler) DeleteEvent(w http.ResponseWriter, req *http.Request) ha
 		h.logger.Warnf("can't EventService.DeleteEvent: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
@@ -304,8 +320,10 @@ func (h *EventsHandler) UpdateEvent(w http.ResponseWriter, req *http.Request) ha
 		h.logger.Warnf("can't EventService.UpdateEvent: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
-		} else {
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
 			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
 		}
 	}
 

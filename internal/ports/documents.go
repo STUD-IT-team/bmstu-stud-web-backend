@@ -65,6 +65,7 @@ func (h *DocumentsHandler) Routes() chi.Router {
 //	@Produce     json
 //	@Success     200 {object}  responses.GetAllDocuments
 //	@Failure     404
+//	@Failure     500
 //	@Router      /documents/ [get]
 //	@Security    public
 func (h *DocumentsHandler) GetAllDocuments(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -73,7 +74,11 @@ func (h *DocumentsHandler) GetAllDocuments(w http.ResponseWriter, req *http.Requ
 	res, err := h.documents.GetAllDocuments(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.GetAllDocuments: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("DocumentsHandler: request GetAllDocuments done")
@@ -91,6 +96,7 @@ func (h *DocumentsHandler) GetAllDocuments(w http.ResponseWriter, req *http.Requ
 //	@Success     200  {object} responses.GetDocument
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /documents/{id} [get]
 //	@Security    public
 func (h *DocumentsHandler) GetDocument(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -109,7 +115,11 @@ func (h *DocumentsHandler) GetDocument(w http.ResponseWriter, req *http.Request)
 	res, err := h.documents.GetDocument(context.Background(), documentId.ID)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.GetDocument: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("DocumentsHandler: request GetDocument done")
@@ -127,6 +137,7 @@ func (h *DocumentsHandler) GetDocument(w http.ResponseWriter, req *http.Request)
 //	@Success     200  {object} responses.GetDocumentsByCategory
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /documents/search_category/{category_id} [get]
 //	@Security    public
 func (h *DocumentsHandler) GetDocumentsByCategory(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -145,7 +156,11 @@ func (h *DocumentsHandler) GetDocumentsByCategory(w http.ResponseWriter, req *ht
 	res, err := h.documents.GetDocumentsByCategory(context.Background(), categoryId.ID)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.GetDocumentsByCategory: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("DocumentsHandler: request GetDocumentsByCategory done")
@@ -163,6 +178,7 @@ func (h *DocumentsHandler) GetDocumentsByCategory(w http.ResponseWriter, req *ht
 //	@Success     200  {object} responses.GetDocumentsByClubID
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
 //	@Router      /documents/search_club/{club_id} [get]
 //	@Security    public
 func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -181,7 +197,11 @@ func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http
 	res, err := h.documents.GetDocumentsByClubID(context.Background(), clubId.ID)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.GetDocumentsByClubID: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("DocumentsHandler: request GetDocumentsByClubID done")
@@ -197,6 +217,7 @@ func (h *DocumentsHandler) GetDocumentsByClubID(w http.ResponseWriter, req *http
 //	@Produce     json
 //	@Success     200 {object}  responses.GetAllDocumentCategories
 //	@Failure     404
+//	@Failure     500
 //	@Router      /documents/categories/ [get]
 //	@Security    public
 func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -205,7 +226,11 @@ func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Req
 	res, err := h.categories.GetAllDocumentCategories(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.GetAllCategories: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("DocumentsHandler: request GetAllCategories done")
@@ -223,6 +248,8 @@ func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Req
 //	@Success     200  {object} responses.GetDocumentCategory
 //	@Failure     400
 //	@Failure     404
+//	@Failure     500
+
 //	@Router      /documents/categories/{id} [get]
 //	@Security    public
 func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -241,7 +268,11 @@ func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request)
 	res, err := h.categories.GetDocumentCategory(context.Background(), catId.ID)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.GetCategory: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("DocumentsHandler: request GetCategory done")
@@ -318,6 +349,8 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
+
 //	@Router      /documents/{id} [delete]
 //	@Security    Authorised
 func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -350,7 +383,11 @@ func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Reque
 	err = h.documents.DeleteDocument(context.Background(), documentId.ID)
 	if err != nil {
 		h.logger.Warnf("can't DocumentsService.DeleteDocument: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("DocumentsHandler: request DeleteDocument done")
@@ -371,6 +408,7 @@ func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Reque
 //	@Failure     400
 //	@Failure     401
 //	@Failure     409
+//	@Failure     404
 //	@Failure     500
 //	@Router      /documents/{id} [put]
 //	@Security    Authorised
@@ -408,6 +446,9 @@ func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Reque
 			return handler.ConflictResponse()
 		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
@@ -486,6 +527,7 @@ func (h *DocumentsHandler) PostCategory(w http.ResponseWriter, req *http.Request
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /documents/categories/{id} [delete]
 //	@Security    Authorised
 func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -518,10 +560,13 @@ func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Reque
 	err = h.categories.DeleteDocumentCategory(context.Background(), catId.ID)
 	if err != nil {
 		h.logger.Warnf("can't DocumentCategoriesService.DeleteDocumentCategory: %v", err)
-		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
-			return handler.BadRequestResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
 		}
-		return handler.NotFoundResponse()
 	}
 
 	h.logger.Info("DocumentsHandler: request DeleteCategory done")
@@ -540,6 +585,7 @@ func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Reque
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
+//	@Failure     404
 //	@Failure     409
 //	@Failure     500
 //	@Router      /documents/categories/{id} [put]
@@ -578,6 +624,8 @@ func (h *DocumentsHandler) UpdateCategory(w http.ResponseWriter, req *http.Reque
 			return handler.ConflictResponse()
 		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}

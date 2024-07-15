@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
@@ -54,7 +53,7 @@ const updateMediaFile = "UPDATE mediafile SET name = $1, key = $2 WHERE id = $3"
 func (p *Postgres) UpdateMediaFile(id int, name, key string) error {
 	tag, err := p.db.Exec(updateMediaFile, name, key, id)
 	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("media file not found by id=%d", id)
+		return wrapPostgresError(err)
 	}
 	if err != nil {
 		return wrapPostgresError(err)

@@ -59,6 +59,7 @@ func (h *MembersHandler) Routes() chi.Router {
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /members/ [get]
 //	@Security    Authorised
 func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -81,7 +82,11 @@ func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request)
 	res, err := h.members.GetAllMembers(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't MembersHandler.GetAllMembers: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("MembersHandler: request GetAllMembers done")
@@ -100,6 +105,7 @@ func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request)
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /members/{id} [get]
 //	@Security    Authorised
 func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -132,7 +138,11 @@ func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) han
 	res, err := h.members.GetMember(context.Background(), memberId.ID)
 	if err != nil {
 		h.logger.Warnf("can't MembersService.GetMember: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("MembersHandler: request GetMember done")
@@ -151,6 +161,7 @@ func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) han
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
+//	@Failure     500
 //	@Router      /members/search/{name} [get]
 //	@Security    Authorised
 func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -183,7 +194,11 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 	res, err := h.members.GetMembersByName(context.Background(), name.Search)
 	if err != nil {
 		h.logger.Warnf("can't MemberService.GetMembersByName: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("MembersHandler: request GetMembersByName done")
@@ -297,6 +312,8 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 		h.logger.Warnf("can't MembersService.DeleteMember: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
@@ -356,6 +373,8 @@ func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) 
 			return handler.ConflictResponse()
 		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}

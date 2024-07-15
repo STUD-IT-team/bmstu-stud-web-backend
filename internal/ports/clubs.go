@@ -58,6 +58,7 @@ func (h *ClubsHandler) Routes() chi.Router {
 // @Produce    json
 // @Success    200      {object}  responses.GetAllClubs
 // @Failure    404
+// @Failure    500
 // @Router      /clubs [get]
 // @Security    Public
 func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -66,7 +67,11 @@ func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) han
 	res, err := h.clubs.GetAllClubs(context.Background())
 	if err != nil {
 		h.logger.Warnf("can't service.GetAllClubs GetAllClubs: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
@@ -84,7 +89,7 @@ func (h *ClubsHandler) GetAllClubs(w http.ResponseWriter, req *http.Request) han
 // @Success    200      {object}  responses.GetClub
 // @Failure    400
 // @Failure    404
-//
+// @Failure    500
 // @Router      /clubs/{club_id} [get]
 // @Security    Public
 func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -103,7 +108,11 @@ func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler
 	res, err := h.clubs.GetClub(context.Background(), clubId.ID)
 	if err != nil {
 		h.logger.Warnf("can't ClubService.GetClub: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
@@ -121,6 +130,7 @@ func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler
 // @Success    200      {object}  responses.GetClubsByType
 // @Failure    400
 // @Failure    404
+// @Failure    500
 // @Router      /clubs/type/{club_type} [get]
 // @Security    Public
 func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -139,7 +149,11 @@ func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) 
 	res, err := h.clubs.GetClubsByType(context.Background(), clubName.Type)
 	if err != nil {
 		h.logger.Warnf("can't ClubService.GetClub: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
@@ -157,6 +171,7 @@ func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) 
 // @Success    200      {object}  responses.GetClubsByName
 // @Failure    400
 // @Failure    404
+// @Failure    500
 // @Router      /clubs/search/{club_name} [get]
 // @Security    Public
 func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -175,7 +190,11 @@ func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) 
 	res, err := h.clubs.GetClubsByName(context.Background(), clubName.Name)
 	if err != nil {
 		h.logger.Warnf("can't ClubService.GetClub: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
@@ -193,6 +212,7 @@ func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) 
 // @Success    200      {object}  responses.GetClubMembers
 // @Failure    400
 // @Failure    404
+// @Failure    500
 // @Router      /clubs/members/{club_id} [get]
 // @Security    Public
 func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -211,7 +231,11 @@ func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) 
 	res, err := h.clubs.GetClubMembers(context.Background(), clubId.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.GetClubMembers GetClubMembers: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
@@ -229,6 +253,7 @@ func (h *ClubsHandler) GetClubMembers(w http.ResponseWriter, req *http.Request) 
 // @Success    200      {object}  responses.GetClubMedia
 // @Failure    400
 // @Failure    404
+// @Failure    500
 // @Router      /clubs/media/{club_id} [get]
 // @Security    Public
 func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -246,7 +271,11 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 	res, err := h.clubs.GetClubMediaFiles(context.Background(), clubId.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.GetClubMedia GetClubMedia: %v", err)
-		return handler.NotFoundResponse()
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		} else {
+			return handler.InternalServerErrorResponse()
+		}
 	}
 
 	h.logger.Info("ClubsHandler: request done")
@@ -321,6 +350,7 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    404
 // @Failure    500
 // @Router      /clubs [delete]
 // @Security    Authorized
@@ -356,6 +386,8 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 		h.logger.Warnf("can't service.DeleteClub DeleteClub: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
@@ -377,6 +409,7 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 // @Failure    400
 // @Failure    401
 // @Failure    409
+// @Failure    404
 // @Failure    500
 // @Router      /clubs [put]
 // @Security    Authorized
@@ -414,6 +447,8 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 			return handler.ConflictResponse()
 		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
 			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
 		} else {
 			return handler.InternalServerErrorResponse()
 		}
