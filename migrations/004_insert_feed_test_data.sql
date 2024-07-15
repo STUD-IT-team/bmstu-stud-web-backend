@@ -23,10 +23,10 @@ VALUES
 ('2', 'sllab', 1),
 ('22', 'sllab', 2);
 
-INSERT INTO event (title, description, prompt,  media_id,  date, approved, created_at, created_by, reg_url, reg_open_date, feedback_url)
+INSERT INTO event (title, description, prompt,  media_id,  date, approved, created_at, main_org, reg_url, reg_open_date, feedback_url, club_id)
 VALUES
-('kcoc', 'sllab', 'kcid', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 1, 'ahh', '2005-11-19 10:23:54', '123'),
-('sinep', 'stun', 'nibor', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 2, 'ahh', '2005-11-19 10:23:54', '123');
+('kcoc', 'sllab', 'kcid', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 1, 'ahh', '2005-11-19 10:23:54', '123', 1),
+('sinep', 'stun', 'nibor', 1, '2005-11-19 10:23:54', true, '2005-11-19 10:23:54', 2, 'ahh', '2005-11-19 10:23:54', '123', 0);
 
 -- +goose StatementEnd
 

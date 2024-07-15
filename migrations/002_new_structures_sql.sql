@@ -38,6 +38,7 @@ create table if not exists club_org (
 alter table encounter add foreign key (club_id) references club(id);
 
 alter table club add FOREIGN KEY (logo) REFERENCES mediafile(id);
+alter table event add foreign key (club_id) references club(id);
 
 alter table club_photo add FOREIGN KEY (media_id) REFERENCES mediafile(id);
 alter table club_photo add FOREIGN KEY (club_id) REFERENCES club(id);

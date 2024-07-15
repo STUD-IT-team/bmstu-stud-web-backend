@@ -51,7 +51,8 @@ create table IF NOT EXISTS event
     date          timestamp not null,
     approved      boolean default false,
     created_at    timestamp not null,
-    created_by    int       not null,
+    club_id       int       not null,
+    main_org      int       not null,
     reg_url       text    default '',
     reg_open_date timestamp not null, 
     feedback_url  text    default ''
@@ -64,7 +65,7 @@ alter table feed add foreign key (media_id) references mediafile(id);
 alter table feed add foreign key (created_by) references member(id);
 
 alter table event add foreign key (media_id) references mediafile(id);
-alter table event add foreign key (created_by) references member(id);
+alter table event add foreign key (main_org) references member(id);
 
 -- +goose StatementEnd
 
