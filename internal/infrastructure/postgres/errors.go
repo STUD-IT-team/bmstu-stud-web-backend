@@ -27,7 +27,7 @@ var (
 	ErrPostgresNotFoundError             = errors.New(TextPostgresNotFoundError)
 )
 
-func mapPostgresError(code string) error {
+func mapPgError(code string) error {
 	if code == uniqueConstraintViolation {
 		return ErrPostgresUniqueConstraintViolation
 	}
@@ -40,13 +40,26 @@ func mapPostgresError(code string) error {
 	return ErrPostgresUnknownError
 }
 
+func mapPgxError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if err == pgx.ErrNoRows {
+		return ErrPostgresNotFoundError
+	}
+	return nil
+}
+
 func wrapPostgresError(err error) error {
 	if err == nil {
 		return nil
 	}
-	perr, ok := err.(pgx.PgError)
+	if pgxErr := mapPgxError(err); pgxErr != nil {
+		return fmt.Errorf("%w: %w", pgxErr, err)
+	}
+	pErr, ok := err.(pgx.PgError)
 	if !ok {
 		return err
 	}
-	return fmt.Errorf("%s %w: %w", perr.Code, mapPostgresError(perr.Code), err)
+	return fmt.Errorf("%s %w: %w", pErr.Code, mapPgError(pErr.Code), err)
 }
