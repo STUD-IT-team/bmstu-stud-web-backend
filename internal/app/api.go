@@ -18,9 +18,10 @@ type apiService struct {
 	eventsService  *EventsService
 	clubsService   *ClubService
 	membersService *MembersService
+	faqService     *FAQService
 }
 
-func NewAPI(logger *logrus.Logger, feed *FeedService, events *EventsService, membs *MembersService, club *ClubService, guard *GuardService) API {
+func NewAPI(logger *logrus.Logger, feed *FeedService, events *EventsService, membs *MembersService, club *ClubService, guard *GuardService, faq *FAQService) API {
 	return &apiService{
 		logger:         logger,
 		feedService:    feed,
@@ -28,6 +29,7 @@ func NewAPI(logger *logrus.Logger, feed *FeedService, events *EventsService, mem
 		eventsService:  events,
 		clubsService:   club,
 		membersService: membs,
+		faqService:     faq,
 	}
 }
 
