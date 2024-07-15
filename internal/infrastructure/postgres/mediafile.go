@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-	"github.com/jackc/pgx"
 )
 
 const getMediaFile = "SELECT name, key FROM mediafile WHERE id = $1 AND id > 0"
@@ -14,7 +13,7 @@ func (p *Postgres) GetMediaFile(id int) (*domain.MediaFile, error) {
 	f := domain.MediaFile{}
 	err := p.db.QueryRow(getMediaFile, id).Scan(&f.Name, &f.Key)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 	f.ID = id
 	return &f, nil
@@ -26,13 +25,13 @@ func (p *Postgres) GetMediaFiles(ids []int) (map[int]domain.MediaFile, error) {
 	m := make(map[int]domain.MediaFile)
 	rows, err := p.db.Query(getMediaFiles, ids)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 	for rows.Next() {
 		media := domain.MediaFile{}
 		err := rows.Scan(&media.ID, &media.Name, &media.Key)
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 		m[media.ID] = media
 	}
@@ -45,7 +44,7 @@ func (p *Postgres) AddMediaFile(name, key string) (int, error) {
 	var id int
 	err := p.db.QueryRow(addMediaFile, name, key).Scan(&id)
 	if err != nil {
-		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
+		return 0, wrapPostgresError(err)
 	}
 	return id, nil
 }
@@ -58,7 +57,7 @@ func (p *Postgres) UpdateMediaFile(id int, name, key string) error {
 		return fmt.Errorf("media file not found by id=%d", id)
 	}
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 	return nil
 }
@@ -68,7 +67,7 @@ const deleteMediaFile = "DELETE FROM mediafile WHERE id = $1 AND id > 0"
 func (p *Postgres) DeleteMediaFile(id int) error {
 	_, err := p.db.Exec(deleteMediaFile, id)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 	return nil
 }
@@ -96,14 +95,14 @@ func (p *Postgres) GetUnusedMedia(ctx context.Context) ([]domain.MediaFile, erro
 	res := make([]domain.MediaFile, 0)
 	rows, err := p.db.Query(getUnusedMedia)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
 		med := domain.MediaFile{}
 		err := rows.Scan(&med.ID, &med.Name, &med.Key)
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 		res = append(res, med)
 	}
@@ -115,7 +114,7 @@ const deleteMediaFiles = "DELETE FROM mediafile WHERE key = ANY($1) AND id > 0"
 func (p *Postgres) DeleteMediaFiles(ctx context.Context, keys []string) error {
 	_, err := p.db.Exec(deleteMediaFiles, keys)
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 	return nil
 }
@@ -125,7 +124,7 @@ const getAllMediaKeys = "SELECT key FROM mediafile WHERE id > 0"
 func (p *Postgres) GetAllMediaKeys(ctx context.Context) ([]string, error) {
 	rows, err := p.db.Query(getAllMediaKeys)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 	defer rows.Close()
 
@@ -134,7 +133,7 @@ func (p *Postgres) GetAllMediaKeys(ctx context.Context) ([]string, error) {
 		var key string
 		err := rows.Scan(&key)
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 		keys = append(keys, key)
 	}
@@ -146,10 +145,10 @@ const getDefautlMedia = "SELECT id, media_id FROM default_media WHERE id = $1"
 func (p *Postgres) GetDefautlMedia(ctx context.Context, id int) (*domain.DefaultMedia, error) {
 	var d domain.DefaultMedia
 	err := p.db.QueryRow(getDefautlMedia, id).Scan(&d.ID, &d.MediaID)
-	if err == nil {
-		return &d, nil
+	if err != nil {
+		return nil, wrapPostgresError(err)
 	}
-	return nil, err
+	return &d, nil
 }
 
 const getAllDefaultMedia = "SELECT id, media_id FROM default_media"
@@ -158,16 +157,20 @@ func (p *Postgres) GetAllDefaultMedia(ctx context.Context) ([]domain.DefaultMedi
 	defaultMedia := make([]domain.DefaultMedia, 0)
 	rows, err := p.db.Query(getAllDefaultMedia)
 	if err != nil {
-		return nil, err
+		return nil, wrapPostgresError(err)
 	}
 
 	for rows.Next() {
 		d := domain.DefaultMedia{}
 		err := rows.Scan(&d.ID, &d.MediaID)
 		if err != nil {
-			return nil, err
+			return nil, wrapPostgresError(err)
 		}
 		defaultMedia = append(defaultMedia, d)
+	}
+
+	if len(defaultMedia) == 0 {
+		return nil, ErrPostgresNotFoundError
 	}
 
 	return defaultMedia, nil
@@ -178,7 +181,7 @@ const addDefaultMedia = "INSERT INTO default_media (media_id) VALUES ($1) RETURN
 func (p *Postgres) AddDefaultMedia(ctx context.Context, mediaID int) (int, error) {
 	err := p.db.QueryRow(addDefaultMedia, mediaID).Scan(&mediaID)
 	if err != nil {
-		return 0, wrapPostgresError(err.(pgx.PgError).Code, err)
+		return 0, wrapPostgresError(err)
 	}
 	return mediaID, nil
 }
@@ -188,10 +191,10 @@ const deleteDefaultMedia = "DELETE FROM default_media WHERE id = $1"
 func (p *Postgres) DeleteDefaultMedia(ctx context.Context, id int) error {
 	tag, err := p.db.Exec(deleteDefaultMedia, id)
 	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("no rows deleted")
+		return ErrPostgresNotFoundError
 	}
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 	return nil
 }
@@ -201,10 +204,10 @@ const updateDefaultMedia = "UPDATE default_media SET media_id = $1 WHERE id = $2
 func (p *Postgres) UpdateDefaultMedia(ctx context.Context, id, mediaID int) error {
 	res, err := p.db.Exec(updateDefaultMedia, mediaID, id)
 	if res.RowsAffected() == 0 {
-		return fmt.Errorf("no rows updated")
+		return ErrPostgresNotFoundError
 	}
 	if err != nil {
-		return wrapPostgresError(err.(pgx.PgError).Code, err)
+		return wrapPostgresError(err)
 	}
 	return nil
 }
@@ -215,7 +218,7 @@ func (p *Postgres) GetMediaFileByKey(ctx context.Context, key string) (*domain.M
 	f := domain.MediaFile{}
 	err := p.db.QueryRow(getMediaFileByKey, key).Scan(&f.ID, &f.Name, &f.Key)
 	if err != nil {
-		return nil, wrapPostgresError(err.(pgx.PgError).Code, err)
+		return nil, wrapPostgresError(err)
 	}
 	return &f, nil
 }
