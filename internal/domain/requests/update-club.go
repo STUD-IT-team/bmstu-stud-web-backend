@@ -55,7 +55,7 @@ func (p *UpdateClub) Bind(req *http.Request) error {
 			VkUrl:       *pf.VkUrl,
 			TgUrl:       *pf.TgUrl,
 			ParentID:    *pf.ParentID,
-			Orgs:        *pf.Orgs,
+			Orgs:        pf.Orgs,
 		},
 	}
 

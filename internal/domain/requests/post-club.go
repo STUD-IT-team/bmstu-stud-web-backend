@@ -21,15 +21,15 @@ type PostClub struct {
 }
 
 type PostClubPointer struct {
-	Name        *string    `json:"name"`
-	ShortName   *string    `json:"short_name"`
-	Description *string    `json:"description"`
-	Type        *string    `json:"type"`
-	LogoId      *int       `json:"logo_id"`
-	VkUrl       *string    `json:"vk_url"`
-	TgUrl       *string    `json:"tg_url"`
-	ParentID    *int       `json:"parent_id"`
-	Orgs        *[]ClubOrg `json:"orgs"`
+	Name        *string   `json:"name"`
+	ShortName   *string   `json:"short_name"`
+	Description *string   `json:"description"`
+	Type        *string   `json:"type"`
+	LogoId      *int      `json:"logo_id"`
+	VkUrl       *string   `json:"vk_url"`
+	TgUrl       *string   `json:"tg_url"`
+	ParentID    *int      `json:"parent_id"`
+	Orgs        []ClubOrg `json:"orgs"`
 }
 type ClubOrg struct {
 	MemberID int    `json:"member_id"`
@@ -66,7 +66,7 @@ func (c *PostClub) Bind(req *http.Request) error {
 		VkUrl:       *pc.VkUrl,
 		TgUrl:       *pc.TgUrl,
 		ParentID:    *pc.ParentID,
-		Orgs:        *pc.Orgs,
+		Orgs:        pc.Orgs,
 	}
 
 	return c.validate()

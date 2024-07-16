@@ -27,6 +27,7 @@ type clubStorage interface {
 	AddOrgs(ctx context.Context, orgs []domain.ClubOrg) error
 	DeleteClubWithOrgs(ctx context.Context, clubID int) error
 	UpdateClub(ctx context.Context, c *domain.Club, o []domain.ClubOrg) error
+	AddClubPhotos(ctx context.Context, p []domain.ClubPhoto) error
 }
 
 type ClubService struct {
@@ -271,6 +272,24 @@ func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*respo
 	}
 
 	return mapper.MakeResponseClubMediaFiles(clubID, clubPhotos, media)
+}
+
+func (s *ClubService) PostClubPhoto(ctx context.Context, req *requests.PostClubPhoto) error {
+	photos := make([]domain.ClubPhoto, 0, len(req.Photos))
+	for _, p := range req.Photos {
+		photos = append(photos, domain.ClubPhoto{
+			ClubID:    req.ClubID,
+			MediaID:   p.MediaID,
+			RefNumber: p.RefNumber,
+			ID:        0,
+		})
+	}
+
+	err := s.storage.AddClubPhotos(ctx, photos)
+	if err != nil {
+		return fmt.Errorf("can't storage.AddClubPhotos: %w", err)
+	}
+	return nil
 }
 
 func (s *ClubService) GetClearancePost(ctx context.Context, resp *responses.CheckResponse) (*responses.GetClearance, error) {

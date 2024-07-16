@@ -734,3 +734,20 @@ func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.Club
 	err = tx.Commit()
 	return wrapPostgresError(err)
 }
+
+const addClubPhoto = "INSERT INTO club_photo (ref_num, club_id, media_id) VALUES ($1, $2, $3)"
+
+func (s *Postgres) AddClubPhotos(_ context.Context, p []domain.ClubPhoto) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return wrapPostgresError(err)
+	}
+	for _, photo := range p {
+		_, err = tx.Exec(addClubPhoto, photo.RefNumber, photo.ClubID, photo.MediaID)
+		if err != nil {
+			tx.Rollback()
+			return wrapPostgresError(err)
+		}
+	}
+	return wrapPostgresError(tx.Commit())
+}
