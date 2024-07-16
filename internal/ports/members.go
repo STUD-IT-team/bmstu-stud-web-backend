@@ -55,7 +55,7 @@ func (h *MembersHandler) Routes() chi.Router {
 //	@Description Get a list of all members
 //	@Tags        auth.members
 //	@Produce     json
-//	@Success     200 {object} responses.Member
+//	@Success     200 {object} responses.GetAllMembers
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404

@@ -6,7 +6,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
-const getAllMembersQuery = "SELECT id, login, media_id, telegram, vk, name, role_id, is_admin FROM member"
+const getAllMembersQuery = "SELECT id, login, media_id, telegram, vk, name, is_admin FROM member"
 
 func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 	var members []domain.Member
@@ -26,7 +26,6 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 			&member.Telegram,
 			&member.Vk,
 			&member.Name,
-			&member.RoleID,
 			&member.IsAdmin,
 		)
 
@@ -44,7 +43,7 @@ func (p *Postgres) GetAllMembers(_ context.Context) ([]domain.Member, error) {
 	return members, nil
 }
 
-const getMemberQuery = "SELECT id, login, media_id, telegram, vk, name, role_id, is_admin FROM member WHERE id=$1"
+const getMemberQuery = "SELECT id, login, media_id, telegram, vk, name, is_admin FROM member WHERE id=$1"
 
 func (p *Postgres) GetMember(ctx context.Context, id int) (*domain.Member, error) {
 	var member domain.Member
@@ -59,7 +58,6 @@ func (p *Postgres) GetMember(ctx context.Context, id int) (*domain.Member, error
 		&member.Telegram,
 		&member.Vk,
 		&member.Name,
-		&member.RoleID,
 		&member.IsAdmin,
 	)
 
@@ -70,7 +68,7 @@ func (p *Postgres) GetMember(ctx context.Context, id int) (*domain.Member, error
 	return &member, nil
 }
 
-const getMembersByNameQuery = "SELECT id, login, media_id, telegram, vk, name, role_id, is_admin FROM member WHERE name ILIKE $1"
+const getMembersByNameQuery = "SELECT id, login, media_id, telegram, vk, name, is_admin FROM member WHERE name ILIKE $1"
 
 func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Member, error) {
 	var members []domain.Member
@@ -90,7 +88,6 @@ func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Me
 			&member.Telegram,
 			&member.Vk,
 			&member.Name,
-			&member.RoleID,
 			&member.IsAdmin,
 		)
 
@@ -109,8 +106,8 @@ func (p *Postgres) GetMembersByName(_ context.Context, name string) ([]domain.Me
 }
 
 const postMemberQuery = `INSERT INTO member 
-	(login, media_id, telegram, vk, name, role_id, is_admin) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	(login, media_id, telegram, vk, name, is_admin) 
+	VALUES ($1, $2, $3, $4, $5, $6)`
 
 func (p *Postgres) PostMember(ctx context.Context, member *domain.Member) error {
 	_, err := p.db.Exec(
@@ -120,7 +117,6 @@ func (p *Postgres) PostMember(ctx context.Context, member *domain.Member) error 
 		member.Telegram,
 		member.Vk,
 		member.Name,
-		member.RoleID,
 		member.IsAdmin,
 	)
 
@@ -155,9 +151,8 @@ media_id=$2,
 telegram=$3, 
 vk=$4, 
 name=$5, 
-role_id=$6, 
-is_admin=$7
-WHERE id=$8`
+is_admin=$6
+WHERE id=$7`
 
 func (p *Postgres) UpdateMember(ctx context.Context, member *domain.Member) error {
 	tag, err := p.db.Exec(
@@ -167,7 +162,6 @@ func (p *Postgres) UpdateMember(ctx context.Context, member *domain.Member) erro
 		member.Telegram,
 		member.Vk,
 		member.Name,
-		member.RoleID,
 		member.IsAdmin,
 		member.ID,
 	)

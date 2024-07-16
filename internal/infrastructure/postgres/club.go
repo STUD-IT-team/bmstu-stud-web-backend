@@ -182,8 +182,8 @@ func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Clu
 
 const getClubOrgs = `
 SELECT
-	role_name,
-	role_spec,
+    orgs.role_name,
+    orgs.role_spec,
 	mem.id,
 	mem.hash_password,
 	mem.login,
@@ -191,7 +191,6 @@ SELECT
 	mem.telegram,
 	mem.vk,
 	mem.name,
-	mem.role_id,
 	mem.is_admin,
 	clubs.name as club_name
 FROM club_org
@@ -205,7 +204,6 @@ JOIN
 		telegram,
 		vk,
 		name,
-		role_id,
 		is_admin
 		FROM member
 ) mem
@@ -218,6 +216,16 @@ JOIN
     FROM club
 ) as clubs
 ON (club_org.club_id = clubs.id)
+JOIN
+(
+	SELECT
+        id,
+		role_name,
+		role_spec
+	FROM club_role
+    WHERE role_clearance = 2
+) as orgs
+ON orgs.id = club_org.role_id
 WHERE club_id = $1 AND club_id > 0
 `
 
@@ -239,7 +247,6 @@ func (s *Postgres) GetClubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg,
 			&c.Telegram,
 			&c.Vk,
 			&c.Name,
-			&c.RoleID,
 			&c.IsAdmin,
 			&c.ClubName,
 		)
@@ -256,8 +263,8 @@ func (s *Postgres) GetClubOrgs(_ context.Context, clubID int) ([]domain.ClubOrg,
 
 const getClubsOrgs = `
 SELECT
-	role_name,
-	role_spec,
+    orgs.role_name,
+    orgs.role_spec,
 	mem.id,
 	mem.hash_password,
 	mem.login,
@@ -265,7 +272,6 @@ SELECT
 	mem.telegram,
 	mem.vk,
 	mem.name,
-	mem.role_id,
 	mem.is_admin,
 	clubs.name as club_name,
 	clubs.id as club_id
@@ -293,6 +299,16 @@ JOIN
     FROM club
 ) as clubs
 ON (club_org.club_id = clubs.id)
+JOIN
+(
+	SELECT
+        id,
+		role_name,
+		role_spec
+	FROM club_role
+    WHERE role_clearance = 2
+) as orgs
+ON orgs.id = club_org.role_id
 WHERE club_id = ANY($1) AND club_id > 0
 `
 
@@ -314,7 +330,6 @@ func (s *Postgres) GetClubsOrgs(_ context.Context, clubIDs []int) ([]domain.Club
 			&c.Telegram,
 			&c.Vk,
 			&c.Name,
-			&c.RoleID,
 			&c.IsAdmin,
 			&c.ClubName,
 			&c.ClubID,
@@ -332,8 +347,8 @@ func (s *Postgres) GetClubsOrgs(_ context.Context, clubIDs []int) ([]domain.Club
 
 const getClubSubOrgs = `
 SELECT
-	role_name,
-	role_spec,
+	orgs.role_name,
+	orgs.role_spec,
 	mem.id,
 	mem.hash_password,
 	mem.login,
@@ -341,7 +356,6 @@ SELECT
 	mem.telegram,
 	mem.vk,
 	mem.name,
-	mem.role_id,
 	mem.is_admin,
 	clubs.name as club_name
 FROM club_org
@@ -369,6 +383,16 @@ JOIN
 	WHERE id > 0
 ) as clubs
 ON (club_org.club_id = clubs.id)
+JOIN
+(
+	SELECT
+        id,
+		role_name,
+		role_spec
+	FROM club_role
+    WHERE role_clearance = 2
+) as orgs
+ON orgs.id = club_org.role_id
 WHERE club_id = ANY((SELECT id FROM club WHERE parent_id = $1)) AND club_id > 0
 `
 
@@ -390,7 +414,6 @@ func (s *Postgres) GetClubSubOrgs(_ context.Context, clubID int) ([]domain.ClubO
 			&c.Telegram,
 			&c.Vk,
 			&c.Name,
-			&c.RoleID,
 			&c.IsAdmin,
 			&c.ClubName,
 		)
@@ -408,8 +431,8 @@ func (s *Postgres) GetClubSubOrgs(_ context.Context, clubID int) ([]domain.ClubO
 
 const getAllClubOrgs = `
 SELECT
-	role_name,
-	role_spec,
+	orgs.role_name,
+	orgs.role_spec,
 	member_id,
 	club_id,
 	mem.hash_password,
@@ -418,7 +441,6 @@ SELECT
 	mem.telegram,
 	mem.vk,
 	mem.name,
-	mem.role_id,
 	mem.is_admin,
 	clubs.name as club_name
 FROM club_org
@@ -445,6 +467,16 @@ JOIN
     FROM club
 	WHERE id > 0
 ) as clubs
+JOIN
+(
+	SELECT
+        id,
+		role_name,
+		role_spec
+	FROM club_role
+    WHERE role_clearance = 2
+) as orgs
+ON orgs.id = club_org.role_id
 ON (club_org.club_id = clubs.id)
 `
 
@@ -467,7 +499,6 @@ func (s *Postgres) GetAllClubOrgs(_ context.Context) ([]domain.ClubOrg, error) {
 			&c.Telegram,
 			&c.Vk,
 			&c.Name,
-			&c.RoleID,
 			&c.IsAdmin,
 			&c.ClubName,
 		)
@@ -516,13 +547,21 @@ func (s *Postgres) AddClub(_ context.Context, c *domain.Club) (int, error) {
 	return id, nil
 }
 
+const addOrgRole = `
+INSERT INTO club_role (
+    role_name,
+    role_spec,
+    role_clearance
+) VALUES ($1, $2, 2)
+RETURNING id
+`
+
 const addOrgs = `
 INSERT INTO club_org (
-	role_name,
-    role_spec,
+	role_id,
     member_id,
-    club_id
-) VALUES ($1, $2, $3, $4)
+    club_id,
+) VALUES ($1, $2, $3)
 `
 
 func (s *Postgres) AddOrgs(_ context.Context, orgs []domain.ClubOrg) error {
@@ -532,7 +571,13 @@ func (s *Postgres) AddOrgs(_ context.Context, orgs []domain.ClubOrg) error {
 	}
 
 	for _, org := range orgs {
-		_, err = tx.Exec(addOrgs, org.RoleName, org.RoleSpec, org.ID, org.ClubID)
+		var id int
+		err := s.db.QueryRow(addOrgRole, org.RoleName, org.RoleSpec).Scan(&id)
+		if err != nil {
+			tx.Rollback()
+			return wrapPostgresError(err)
+		}
+		_, err = tx.Exec(addOrgs, id, org.ID, org.ClubID)
 		if err != nil {
 			tx.Rollback()
 			return wrapPostgresError(err)
@@ -576,6 +621,7 @@ func (s *Postgres) GetClubMediaFiles(clubID int) ([]domain.ClubPhoto, error) {
 
 const deleteClub = "DELETE FROM club WHERE id = $1"
 const deleteClubOrgs = "DELETE FROM club_org WHERE club_id = $1"
+const deleteClubMembers = "DELETE FROM member WHERE club_id = $1"
 const deleteClubPhotos = "DELETE FROM club_photo WHERE club_id = $1"
 const deleteClubEncounters = "DELETE FROM encounter WHERE club_id = $1"
 const deleteClubDocuments = "DELETE FROM document WHERE club_id = $1"

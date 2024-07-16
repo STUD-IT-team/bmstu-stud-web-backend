@@ -59,7 +59,6 @@ create table IF NOT EXISTS event
 );
 
 alter table member add foreign key (media_id) references mediafile(id);
-alter table member add foreign key (role_id) references member_role(role_id);
 
 alter table feed add foreign key (media_id) references mediafile(id);
 alter table feed add foreign key (created_by) references member(id);

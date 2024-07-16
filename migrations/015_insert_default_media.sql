@@ -15,5 +15,5 @@ VALUES
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE FROM default_media
+DELETE FROM default_media;
 -- +goose StatementEnd
