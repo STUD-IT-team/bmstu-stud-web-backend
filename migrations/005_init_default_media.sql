@@ -1,5 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
+
 create table IF NOT EXISTS default_media
 (
     id      serial PRIMARY KEY,
@@ -11,5 +12,7 @@ create table IF NOT EXISTS default_media
 
 -- +goose Down
 -- +goose StatementBegin
-drop table IF EXISTS default_media;
+
+drop table IF EXISTS default_media CASCADE;
+
 -- +goose StatementEnd
