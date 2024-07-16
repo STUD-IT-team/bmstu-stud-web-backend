@@ -60,17 +60,17 @@ func (h *FAQHandler) GetAllFAQ(w http.ResponseWriter, req *http.Request) handler
 func (h *FAQHandler) GetFAQ(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FAQHandler: got GetFAQ request")
 
-	faqId := &requests.GetFAQ{}
+	reqFAQ := &requests.GetFAQ{}
 
-	err := faqId.Bind(req)
+	err := reqFAQ.Bind(req)
 	if err != nil {
 		h.logger.Warnf("can't requests.Bind: %v", err)
 		return handler.BadRequestResponse()
 	}
 
-	h.logger.Infof("FAQHandler: parse request GetFAQ: %v", faqId)
+	h.logger.Infof("FAQHandler: parse request GetFAQ: %v", reqFAQ)
 
-	res, err := h.faq.GetFAQ(context.Background(), faqId.ID)
+	res, err := h.faq.GetFAQ(context.Background(), reqFAQ.ID)
 	if err != nil {
 		h.logger.Warnf("can't FAQService.GetFAQ: %v", err)
 		return handler.NotFoundResponse()

@@ -5,16 +5,8 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-// import (
-// 	"fmt"
-
-// 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
-// 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
-// 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
-// )
-
-func MakeResponseAllFAQ(f []domain.FAQ) (map[string][]responses.FAQ, error) {
-	categories := make(map[string][]responses.FAQ)
+func MakeResponseAllFAQ(f []domain.FAQ) (map[int][]responses.FAQ, error) {
+	categories := make(map[int][]responses.FAQ)
 	for _, v := range f {
 	
 		categories[v.Category_id] = append(categories[v.Category_id],

@@ -27,7 +27,7 @@ type FAQService struct {
 func NewFAQService(storage faqServiceStorage) *FAQService {
 	return &FAQService{storage: storage}
 }
-func (s *FAQService) GetAllFAQ(ctx context.Context) (map[string][]responses.FAQ, error) {
+func (s *FAQService) GetAllFAQ(ctx context.Context) (map[int][]responses.FAQ, error) {
 	var res []domain.FAQ
 	var err error
 

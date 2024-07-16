@@ -16,17 +16,21 @@ create table IF NOT EXISTS faq
     club_id int not null
 );
 
+INSERT INTO question_category(id, category)
+VALUES
+(1,'частые и полезные вопросы'),
+(2,'бесполезные вопросы');
 
-
-
+INSERT INTO faq(question, answer, category_id, club_id)
+VALUES
+('как какать?', 'нинаю', 1, 2),
+('как писать код?', 'никто тебе не скажет', 1, 3),
+('как отчислиться?', 'нильзя', 1, 1);
 
 -- +goose StatementEnd
-DELETE FROM faq;
-DELETE FROM question_category;
 
 -- +goose Down
 -- +goose StatementBegin
-drop table if exists faq;
-drop table if exists question_category;
-
+DELETE FROM faq;
+DELETE FROM question_category;
 -- +goose StatementEnd
