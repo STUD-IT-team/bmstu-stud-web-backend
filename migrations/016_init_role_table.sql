@@ -39,4 +39,5 @@ UPDATE club_org SET role_id = 7 WHERE id = 7;
 -- +goose Down
 -- +goose StatementBegin
 ALTER TABLE member Add COLUMN role_id int;
+DROP TABLE club_role;
 -- +goose StatementEnd

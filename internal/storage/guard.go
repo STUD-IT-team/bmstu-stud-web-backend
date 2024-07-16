@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -36,7 +37,7 @@ func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string
 
 	err = hasher.CompareHashAndPassword(user.HashPassword, []byte(password))
 	if err != nil {
-		return domain.Member{}, err
+		return domain.Member{}, fmt.Errorf("%w, size: %v", err, len(user.HashPassword))
 	}
 
 	return *user, nil

@@ -1,10 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
 
-INSERT INTO member_role (role_name, role_spec) VALUES
-('admin', 'admin'),
-('user', 'user');
-
 INSERT INTO member (hash_password, login, media_id, role_id)
 VALUES
 ('1234', '1234', 1, 1),
@@ -36,5 +32,4 @@ DELETE FROM encounter;
 DELETE FROM feed;
 DELETE FROM event;
 DELETE FROM member;
-DELETE FROM member_role;
 -- +goose StatementEnd

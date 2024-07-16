@@ -8,8 +8,8 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-func MakeMainOrg(org *domain.ClubOrg, images *map[int]domain.MediaFile) (*responses.MainOrg, error) {
-	if _, ok := (*images)[org.MediaID]; !ok {
+func MakeMainOrg(org *domain.ClubOrg, images map[int]domain.MediaFile) (*responses.MainOrg, error) {
+	if _, ok := images[org.MediaID]; !ok {
 		return &responses.MainOrg{}, fmt.Errorf("can't find image for org id: %v", org.MediaID)
 	}
 
@@ -20,12 +20,12 @@ func MakeMainOrg(org *domain.ClubOrg, images *map[int]domain.MediaFile) (*respon
 		TgUrl:    org.Telegram,
 		Spec:     org.RoleSpec,
 		RoleName: org.RoleName,
-		Image:    (*images)[org.MediaID],
+		Image:    images[org.MediaID],
 	}, nil
 }
 
-func MakeSubOrg(org *domain.ClubOrg, images *map[int]domain.MediaFile) (*responses.SubClubOrg, error) {
-	if _, ok := (*images)[org.MediaID]; !ok {
+func MakeSubOrg(org *domain.ClubOrg, images map[int]domain.MediaFile) (*responses.SubClubOrg, error) {
+	if _, ok := images[org.MediaID]; !ok {
 		return &responses.SubClubOrg{}, fmt.Errorf("can't find image for org id: %v", org.MediaID)
 	}
 
@@ -36,13 +36,13 @@ func MakeSubOrg(org *domain.ClubOrg, images *map[int]domain.MediaFile) (*respons
 		VkUrl:       org.Vk,
 		TgUrl:       org.Telegram,
 		Spec:        org.RoleSpec,
-		Image:       (*images)[org.MediaID],
+		Image:       images[org.MediaID],
 	}, nil
 
 }
 
-func MakeResponseClub(club *domain.Club, mainOrgs *[]domain.ClubOrg, subOrgs *[]domain.ClubOrg, images *map[int]domain.MediaFile) (*responses.GetClub, error) {
-	if _, ok := (*images)[club.LogoId]; !ok {
+func MakeResponseClub(club *domain.Club, mainOrgs []domain.ClubOrg, subOrgs []domain.ClubOrg, images map[int]domain.MediaFile) (*responses.GetClub, error) {
+	if _, ok := images[club.LogoId]; !ok {
 		return &responses.GetClub{}, fmt.Errorf("can't get logo media for club id: %v", club.LogoId)
 	}
 
@@ -50,14 +50,16 @@ func MakeResponseClub(club *domain.Club, mainOrgs *[]domain.ClubOrg, subOrgs *[]
 		ID:          club.ID,
 		Name:        club.Name,
 		ShortName:   club.ShortName,
-		Logo:        (*images)[club.LogoId],
+		Logo:        images[club.LogoId],
 		Description: club.Description,
 		Type:        club.Type,
 		VkUrl:       club.VkUrl,
 		TgUrl:       club.TgUrl,
+		MainOrgs:    make([]responses.MainOrg, 0),
+		SubOrgs:     make([]responses.SubClubOrg, 0),
 	}
 
-	for _, org := range *mainOrgs {
+	for _, org := range mainOrgs {
 		m, err := MakeMainOrg(&org, images)
 		if err != nil {
 			return nil, err
@@ -65,7 +67,7 @@ func MakeResponseClub(club *domain.Club, mainOrgs *[]domain.ClubOrg, subOrgs *[]
 		r.MainOrgs = append(r.MainOrgs, *m)
 	}
 
-	for _, org := range *subOrgs {
+	for _, org := range subOrgs {
 		s, err := MakeSubOrg(&org, images)
 		if err != nil {
 			return nil, err
@@ -90,6 +92,12 @@ func MakeResponseAllClub(clubs []domain.Club, logos map[int]domain.MediaFile, or
 	}
 
 	for _, club := range clubs {
+		if _, ok := orgMap[club.ID]; !ok {
+			orgMap[club.ID] = []responses.ClubOrg{}
+		}
+	}
+
+	for _, club := range clubs {
 		if _, ok := logos[club.LogoId]; !ok {
 			return nil, fmt.Errorf("can't find logo for club id %v", logos)
 		}
@@ -111,11 +119,13 @@ func MakeResponseAllClub(clubs []domain.Club, logos map[int]domain.MediaFile, or
 
 func MakeResponseClubMembers(clubID int, mainOrgs []domain.ClubOrg, subOrgs []domain.ClubOrg, images map[int]domain.MediaFile) (*responses.GetClubMembers, error) {
 	r := &responses.GetClubMembers{
-		ID: clubID,
+		ID:       clubID,
+		MainOrgs: []responses.MainOrg{},
+		SubOrgs:  []responses.SubClubOrg{},
 	}
 
 	for _, org := range mainOrgs {
-		m, err := MakeMainOrg(&org, &images)
+		m, err := MakeMainOrg(&org, images)
 		if err != nil {
 			return nil, err
 		}
@@ -123,7 +133,7 @@ func MakeResponseClubMembers(clubID int, mainOrgs []domain.ClubOrg, subOrgs []do
 	}
 
 	for _, org := range subOrgs {
-		s, err := MakeSubOrg(&org, &images)
+		s, err := MakeSubOrg(&org, images)
 		if err != nil {
 			return nil, err
 		}
@@ -160,7 +170,10 @@ func ParsePostClub(req *requests.PostClub) (*domain.Club, []domain.ClubOrg, erro
 }
 
 func MakeResponseClubMediaFiles(clubID int, clubPhotos []domain.ClubPhoto, media map[int]domain.MediaFile) (*responses.GetClubMedia, error) {
-	r := &responses.GetClubMedia{ID: clubID}
+	r := &responses.GetClubMedia{
+		ID:    clubID,
+		Media: []responses.ClubMedia{},
+	}
 	for _, f := range clubPhotos {
 		media, ok := media[f.MediaID]
 		if !ok {

@@ -32,5 +32,6 @@ WHERE id = 2;
 -- +goose StatementBegin
 
 DELETE FROM club_org;
+DELETE FROM member;
 
 -- +goose StatementEnd

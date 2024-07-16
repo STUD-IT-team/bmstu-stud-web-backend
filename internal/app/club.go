@@ -8,6 +8,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 )
 
 type clubStorage interface {
@@ -47,14 +48,22 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 
 	mainOrgs, err := s.storage.GetClubOrgs(ctx, id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
-		return nil, err
+		if err == postgres.ErrPostgresNotFoundError {
+			mainOrgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	subOrgs, err := s.storage.GetClubSubOrgs(ctx, id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
-		return nil, err
+		if err == postgres.ErrPostgresNotFoundError {
+			subOrgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	ids := make([]int, 0, len(mainOrgs)+len(subOrgs)+1)
@@ -72,7 +81,7 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 		return nil, err
 	}
 
-	return mapper.MakeResponseClub(club, &mainOrgs, &subOrgs, &ims)
+	return mapper.MakeResponseClub(club, mainOrgs, subOrgs, ims)
 }
 
 func (s *ClubService) GetClubsByName(ctx context.Context, name string) (*responses.GetClubsByName, error) {
@@ -173,12 +182,22 @@ func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, 
 func (s *ClubService) GetClubMembers(ctx context.Context, clubID int) (*responses.GetClubMembers, error) {
 	orgs, err := s.storage.GetClubOrgs(ctx, clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+		if err == postgres.ErrPostgresNotFoundError {
+			orgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	subOrgs, err := s.storage.GetClubSubOrgs(ctx, clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
+		if err == postgres.ErrPostgresNotFoundError {
+			subOrgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	if len(orgs)+len(subOrgs) == 0 {
@@ -247,12 +266,13 @@ func (s *ClubService) UpdateClub(ctx context.Context, req *requests.UpdateClub) 
 func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*responses.GetClubMedia, error) {
 	clubPhotos, err := s.storage.GetClubMediaFiles(ctx, clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
+		if err == postgres.ErrPostgresNotFoundError {
+			clubPhotos = []domain.ClubPhoto{}
+		} else {
+			return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
+		}
 	}
 
-	if len(clubPhotos) == 0 {
-		return nil, fmt.Errorf("no club photo found")
-	}
 	ids := make([]int, 0, len(clubPhotos))
 	for _, photo := range clubPhotos {
 		ids = append(ids, photo.MediaID)
