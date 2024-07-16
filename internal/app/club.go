@@ -91,10 +91,6 @@ func (s *ClubService) GetClubsByName(ctx context.Context, name string) (*respons
 		return nil, err
 	}
 
-	if len(res) == 0 {
-		return nil, fmt.Errorf("no club found")
-	}
-
 	ids := make([]int, 0, len(res))
 	for _, club := range res {
 		ids = append(ids, club.LogoId)
@@ -121,10 +117,6 @@ func (s *ClubService) GetClubsByType(ctx context.Context, type_ string) (*respon
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClubsByName: %w", err)
 		return nil, err
-	}
-
-	if len(res) == 0 {
-		return nil, fmt.Errorf("no club found")
 	}
 
 	ids := make([]int, 0, len(res))
@@ -154,10 +146,6 @@ func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, 
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClub: %w", err)
 		return nil, err
-	}
-
-	if len(res) == 0 {
-		return nil, fmt.Errorf("no club found")
 	}
 
 	ids := make([]int, 0, len(res))
