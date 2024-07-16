@@ -1,5 +1,5 @@
 package responses
 
 type GetMembersByName struct {
-	Members []Member `json:"members"`
+	Members []GetMember `json:"members"`
 }
