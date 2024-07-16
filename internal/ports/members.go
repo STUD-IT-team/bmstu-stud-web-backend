@@ -54,7 +54,7 @@ func (h *MembersHandler) Routes() chi.Router {
 //	@Description Get a list of all members
 //	@Tags        auth.members
 //	@Produce     json
-//	@Success     200 {object} responses.Member
+//	@Success     200 {object} responses.GetAllMembers
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
@@ -100,7 +100,7 @@ func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request)
 //	@Tags        auth.members
 //	@Produce     json
 //	@Param       id   path     string           true "Member ID"
-//	@Success     200 {object} responses.Member
+//	@Success     200 {object} responses.GetMember
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
@@ -156,7 +156,7 @@ func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) han
 //	@Tags        auth.members
 //	@Produce     json
 //	@Param       name   path     string           true "Member name"
-//	@Success     200 {array} responses.Member
+//	@Success     200 {array} responses.GetMembersByName
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
@@ -269,7 +269,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Description Update a member's information with the provided data
 //	@Tags        auth.members
 //	@Accept      json
-//	@Param       request body requests.PostMember true "Member data"
+//	@Param       request body requests.UpdateMember true "Member data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
