@@ -221,3 +221,14 @@ func (p *Postgres) GetMediaFileByKey(ctx context.Context, key string) (*domain.M
 	}
 	return &f, nil
 }
+
+const getRandomDefaultMedia = "SELECT id, media_id FROM default_media OFFSET FLOOR(RANDOM() * (SELECT COUNT(*) FROM default_media)) LIMIT 1"
+
+func (p *Postgres) GetRandomDefaultMedia(ctx context.Context) (*domain.DefaultMedia, error) {
+	var d domain.DefaultMedia
+	err := p.db.QueryRow(getRandomDefaultMedia).Scan(&d.ID, &d.MediaID)
+	if err != nil {
+		return nil, wrapPostgresError(err)
+	}
+	return &d, nil
+}
