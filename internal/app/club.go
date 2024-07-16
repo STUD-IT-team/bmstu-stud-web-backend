@@ -272,3 +272,10 @@ func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*respo
 
 	return mapper.MakeResponseClubMediaFiles(clubID, clubPhotos, media)
 }
+
+func (s *ClubService) GetClearancePost(ctx context.Context, resp *responses.CheckResponse) (*responses.GetClearance, error) {
+	if resp.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins"}, nil
+}

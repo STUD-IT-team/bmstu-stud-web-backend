@@ -49,6 +49,10 @@ func UnauthorizedResponse() Response {
 	return &response{head: map[string]string{}, body: nil, code: http.StatusUnauthorized}
 }
 
+func ForbiddenResponse() Response {
+	return &response{head: map[string]string{}, body: nil, code: http.StatusForbidden}
+}
+
 func ConflictResponse() Response {
 	return &response{head: map[string]string{}, body: nil, code: http.StatusConflict}
 }
