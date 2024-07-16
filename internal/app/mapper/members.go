@@ -17,15 +17,14 @@ func MakeResponseAllMembers(f []domain.Member, membersMediaFiles map[int]domain.
 		}
 		members = append(members,
 			responses.Member{
-				ID:           v.ID,
-				HashPassword: v.HashPassword,
-				Login:        v.Login,
-				Media:        media,
-				Telegram:     v.Telegram,
-				Vk:           v.Vk,
-				Name:         v.Name,
-				RoleID:       v.RoleID,
-				IsAdmin:      v.IsAdmin,
+				ID:       v.ID,
+				Login:    v.Login,
+				Media:    media,
+				Telegram: v.Telegram,
+				Vk:       v.Vk,
+				Name:     v.Name,
+				RoleID:   v.RoleID,
+				IsAdmin:  v.IsAdmin,
 			})
 	}
 
@@ -34,15 +33,14 @@ func MakeResponseAllMembers(f []domain.Member, membersMediaFiles map[int]domain.
 
 func MakeResponseMember(f *domain.Member, membersMediaFile *domain.MediaFile) (*responses.GetMember, error) {
 	return &responses.GetMember{
-		ID:           f.ID,
-		HashPassword: f.HashPassword,
-		Login:        f.Login,
-		Media:        *membersMediaFile,
-		Telegram:     f.Telegram,
-		Vk:           f.Vk,
-		Name:         f.Name,
-		RoleID:       f.RoleID,
-		IsAdmin:      f.IsAdmin,
+		ID:       f.ID,
+		Login:    f.Login,
+		Media:    *membersMediaFile,
+		Telegram: f.Telegram,
+		Vk:       f.Vk,
+		Name:     f.Name,
+		RoleID:   f.RoleID,
+		IsAdmin:  f.IsAdmin,
 	}, nil
 }
 
@@ -55,15 +53,14 @@ func MakeResponseMembersByName(f []domain.Member, membersMediaFiles map[int]doma
 		}
 		members = append(members,
 			responses.Member{
-				ID:           v.ID,
-				HashPassword: v.HashPassword,
-				Login:        v.Login,
-				Media:        media,
-				Telegram:     v.Telegram,
-				Vk:           v.Vk,
-				Name:         v.Name,
-				RoleID:       v.RoleID,
-				IsAdmin:      v.IsAdmin,
+				ID:       v.ID,
+				Login:    v.Login,
+				Media:    media,
+				Telegram: v.Telegram,
+				Vk:       v.Vk,
+				Name:     v.Name,
+				RoleID:   v.RoleID,
+				IsAdmin:  v.IsAdmin,
 			})
 	}
 
@@ -72,27 +69,25 @@ func MakeResponseMembersByName(f []domain.Member, membersMediaFiles map[int]doma
 
 func MakeRequestPostMember(f *requests.PostMember) *domain.Member {
 	return &domain.Member{
-		HashPassword: f.HashPassword,
-		Login:        f.Login,
-		MediaID:      f.MediaID,
-		Telegram:     f.Telegram,
-		Vk:           f.Vk,
-		Name:         f.Name,
-		RoleID:       f.RoleID,
-		IsAdmin:      f.IsAdmin,
+		Login:    f.Login,
+		MediaID:  f.MediaID,
+		Telegram: f.Telegram,
+		Vk:       f.Vk,
+		Name:     f.Name,
+		RoleID:   f.RoleID,
+		IsAdmin:  f.IsAdmin,
 	}
 }
 
 func MakeRequestUpdateMember(f *requests.UpdateMember) *domain.Member {
 	return &domain.Member{
-		ID:           f.ID,
-		HashPassword: f.HashPassword,
-		Login:        f.Login,
-		MediaID:      f.MediaID,
-		Telegram:     f.Telegram,
-		Vk:           f.Vk,
-		Name:         f.Name,
-		RoleID:       f.RoleID,
-		IsAdmin:      f.IsAdmin,
+		ID:       f.ID,
+		Login:    f.Login,
+		MediaID:  f.MediaID,
+		Telegram: f.Telegram,
+		Vk:       f.Vk,
+		Name:     f.Name,
+		RoleID:   f.RoleID,
+		IsAdmin:  f.IsAdmin,
 	}
 }

@@ -9,25 +9,23 @@ import (
 )
 
 type PostMember struct {
-	HashPassword []byte `json:"hash_password"`
-	Login        string `json:"login"`
-	MediaID      int    `json:"media_id"`
-	Telegram     string `json:"telegram"`
-	Vk           string `json:"vk"`
-	Name         string `json:"name"`
-	RoleID       int    `json:"role_id"`
-	IsAdmin      bool   `json:"isAdmin"`
+	Login    string `json:"login"`
+	MediaID  int    `json:"media_id"`
+	Telegram string `json:"telegram"`
+	Vk       string `json:"vk"`
+	Name     string `json:"name"`
+	RoleID   int    `json:"role_id"`
+	IsAdmin  bool   `json:"isAdmin"`
 }
 
 type PostMemberPointer struct {
-	HashPassword *[]byte `json:"hash_password"`
-	Login        *string `json:"login"`
-	MediaID      *int    `json:"media_id"`
-	Telegram     *string `json:"telegram"`
-	Vk           *string `json:"vk"`
-	Name         *string `json:"name"`
-	RoleID       *int    `json:"role_id"`
-	IsAdmin      *bool   `json:"isAdmin"`
+	Login    *string `json:"login"`
+	MediaID  *int    `json:"media_id"`
+	Telegram *string `json:"telegram"`
+	Vk       *string `json:"vk"`
+	Name     *string `json:"name"`
+	RoleID   *int    `json:"role_id"`
+	IsAdmin  *bool   `json:"isAdmin"`
 }
 
 func (f *PostMember) Bind(req *http.Request) error {
@@ -50,14 +48,13 @@ func (f *PostMember) Bind(req *http.Request) error {
 	}
 
 	*f = PostMember{
-		HashPassword: *pf.HashPassword,
-		Login:        *pf.Login,
-		MediaID:      *pf.MediaID,
-		Telegram:     *pf.Telegram,
-		Vk:           *pf.Vk,
-		Name:         *pf.Name,
-		RoleID:       *pf.RoleID,
-		IsAdmin:      *pf.IsAdmin,
+		Login:    *pf.Login,
+		MediaID:  *pf.MediaID,
+		Telegram: *pf.Telegram,
+		Vk:       *pf.Vk,
+		Name:     *pf.Name,
+		RoleID:   *pf.RoleID,
+		IsAdmin:  *pf.IsAdmin,
 	}
 
 	return f.validate()
@@ -68,9 +65,6 @@ func (f *PostMember) validate() error {
 }
 
 func (pf *PostMemberPointer) validate() error {
-	if pf.HashPassword == nil {
-		return fmt.Errorf("require: HashPassword")
-	}
 	if pf.Login == nil {
 		return fmt.Errorf("require: Login")
 	}
