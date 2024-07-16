@@ -42,7 +42,6 @@ func (h *MembersHandler) Routes() chi.Router {
 	r.Get("/", h.r.Wrap(h.GetAllMembers))
 	r.Get("/{id}", h.r.Wrap(h.GetMember))
 	r.Get("/search/{name}", h.r.Wrap(h.GetMembersByName))
-	r.Post("/", h.r.Wrap(h.PostMember))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteMember))
 	r.Put("/{id}", h.r.Wrap(h.UpdateMember))
 
@@ -101,7 +100,7 @@ func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request)
 //	@Tags        auth.members
 //	@Produce     json
 //	@Param       id   path     string           true "Member ID"
-//	@Success     200 {object} responses.Member
+//	@Success     200 {object} responses.GetMember
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
@@ -157,7 +156,7 @@ func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) han
 //	@Tags        auth.members
 //	@Produce     json
 //	@Param       name   path     string           true "Member name"
-//	@Success     200 {array} responses.Member
+//	@Success     200 {array} responses.GetMembersByName
 //	@Failure     400
 //	@Failure     401
 //	@Failure     404
@@ -204,66 +203,6 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 	h.logger.Info("MembersHandler: request GetMembersByName done")
 
 	return handler.OkResponse(res)
-}
-
-// PostMember creates a new member
-//
-//	@Summary     Create a new member
-//	@Description Create a new member with the provided data
-//	@Tags        auth.members
-//	@Accept      json
-//	@Param       request body requests.PostMember true "Member data"
-//	@Success     201
-//	@Failure     400
-//	@Failure     401
-//	@Failure     404
-//	@Failure     409
-//	@Failure     500
-//	@Router      /members/ [post]
-//	@Security    Authorised
-func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
-	h.logger.Info("MembersHandler: got PostMember request")
-
-	accessToken, err := getAccessToken(req)
-	if err != nil {
-		h.logger.Warnf("can't get access token PostMember: %v", err)
-		return handler.UnauthorizedResponse()
-	}
-
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
-		h.logger.Warnf("can't GuardService.Check on PostMember: %v", err)
-		return handler.UnauthorizedResponse()
-	}
-
-	h.logger.Infof("MembersHandler: PostMember Authenticated: %v", resp.MemberID)
-
-	member := &requests.PostMember{}
-
-	err = member.Bind(req)
-	if err != nil {
-		h.logger.Warnf("can't requests.Bind PostMember: %v", err)
-		return handler.BadRequestResponse()
-	}
-
-	h.logger.Infof("MembersHandler: parse request PostMember: %v", member)
-
-	err = h.members.PostMember(context.Background(), mapper.MakeRequestPostMember(member))
-	if err != nil {
-		h.logger.Warnf("can't MembersService.PostMember: %v", err)
-		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
-			return handler.ConflictResponse()
-		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
-			return handler.BadRequestResponse()
-		} else {
-			return handler.InternalServerErrorResponse()
-		}
-	}
-	handler.NotFoundResponse()
-
-	h.logger.Info("MembersHandler: request PostMember done")
-
-	return handler.CreatedResponse(nil)
 }
 
 // DeleteMember deletes a member by ID
@@ -330,7 +269,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Description Update a member's information with the provided data
 //	@Tags        auth.members
 //	@Accept      json
-//	@Param       request body requests.PostMember true "Member data"
+//	@Param       request body requests.UpdateMember true "Member data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401

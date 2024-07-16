@@ -9,14 +9,14 @@ import (
 )
 
 func MakeResponseAllMembers(f []domain.Member, membersMediaFiles map[int]domain.MediaFile) (*responses.GetAllMembers, error) {
-	members := make([]responses.Member, 0, len(f))
+	members := make([]responses.GetMember, 0, len(f))
 	for _, v := range f {
 		media, ok := membersMediaFiles[v.MediaID]
 		if !ok {
 			return nil, fmt.Errorf("can't find media for member id %v", v.MediaID)
 		}
 		members = append(members,
-			responses.Member{
+			responses.GetMember{
 				ID:       v.ID,
 				Login:    v.Login,
 				Media:    media,
@@ -43,14 +43,14 @@ func MakeResponseMember(f *domain.Member, membersMediaFile *domain.MediaFile) (*
 }
 
 func MakeResponseMembersByName(f []domain.Member, membersMediaFiles map[int]domain.MediaFile) (*responses.GetMembersByName, error) {
-	members := make([]responses.Member, 0, len(f))
+	members := make([]responses.GetMember, 0, len(f))
 	for _, v := range f {
 		media, ok := membersMediaFiles[v.MediaID]
 		if !ok {
 			return nil, fmt.Errorf("can't find media for member id %v", v.MediaID)
 		}
 		members = append(members,
-			responses.Member{
+			responses.GetMember{
 				ID:       v.ID,
 				Login:    v.Login,
 				Media:    media,
@@ -64,16 +64,18 @@ func MakeResponseMembersByName(f []domain.Member, membersMediaFiles map[int]doma
 	return &responses.GetMembersByName{Members: members}, nil
 }
 
-func MakeRequestPostMember(f *requests.PostMember) *domain.Member {
-	return &domain.Member{
-		Login:    f.Login,
-		MediaID:  f.MediaID,
-		Telegram: f.Telegram,
-		Vk:       f.Vk,
-		Name:     f.Name,
-		IsAdmin:  f.IsAdmin,
-	}
-}
+// func MakeRequestPostMember(f *requests.PostMember) *domain.Member {
+// 	return &domain.Member{
+// 		HashPassword: f.HashPassword,
+// 		Login:        f.Login,
+// 		MediaID:      f.MediaID,
+// 		Telegram:     f.Telegram,
+// 		Vk:           f.Vk,
+// 		Name:         f.Name,
+// 		RoleID:       f.RoleID,
+// 		IsAdmin:      f.IsAdmin,
+// 	}
+// }
 
 func MakeRequestUpdateMember(f *requests.UpdateMember) *domain.Member {
 	return &domain.Member{

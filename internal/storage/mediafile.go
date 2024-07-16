@@ -268,3 +268,7 @@ func (s *storage) UpdateDefaultMedia(ctx context.Context, id int, name string, k
 
 	return s.postgres.UpdateDefaultMedia(ctx, id, mediaID)
 }
+
+func (s *storage) GetRandomDefaultMedia(ctx context.Context) (*domain.DefaultMedia, error) {
+	return s.postgres.GetRandomDefaultMedia(ctx)
+}

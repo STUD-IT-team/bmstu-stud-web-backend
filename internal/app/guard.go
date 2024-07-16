@@ -15,6 +15,8 @@ type guardServiceStorage interface {
 	CreateSession(memberID int, isAdmin bool) (domain.Session, error)
 	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
 	CheckSession(accessToken int64) (domain.Session, error)
+	RegisterMember(ctx context.Context, member *domain.Member) (int, error)
+	GetRandomDefaultMedia(ctx context.Context) (*domain.DefaultMedia, error)
 }
 
 type GuardService struct {
@@ -60,4 +62,18 @@ func (s *GuardService) Check(ctx context.Context, req *requests.CheckRequest) (r
 	}
 
 	return mapper.CreateResponseCheck(true, session), nil
+}
+
+func (s *GuardService) Register(ctx context.Context, member *domain.Member) error {
+	defaultMedia, err := s.storage.GetRandomDefaultMedia(ctx)
+	if err != nil {
+		return fmt.Errorf("can't storage.GetRandomDefaultMedia: %w", err)
+	}
+	member.MediaID = defaultMedia.MediaID
+
+	_, err = s.storage.RegisterMember(ctx, member)
+	if err != nil {
+		return fmt.Errorf("can't storage.RegisterMember: %w", err)
+	}
+	return err
 }

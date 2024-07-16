@@ -103,3 +103,12 @@ func (s *storage) CreateSession(memberID int, isAdmin bool) (domain.Session, err
 
 	return session, nil
 }
+
+func (s *storage) RegisterMember(ctx context.Context, member *domain.Member) (int, error) {
+	hashPassword, err := hasher.HashPassword(member.Password)
+	if err != nil {
+		return 0, err
+	}
+	member.HashPassword = hashPassword
+	return s.postgres.AddMember(ctx, member)
+}

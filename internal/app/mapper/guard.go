@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
@@ -56,3 +57,14 @@ func CreateResponseCheck(valid bool, sess domain.Session) *responses.CheckRespon
 //	//}
 //	return nil
 //}
+
+func MapRegisterToMember(req *requests.Register) *domain.Member {
+	return &domain.Member{
+		Login:    req.Login,
+		Password: []byte(req.Password),
+		Name:     req.Name,
+		Telegram: req.Telegram,
+		Vk:       req.Vk,
+		IsAdmin:  false,
+	}
+}
