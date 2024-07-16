@@ -16,3 +16,14 @@ func (p *Postgres) AddMember(ctx context.Context, mem *domain.Member) (int, erro
 	}
 	return id, nil
 }
+
+const getMemberHash = `SELECT hash_password FROM member WHERE login = $1`
+
+func (p *Postgres) GetMemberHash(_ context.Context, login string) (string, error) {
+	var hash string
+	err := p.db.QueryRow(getMemberHash, login).Scan(&hash)
+	if err != nil {
+		return "", wrapPostgresError(err)
+	}
+	return hash, nil
+}
