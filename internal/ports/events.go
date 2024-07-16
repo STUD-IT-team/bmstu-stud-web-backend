@@ -42,9 +42,16 @@ func (h *EventsHandler) Routes() chi.Router {
 	r.Get("/", h.r.Wrap(h.GetAllEvents))
 	r.Get("/{id}", h.r.Wrap(h.GetEvent))
 	r.Get("/range/", h.r.Wrap(h.GetEventsByRange))
+	// r.Get("/members/roles/", h.r.Wrap(h.GetEventMemberRoles))
+	// r.Get("/members/", h.r.Wrap(h.GetAllEventMembers))
+	// r.Get("/members/search_by_event/{event_id}", h.r.Wrap(h.GetEventMembersByEvent))
+	// r.Get("/members/{member_id}", h.r.Wrap(h.GetEventMember))
 	r.Post("/", h.r.Wrap(h.PostEvent))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteEvent))
 	r.Put("/{id}", h.r.Wrap(h.UpdateEvent))
+	// r.Post("/members/", h.r.Wrap(h.PostEventMember))
+	// r.Delete("/members/{id}", h.r.Wrap(h.DeleteEventMember))
+	// r.Put("/members/{id}", h.r.Wrap(h.UpdateEventMember))
 
 	return r
 }
