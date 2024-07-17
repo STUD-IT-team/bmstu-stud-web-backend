@@ -40,7 +40,7 @@ func (s *MediaService) PostMedia(ctx context.Context, req *requests.PostMedia) (
 		return &responses.PostMedia{}, fmt.Errorf("can't storage.PutMedia: %v", err)
 	}
 
-	return mapper.MakeResponsePostMedia(id), err
+	return mapper.MakeResponsePostMedia(id), nil
 }
 
 const bcryptCost = 12
@@ -56,7 +56,7 @@ func (s *MediaService) PostMediaBcrypt(ctx context.Context, req *requests.PostMe
 		return &responses.PostMedia{}, fmt.Errorf("can't storage.PutMedia: %v", err)
 	}
 
-	return mapper.MakeResponsePostMedia(id), fmt.Errorf("can't storage.UploadObject: %v", err)
+	return mapper.MakeResponsePostMedia(id), nil
 }
 
 func (s *MediaService) ClearUpMedia(ctx context.Context, logger *logrus.Logger) error {

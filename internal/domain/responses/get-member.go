@@ -9,6 +9,5 @@ type GetMember struct {
 	Telegram string           `json:"telegram"`
 	Vk       string           `json:"vk"`
 	Name     string           `json:"name"`
-	RoleID   int              `json:"role_id"`
 	IsAdmin  bool             `json:"isAdmin"`
 }

@@ -2,10 +2,13 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	log "github.com/sirupsen/logrus"
 
@@ -35,6 +38,7 @@ func (h *GuardHandler) Routes() chi.Router {
 
 	r.Post("/login", h.r.Wrap(h.LoginUser))
 	r.Post("/logout", h.r.Wrap(h.LogoutUser))
+	r.Post("/register", h.r.Wrap(h.RegisterUser))
 
 	return r
 }
@@ -86,16 +90,16 @@ func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handl
 	return resp
 }
 
-// LoginUser
+// LogoutUser
 //
 // @Summary    Выход из системы
 // @Description Выход из системы, удалением сессии из кеша. Кука на стороне пользователя остается, но по ней нельзя будет взаимодействовать.
-// @Tags      public.guard
-// @Success    200
+// @Tags      auth.guard
+// @Success    201
 // @Failure    401
 // @Failure    500
 // @Router      /guard/logout [post]
-// @Security    Public
+// @Security    Authorized
 func (h *GuardHandler) LogoutUser(w http.ResponseWriter, req *http.Request) handler.Response {
 
 	h.logger.Infof("GuardHandler: got LogoutUser request")
@@ -116,4 +120,64 @@ func (h *GuardHandler) LogoutUser(w http.ResponseWriter, req *http.Request) hand
 
 	h.logger.Infof("GuardHandler: request LogoutUser done")
 	return handler.OkResponse(nil)
+}
+
+// RegisterUser
+//
+// @Summary    Регистрация нового пользователя
+// @Description Регистрация нового пользователя в системе без админки. По умолчанию создается случайная аватарка из дефолтных. После регистрации пытается авторизоваться, но в случае ошибки авторизации все равно вернет 201.
+// @Tags      public.guard
+// @Param      request  body    requests.Register  true  "register user data"
+// @Success    200
+// @Failure    400
+// @Failure    409
+// @Failure    500
+// @Router      /guard/register [post]
+// @Security    Public
+func (h *GuardHandler) RegisterUser(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Infof("GuardHandler: got RegisterUser request")
+
+	rreq := &requests.Register{}
+
+	accessToken, err := getAccessToken(req)
+	if err == nil {
+		resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+		if err == nil && resp.Valid {
+			h.logger.Warnf("Already authorized, can't register: %v", err)
+			return handler.BadRequestResponse()
+		}
+	}
+
+	err = rreq.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse request RegisterUser: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("GuardHandler: parsed RegisterUser request.")
+
+	mem := mapper.MapRegisterToMember(rreq)
+
+	err = h.guard.Register(context.Background(), mem)
+	if err != nil {
+		h.logger.Warnf("can't service.Register Register: %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		}
+		return handler.InternalServerErrorResponse()
+	}
+
+	h.logger.Infof("GuardHandler: request Register done. Trying to login user...")
+
+	res, err := h.guard.Login(context.Background(), &requests.LoginRequest{Login: rreq.Login, Password: rreq.Password})
+	if err != nil {
+		h.logger.Warnf("can't service.LoginUser Register: %v", err)
+		return handler.CreatedResponse(nil)
+	}
+	h.logger.Infof("GuardHandler: request Register done. User logged in.")
+
+	resp := handler.CreatedResponse(nil)
+	resp.SetKVHeader("Set-Cookie", "AccessToken="+res.AccessToken+"; Path=/; HttpOnly")
+
+	return resp
 }

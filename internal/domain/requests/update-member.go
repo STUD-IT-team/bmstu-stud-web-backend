@@ -17,7 +17,6 @@ type UpdateMember struct {
 	Telegram string `json:"telegram"`
 	Vk       string `json:"vk"`
 	Name     string `json:"name"`
-	RoleID   int    `json:"role_id"`
 	IsAdmin  bool   `json:"isAdmin"`
 }
 
@@ -27,7 +26,6 @@ type UpdateMemberPointer struct {
 	Telegram *string `json:"telegram"`
 	Vk       *string `json:"vk"`
 	Name     *string `json:"name"`
-	RoleID   *int    `json:"role_id"`
 	IsAdmin  *bool   `json:"isAdmin"`
 }
 
@@ -56,7 +54,6 @@ func (f *UpdateMember) Bind(req *http.Request) error {
 		Telegram: *pf.Telegram,
 		Vk:       *pf.Vk,
 		Name:     *pf.Name,
-		RoleID:   *pf.RoleID,
 		IsAdmin:  *pf.IsAdmin,
 	}
 
@@ -92,9 +89,6 @@ func (pf *UpdateMemberPointer) validate() error {
 	}
 	if pf.Name == nil {
 		return fmt.Errorf("require: Name")
-	}
-	if pf.RoleID == nil {
-		return fmt.Errorf("require: RoleID")
 	}
 	if pf.IsAdmin == nil {
 		return fmt.Errorf("require: IsAdmin")
