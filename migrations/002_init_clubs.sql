@@ -1,16 +1,16 @@
 -- +goose Up
 -- +goose StatementBegin
 
-create table if not exists encounter (
-    id serial primary key,
+create TABLE if not exists encounter (
+    id serial primary KEY,
     count text default '',
     description text default '',
     club_id int not null
 );
 
-create table IF NOT EXISTS event
+create TABLE IF NOT EXISTS event
 (
-    id            serial primary key,
+    id            serial primary KEY,
     title         text      not null,
     description   text      not null,
     prompt        text      not null,
@@ -25,8 +25,8 @@ create table IF NOT EXISTS event
     feedback_url  text    default ''
 );
 
-create table if not exists club (
-    id serial primary key,
+create TABLE if not exists club (
+    id serial primary KEY,
     name text default '' unique,
     short_name text default '',
     description text default '',
@@ -37,9 +37,9 @@ create table if not exists club (
     parent_id int default null
 );
 
-create table IF NOT EXISTS club_role
+create TABLE IF NOT EXISTS club_role
 (
-    id   serial primary key,
+    id   serial primary KEY,
     role_name text not null,
     role_spec text not null,
     role_clearance int default 0
@@ -50,46 +50,47 @@ create table IF NOT EXISTS club_role
 -- 3 - админ
 
 -- TODO in domain
-create table if not exists club_photo (
-    id serial primary key,
+create TABLE if not exists club_photo (
+    id serial primary KEY,
     ref_num int default 0,
     media_id int not null,
     club_id int not null
 );
 
-create table if not exists club_org (
-    id serial primary key,
+create TABLE if not exists club_org (
+    id serial primary KEY,
     club_id int not null,
     member_id int not null,
     role_id int not null
 );
 
-alter table encounter add foreign key (club_id) references club(id);
+ALTER TABLE encounter ADD FOREIGN KEY (club_id) REFERENCES club(id);
 
-alter table club add FOREIGN KEY (logo) REFERENCES mediafile(id);
-alter table club add FOREIGN KEY (parent_id) REFERENCES club(id);
+ALTER TABLE club ADD FOREIGN KEY (logo) REFERENCES mediafile(id);
+ALTER TABLE club ADD FOREIGN KEY (parent_id) REFERENCES club(id);
 
-alter table event add foreign key (club_id) references club(id);
-alter table event add foreign key (media_id) references mediafile(id);
-alter table event add foreign key (main_org) references member(id);
+ALTER TABLE event ADD FOREIGN KEY (club_id) REFERENCES club(id);
+ALTER TABLE event ADD FOREIGN KEY (media_id) REFERENCES mediafile(id);
+ALTER TABLE event ADD FOREIGN KEY (main_org) REFERENCES member(id);
 
-alter table club_photo add FOREIGN KEY (media_id) REFERENCES mediafile(id);
-alter table club_photo add FOREIGN KEY (club_id) REFERENCES club(id);
+ALTER TABLE club_photo ADD FOREIGN KEY (media_id) REFERENCES mediafile(id);
+ALTER TABLE club_photo ADD FOREIGN KEY (club_id) REFERENCES club(id);
+ALTER TABLE club_photo ADD CONSTRAINT media_club_ids_unique UNIQUE (club_id, media_id);
 
-alter table club_org add FOREIGN KEY (club_id) REFERENCES club(id);
-alter table club_org add FOREIGN KEY (member_id) REFERENCES member(id);
-alter table club_org add FOREIGN KEY (role_id) REFERENCES club_role(id);
+ALTER TABLE club_org ADD FOREIGN KEY (club_id) REFERENCES club(id);
+ALTER TABLE club_org ADD FOREIGN KEY (member_id) REFERENCES member(id);
+ALTER TABLE club_org ADD FOREIGN KEY (role_id) REFERENCES club_role(id);
 
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
 
-drop table IF EXISTS club_role CASCADE;
-drop table IF EXISTS club_org CASCADE;
-drop table IF EXISTS club_photo CASCADE;
-drop table IF EXISTS event CASCADE;
-drop table IF EXISTS encounter CASCADE;
-drop table IF EXISTS club CASCADE;
+DROP TABLE IF EXISTS club_role CASCADE;
+DROP TABLE IF EXISTS club_org CASCADE;
+DROP TABLE IF EXISTS club_photo CASCADE;
+DROP TABLE IF EXISTS event CASCADE;
+DROP TABLE IF EXISTS encounter CASCADE;
+DROP TABLE IF EXISTS club CASCADE;
 
 -- +goose StatementEnd
