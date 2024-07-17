@@ -62,7 +62,6 @@ VALUES
 ('100', 'First encounter', 1),
 ('200', 'Second encounter', 2),
 ('300', 'Third encounter', 3),
-('300', 'Third encounter', 3);
 
 -- +goose StatementEnd
 
