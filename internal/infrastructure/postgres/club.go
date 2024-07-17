@@ -751,3 +751,26 @@ func (s *Postgres) AddClubPhotos(_ context.Context, p []domain.ClubPhoto) error 
 	}
 	return wrapPostgresError(tx.Commit())
 }
+
+const deleteClubPhoto = "DELETE FROM club_photo WHERE id = $1"
+
+func (s *Postgres) DeleteClubPhoto(_ context.Context, id int) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return wrapPostgresError(err)
+	}
+	_, err = tx.Exec(deleteClubPhoto, id)
+	if err != nil {
+		tx.Rollback()
+		return wrapPostgresError(err)
+	}
+	return wrapPostgresError(tx.Commit())
+}
+
+const getPhotoClubID = "SELECT club_id FROM club_photo WHERE id = $1"
+
+func (s *Postgres) GetPhotoClubID(_ context.Context, photoID int) (int, error) {
+	var clubID int
+	err := s.db.QueryRow(getPhotoClubID, photoID).Scan(&clubID)
+	return clubID, wrapPostgresError(err)
+}

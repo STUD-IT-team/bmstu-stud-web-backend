@@ -21,6 +21,8 @@ type clubStorage interface {
 	DeleteClubWithOrgs(ctx context.Context, clubID int) error
 	UpdateClub(ctx context.Context, c *domain.Club, o []domain.ClubOrg) error
 	AddClubPhotos(ctx context.Context, p []domain.ClubPhoto) error
+	DeleteClubPhoto(ctx context.Context, id int) error
+	GetPhotoClubID(ctx context.Context, photoID int) (int, error)
 }
 
 func (s *storage) GetClub(ctx context.Context, id int) (*domain.Club, error) {
@@ -77,4 +79,12 @@ func (s *storage) UpdateClub(ctx context.Context, c *domain.Club, o []domain.Clu
 
 func (s *storage) AddClubPhotos(ctx context.Context, p []domain.ClubPhoto) error {
 	return s.postgres.AddClubPhotos(ctx, p)
+}
+
+func (s *storage) DeleteClubPhoto(ctx context.Context, id int) error {
+	return s.postgres.DeleteClubPhoto(ctx, id)
+}
+
+func (s *storage) GetPhotoClubID(ctx context.Context, photoID int) (int, error) {
+	return s.postgres.GetPhotoClubID(ctx, photoID)
 }

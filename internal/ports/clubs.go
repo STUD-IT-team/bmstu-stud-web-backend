@@ -47,7 +47,7 @@ func (h *ClubsHandler) Routes() chi.Router {
 	r.Delete("/{club_id}", h.r.Wrap(h.DeleteClub))
 	r.Put("/{club_id}", h.r.Wrap(h.UpdateClub))
 	r.Post("/media/{club_id}", h.r.Wrap(h.PostClubMedia))
-	r.Delete("/media/{club_id}/{media_id}", h.r.Wrap(h.DeleteClubMedia))
+	r.Delete("/media/{club_id}", h.r.Wrap(h.DeleteClubMedia))
 	r.Put("/media/{club_id}", h.r.Wrap(h.UpdateClubMedia))
 	r.Get("/clearance/post", h.r.Wrap(h.GetClearancePost))
 
@@ -530,6 +530,41 @@ func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) h
 }
 
 func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got DeleteClubMedia request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: DeleteClubMedia Authenticated: %v", resp.MemberID)
+
+	photo := &requests.DeleteClubPhoto{}
+	err = photo.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse DeleteClubMedia %v", err)
+		return handler.BadRequestResponse()
+	}
+	h.logger.Infof("ClubsHandler: parse request.")
+
+	err = h.clubs.DeleteClubPhoto(context.Background(), photo)
+	if err != nil {
+		h.logger.Warnf("can't service.DeleteClubMedia %v", err)
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		}
+		return handler.InternalServerErrorResponse()
+	}
+
 	return handler.OkResponse(nil)
 }
 
