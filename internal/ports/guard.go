@@ -36,9 +36,9 @@ func (h *GuardHandler) BasePrefix() string {
 func (h *GuardHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/login", h.r.Wrap(h.LoginUser))
-	r.Post("/logout", h.r.Wrap(h.LogoutUser))
-	r.Post("/register", h.r.Wrap(h.RegisterUser))
+	r.Post("/login/", h.r.Wrap(h.LoginUser))
+	r.Post("/logout/", h.r.Wrap(h.LogoutUser))
+	r.Post("/register/", h.r.Wrap(h.RegisterUser))
 
 	return r
 }
