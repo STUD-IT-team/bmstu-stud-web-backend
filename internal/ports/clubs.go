@@ -49,7 +49,7 @@ func (h *ClubsHandler) Routes() chi.Router {
 	r.Post("/media/{club_id}", h.r.Wrap(h.PostClubMedia))
 	r.Delete("/media/{club_id}", h.r.Wrap(h.DeleteClubMedia))
 	r.Put("/media/{club_id}", h.r.Wrap(h.UpdateClubMedia))
-	r.Get("/clearance/post", h.r.Wrap(h.GetClearancePost))
+	r.Get("/clearance/post/", h.r.Wrap(h.GetClearancePost))
 
 	return r
 }
