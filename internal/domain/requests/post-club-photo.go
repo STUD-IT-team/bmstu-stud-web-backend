@@ -53,7 +53,6 @@ func (c *PostClubPhoto) Bind(req *http.Request) error {
 		Photos: pc.Photos,
 	}
 	return c.validate()
-
 }
 
 func (c *PostClubPhoto) validate() error {
