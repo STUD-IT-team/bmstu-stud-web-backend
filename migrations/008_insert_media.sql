@@ -1,6 +1,10 @@
 -- +goose Up
 -- +goose StatementBegin
 
+INSERT INTO mediafile (id, name, image)
+VALUES
+(0, 'default', 'default');  -- Important, do not remove
+
 insert into mediafile (name, key)
 values
 ('1.jpg', '1.jpg'),

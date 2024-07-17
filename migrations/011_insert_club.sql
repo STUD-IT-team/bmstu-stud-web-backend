@@ -1,6 +1,8 @@
 -- +goose Up
 -- +goose StatementBegin
 
+INSERT INTO club (id, logo) VALUES (0, 0);  -- Important, do not remove
+
 INSERT INTO club (name, short_name, description, type, logo, vk_url, tg_url)
 VALUES
     ('SSU IT-department', 'IT-dep', 'Тувинский блогер, не отягощённый интеллектом, решил искупаться в аквариуме с рыбами в гипермаркете "О’кей" в Красноярске. Свой поступок он объяснил фразой "Жарко было на улице, хотел купаться". Теперь "О’кей" хочет засудить молодого человека. Предварительно в магазине подсчитали сумму ущерба – чуть меньше 10 тысяч рублей. В эту стоимость входит изъятая рыба (более десяти голов различной породы) и дезинфекция аквариума.', 'отдел', 6, 'vk.com', 'tg.me'),
@@ -54,8 +56,12 @@ VALUES
 
 INSERT INTO encounter (count, description, club_id)
 VALUES
+('300', 'Тракторист', 0),
+('300x2', 'Два тракториста', 0),
+('0', 'Желания жить', 0),
 ('100', 'First encounter', 1),
 ('200', 'Second encounter', 2),
+('300', 'Third encounter', 3),
 ('300', 'Third encounter', 3);
 
 -- +goose StatementEnd
