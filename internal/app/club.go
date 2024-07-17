@@ -30,6 +30,7 @@ type clubStorage interface {
 	AddClubPhotos(ctx context.Context, p []domain.ClubPhoto) error
 	DeleteClubPhoto(ctx context.Context, ids int) error
 	GetPhotoClubID(ctx context.Context, photoID int) (int, error)
+	UpdateClubPhotos(ctx context.Context, clubID int, photos []domain.ClubPhoto) error
 }
 
 type ClubService struct {
@@ -310,6 +311,24 @@ func (s *ClubService) DeleteClubPhoto(ctx context.Context, req *requests.DeleteC
 		return fmt.Errorf("can't storage.DeleteClubPhoto: %w", err)
 	}
 	return nil
+}
+
+func (s *ClubService) UpdateClubPhoto(ctx context.Context, req *requests.UpdateClubPhoto) error {
+	clubID := req.ClubID
+	photos := make([]domain.ClubPhoto, 0, len(req.Photos))
+	for _, p := range req.Photos {
+		photos = append(photos, domain.ClubPhoto{
+			ClubID:    clubID,
+			MediaID:   p.MediaID,
+			RefNumber: p.RefNumber,
+		})
+	}
+	err := s.storage.UpdateClubPhotos(ctx, clubID, photos)
+	if err != nil {
+		return fmt.Errorf("can't storage.UpdateClubPhotos: %w", err)
+	}
+	return err
+
 }
 
 func (s *ClubService) GetClearancePost(ctx context.Context, resp *responses.CheckResponse) (*responses.GetClearance, error) {

@@ -752,6 +752,67 @@ func (s *Postgres) AddClubPhotos(_ context.Context, p []domain.ClubPhoto) error 
 	return wrapPostgresError(tx.Commit())
 }
 
+const getClubPhoto = "SELECT id, ref_num, club_id, media_id FROM club_photo WHERE club_id = $1"
+const upsertClubPhoto = `
+INSERT INTO club_photo (ref_num, club_id, media_id) VALUES ($1, $2, $3)
+ON CONFLICT (media_id, club_id) DO UPDATE SET ref_num=$1
+`
+
+func (s *Postgres) UpdateClubPhotos(_ context.Context, clubID int, p []domain.ClubPhoto) error {
+	tx, err := s.db.Begin()
+	if err != nil {
+		return wrapPostgresError(err)
+	}
+
+	dbPhotos := []domain.ClubPhoto{}
+	rows, err := tx.Query(getClubPhoto, p[0].ClubID)
+	if err != nil {
+		tx.Rollback()
+		return wrapPostgresError(err)
+	}
+	for rows.Next() {
+		dbPhoto := domain.ClubPhoto{}
+		err := rows.Scan(&dbPhoto.ID, &dbPhoto.RefNumber, &dbPhoto.ClubID, &dbPhoto.MediaID)
+		if err != nil {
+			tx.Rollback()
+			return wrapPostgresError(err)
+		}
+		dbPhotos = append(dbPhotos, dbPhoto)
+	}
+
+	toDelete := make([]int, 0, len(dbPhotos))
+
+	for _, dbPhoto := range dbPhotos {
+		found := false
+		for _, photo := range p {
+			if dbPhoto.MediaID == photo.MediaID {
+				found = true
+				break
+			}
+		}
+		if !found {
+			toDelete = append(toDelete, dbPhoto.ID)
+		}
+	}
+
+	for _, id := range toDelete {
+		_, err := tx.Exec(deleteClubPhoto, id)
+		if err != nil {
+			tx.Rollback()
+			return wrapPostgresError(err)
+		}
+	}
+
+	for _, photo := range p {
+		_, err := tx.Exec(upsertClubPhoto, photo.RefNumber, clubID, photo.MediaID)
+		if err != nil {
+			tx.Rollback()
+			return wrapPostgresError(err)
+		}
+	}
+	return wrapPostgresError(tx.Commit())
+}
+
 const deleteClubPhoto = "DELETE FROM club_photo WHERE id = $1"
 
 func (s *Postgres) DeleteClubPhoto(_ context.Context, id int) error {

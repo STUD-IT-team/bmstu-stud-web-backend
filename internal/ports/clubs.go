@@ -569,5 +569,42 @@ func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request)
 }
 
 func (h *ClubsHandler) UpdateClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got UpdateClubMedia request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: UpdateClubMedia Authenticated: %v", resp.MemberID)
+
+	photo := &requests.UpdateClubPhoto{}
+
+	err = photo.Bind(req)
+
+	if err != nil {
+		h.logger.Warnf("can't parse UpdateClubMedia %v", err)
+		return handler.BadRequestResponse()
+	}
+	h.logger.Infof("ClubsHandler: parse request.")
+
+	err = h.clubs.UpdateClubPhoto(context.Background(), photo)
+	if err != nil {
+		h.logger.Warnf("can't service.UpdateClubMedia %v", err)
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		}
+		return handler.InternalServerErrorResponse()
+	}
+
 	return handler.OkResponse(nil)
 }
