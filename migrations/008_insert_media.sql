@@ -1,9 +1,9 @@
 -- +goose Up
 -- +goose StatementBegin
 
-INSERT INTO mediafile (id, name, image)
+INSERT INTO mediafile (id, name, key)
 VALUES
-(0, 'default', 'default');  -- Important, do not remove
+(0, '', '');  -- Important, do not remove
 
 insert into mediafile (name, key)
 values
