@@ -11,6 +11,7 @@ const getClub = `SELECT
  name,
  short_name,
  description,
+ short_description,
  type,
  logo,
  parent_id,
@@ -28,6 +29,7 @@ func (pgs *Postgres) GetClub(_ context.Context, id int) (*domain.Club, error) {
 		&c.Name,
 		&c.ShortName,
 		&c.Description,
+		&c.ShortDescription,
 		&c.Type,
 		&c.LogoId,
 		&parentID,
@@ -50,7 +52,7 @@ const getAllClub = `SELECT
  id,
  name,
  short_name,
- description,
+ short_description,
  type,
  logo,
  parent_id,
@@ -75,7 +77,7 @@ func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
 			&c.ID,
 			&c.Name,
 			&c.ShortName,
-			&c.Description,
+			&c.ShortDescription,
 			&c.Type,
 			&c.LogoId,
 			&parentID,
@@ -98,7 +100,7 @@ func (s *Postgres) GetAllClub(_ context.Context) ([]domain.Club, error) {
 	return carr, nil
 }
 
-const getClubsByName = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE name ILIKE $1 AND id > 0`
+const getClubsByName = `SELECT id, name, short_name, short_description, type, logo, parent_id, vk_url, tg_url FROM club WHERE name ILIKE $1 AND id > 0`
 
 func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club, error) {
 	carr := []domain.Club{}
@@ -115,7 +117,7 @@ func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club
 			&c.ID,
 			&c.Name,
 			&c.ShortName,
-			&c.Description,
+			&c.ShortDescription,
 			&c.Type,
 			&c.LogoId,
 			&parentID,
@@ -139,7 +141,7 @@ func (s *Postgres) GetClubsByName(_ context.Context, name string) ([]domain.Club
 	return carr, nil
 }
 
-const getClubsByType = `SELECT id, name, short_name, description, type, logo, parent_id, vk_url, tg_url FROM club WHERE type ILIKE $1 AND id > 0`
+const getClubsByType = `SELECT id, name, short_name, short_description, type, logo, parent_id, vk_url, tg_url FROM club WHERE type ILIKE $1 AND id > 0`
 
 func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Club, error) {
 	carr := []domain.Club{}
@@ -156,7 +158,7 @@ func (s *Postgres) GetClubsByType(_ context.Context, type_ string) ([]domain.Clu
 			&c.ID,
 			&c.Name,
 			&c.ShortName,
-			&c.Description,
+			&c.ShortDescription,
 			&c.Type,
 			&c.LogoId,
 			&parentID,
@@ -516,12 +518,13 @@ INSERT INTO club (
     name,
     short_name,
     description,
+	short_description,
     type,
 	logo,
     parent_id,
     vk_url, 
     tg_url
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id
 `
 
@@ -530,6 +533,7 @@ func (s *Postgres) AddClub(_ context.Context, c *domain.Club) (int, error) {
 		c.Name,
 		c.ShortName,
 		c.Description,
+		c.ShortDescription,
 		c.Type,
 		c.LogoId,
 		c.ParentID,
@@ -683,8 +687,9 @@ SET name=$1,
 	logo=$5,
     parent_id=$6,
     vk_url=$7, 
-    tg_url=$8
-WHERE id = $9 AND id > 0
+    tg_url=$8,
+	short_description=$9
+WHERE id = $10 AND id > 0
 `
 
 func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.ClubOrg) error {
@@ -702,6 +707,7 @@ func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.Club
 		c.ParentID,
 		c.VkUrl,
 		c.TgUrl,
+		c.ShortDescription,
 		c.ID,
 	)
 	if err != nil {

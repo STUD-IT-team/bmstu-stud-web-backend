@@ -1,15 +1,16 @@
 package domain
 
 type Club struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	ShortName   string `json:"short_name"`
-	Description string `json:"description"`
-	Type        string `json:"type"`
-	LogoId      int    `json:"logo"`
-	ParentID    int    `json:"parent_id"`
-	VkUrl       string `json:"vk_url"`
-	TgUrl       string `json:"tg_url"`
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	ShortName        string `json:"short_name"`
+	Description      string `json:"description"`
+	ShortDescription string `json:"short_description"`
+	Type             string `json:"type"`
+	LogoId           int    `json:"logo"`
+	ParentID         int    `json:"parent_id"`
+	VkUrl            string `json:"vk_url"`
+	TgUrl            string `json:"tg_url"`
 }
 
 type ClubOrg struct {

@@ -47,15 +47,16 @@ func (p *UpdateClub) Bind(req *http.Request) error {
 	*p = UpdateClub{
 		ID: id,
 		PostClub: PostClub{
-			Name:        *pf.Name,
-			ShortName:   *pf.ShortName,
-			Description: *pf.Description,
-			Type:        *pf.Type,
-			LogoId:      *pf.LogoId,
-			VkUrl:       *pf.VkUrl,
-			TgUrl:       *pf.TgUrl,
-			ParentID:    *pf.ParentID,
-			Orgs:        pf.Orgs,
+			Name:             *pf.Name,
+			ShortName:        *pf.ShortName,
+			Description:      *pf.Description,
+			ShortDescription: *pf.ShortDescription,
+			Type:             *pf.Type,
+			LogoId:           *pf.LogoId,
+			VkUrl:            *pf.VkUrl,
+			TgUrl:            *pf.TgUrl,
+			ParentID:         *pf.ParentID,
+			Orgs:             pf.Orgs,
 		},
 	}
 
@@ -75,6 +76,9 @@ func (pc *UpdateClubPointer) validate() error {
 	}
 	if pc.Description == nil {
 		return fmt.Errorf("require: description")
+	}
+	if pc.ShortDescription == nil {
+		return fmt.Errorf("require: short_description")
 	}
 	if pc.Type == nil {
 		return fmt.Errorf("require: type")

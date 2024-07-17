@@ -7,15 +7,15 @@ type GetAllClubs struct {
 }
 
 type Club struct {
-	ID          int              `json:"id"`
-	Name        string           `json:"name"`
-	ShortName   string           `json:"short_name"`
-	Description string           `json:"description"`
-	Type        string           `json:"type"`
-	Logo        domain.MediaFile `json:"logo"`
-	VkUrl       string           `json:"vk_url"`
-	TgUrl       string           `json:"tg_url"`
-	Orgs        []ClubOrg        `json:"orgs"`
+	ID               int              `json:"id"`
+	Name             string           `json:"name"`
+	ShortName        string           `json:"short_name"`
+	ShortDescription string           `json:"short_description"`
+	Type             string           `json:"type"`
+	Logo             domain.MediaFile `json:"logo"`
+	VkUrl            string           `json:"vk_url"`
+	TgUrl            string           `json:"tg_url"`
+	Orgs             []ClubOrg        `json:"orgs"`
 }
 
 type ClubOrg struct {
