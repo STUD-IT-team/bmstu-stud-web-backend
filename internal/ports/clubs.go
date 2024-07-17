@@ -50,6 +50,11 @@ func (h *ClubsHandler) Routes() chi.Router {
 	r.Delete("/media/{club_id}", h.r.Wrap(h.DeleteClubMedia))
 	r.Put("/media/{club_id}", h.r.Wrap(h.UpdateClubMedia))
 	r.Get("/clearance/post/", h.r.Wrap(h.GetClearancePost))
+	r.Get("/clearance/delete/{club_id}", h.r.Wrap(h.GetClearanceDelete))
+	r.Get("/clearance/update/{club_id}", h.r.Wrap(h.GetClearanceUpdate))
+	r.Get("/media/clearance/post/{club_id}", h.r.Wrap(h.GetMediaClearancePost))
+	r.Get("/media/clearance/delete/{club_id}", h.r.Wrap(h.GetMediaClearanceDelete))
+	r.Put("/media/clearance/update/{club_id}", h.r.Wrap(h.GetMediaClearanceUpdate))
 
 	return r
 }
@@ -78,6 +83,26 @@ func (h *ClubsHandler) GetClearancePost(w http.ResponseWriter, req *http.Request
 	}
 
 	return handler.OkResponse(response)
+}
+
+func (h *ClubsHandler) GetClearanceDelete(w http.ResponseWriter, req *http.Request) handler.Response {
+	return handler.OkResponse(nil)
+}
+
+func (h *ClubsHandler) GetClearanceUpdate(w http.ResponseWriter, req *http.Request) handler.Response {
+	return handler.OkResponse(nil)
+}
+
+func (h *ClubsHandler) GetMediaClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
+	return handler.OkResponse(nil)
+}
+
+func (h *ClubsHandler) GetMediaClearanceDelete(w http.ResponseWriter, req *http.Request) handler.Response {
+	return handler.OkResponse(nil)
+}
+
+func (h *ClubsHandler) GetMediaClearanceUpdate(w http.ResponseWriter, req *http.Request) handler.Response {
+	return handler.OkResponse(nil)
 }
 
 // GetAllClubs
