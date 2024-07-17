@@ -3,20 +3,22 @@
 
 INSERT INTO category (name)
 VALUES
-('first'),
-('second'),
-('third');
+('Category 1'),
+('Category 2'),
+('Category 3');
 
 INSERT INTO document (name, key, club_id, category_id)
 VALUES
-('admin', 'admin', 0, 1),
-('user', 'user', 1, 1),
-('manager','manager', 1, 2);
+('1.pdf', '1/1.pdf', 1, 1),
+('2.pdf', '2/2.pdf', 2, 2),
+('3.pdf', '3/3.pdf', 3, 3);
 
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DELETE FROM document;
-DELETE FROM category;
+
+truncate table document CASCADE;
+truncate table category CASCADE;
+
 -- +goose StatementEnd

@@ -8,6 +8,7 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 )
 
 type clubStorage interface {
@@ -26,6 +27,10 @@ type clubStorage interface {
 	AddOrgs(ctx context.Context, orgs []domain.ClubOrg) error
 	DeleteClubWithOrgs(ctx context.Context, clubID int) error
 	UpdateClub(ctx context.Context, c *domain.Club, o []domain.ClubOrg) error
+	AddClubPhotos(ctx context.Context, p []domain.ClubPhoto) error
+	DeleteClubPhoto(ctx context.Context, ids int) error
+	GetPhotoClubID(ctx context.Context, photoID int) (int, error)
+	UpdateClubPhotos(ctx context.Context, clubID int, photos []domain.ClubPhoto) error
 }
 
 type ClubService struct {
@@ -47,14 +52,22 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 
 	mainOrgs, err := s.storage.GetClubOrgs(ctx, id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
-		return nil, err
+		if err == postgres.ErrPostgresNotFoundError {
+			mainOrgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	subOrgs, err := s.storage.GetClubSubOrgs(ctx, id)
 	if err != nil {
-		err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
-		return nil, err
+		if err == postgres.ErrPostgresNotFoundError {
+			subOrgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	ids := make([]int, 0, len(mainOrgs)+len(subOrgs)+1)
@@ -72,7 +85,7 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 		return nil, err
 	}
 
-	return mapper.MakeResponseClub(club, &mainOrgs, &subOrgs, &ims)
+	return mapper.MakeResponseClub(club, mainOrgs, subOrgs, ims)
 }
 
 func (s *ClubService) GetClubsByName(ctx context.Context, name string) (*responses.GetClubsByName, error) {
@@ -80,10 +93,6 @@ func (s *ClubService) GetClubsByName(ctx context.Context, name string) (*respons
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClubsByName: %w", err)
 		return nil, err
-	}
-
-	if len(res) == 0 {
-		return nil, fmt.Errorf("no club found")
 	}
 
 	ids := make([]int, 0, len(res))
@@ -112,10 +121,6 @@ func (s *ClubService) GetClubsByType(ctx context.Context, type_ string) (*respon
 	if err != nil {
 		err = fmt.Errorf("can't storage.GetClubsByName: %w", err)
 		return nil, err
-	}
-
-	if len(res) == 0 {
-		return nil, fmt.Errorf("no club found")
 	}
 
 	ids := make([]int, 0, len(res))
@@ -147,10 +152,6 @@ func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, 
 		return nil, err
 	}
 
-	if len(res) == 0 {
-		return nil, fmt.Errorf("no club found")
-	}
-
 	ids := make([]int, 0, len(res))
 	for _, club := range res {
 		ids = append(ids, club.LogoId)
@@ -173,12 +174,22 @@ func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, 
 func (s *ClubService) GetClubMembers(ctx context.Context, clubID int) (*responses.GetClubMembers, error) {
 	orgs, err := s.storage.GetClubOrgs(ctx, clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+		if err == postgres.ErrPostgresNotFoundError {
+			orgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	subOrgs, err := s.storage.GetClubSubOrgs(ctx, clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
+		if err == postgres.ErrPostgresNotFoundError {
+			subOrgs = []domain.ClubOrg{}
+		} else {
+			err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
+			return nil, err
+		}
 	}
 
 	if len(orgs)+len(subOrgs) == 0 {
@@ -247,12 +258,13 @@ func (s *ClubService) UpdateClub(ctx context.Context, req *requests.UpdateClub) 
 func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*responses.GetClubMedia, error) {
 	clubPhotos, err := s.storage.GetClubMediaFiles(ctx, clubID)
 	if err != nil {
-		return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
+		if err == postgres.ErrPostgresNotFoundError {
+			clubPhotos = []domain.ClubPhoto{}
+		} else {
+			return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
+		}
 	}
 
-	if len(clubPhotos) == 0 {
-		return nil, fmt.Errorf("no club photo found")
-	}
 	ids := make([]int, 0, len(clubPhotos))
 	for _, photo := range clubPhotos {
 		ids = append(ids, photo.MediaID)
@@ -263,4 +275,65 @@ func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*respo
 	}
 
 	return mapper.MakeResponseClubMediaFiles(clubID, clubPhotos, media)
+}
+
+func (s *ClubService) PostClubPhoto(ctx context.Context, req *requests.PostClubPhoto) error {
+	photos := make([]domain.ClubPhoto, 0, len(req.Photos))
+	for _, p := range req.Photos {
+		photos = append(photos, domain.ClubPhoto{
+			ClubID:    req.ClubID,
+			MediaID:   p.MediaID,
+			RefNumber: p.RefNumber,
+			ID:        0,
+		})
+	}
+
+	err := s.storage.AddClubPhotos(ctx, photos)
+	if err != nil {
+		return fmt.Errorf("can't storage.AddClubPhotos: %w", err)
+	}
+	return nil
+}
+
+func (s *ClubService) DeleteClubPhoto(ctx context.Context, req *requests.DeleteClubPhoto) error {
+	clubID, err := s.storage.GetPhotoClubID(ctx, req.PhotoID)
+	if err != nil {
+		if err == postgres.ErrPostgresNotFoundError {
+			return fmt.Errorf("photo not found")
+		}
+		return fmt.Errorf("can't storage.GetPhotoClubID: %w", err)
+	}
+	if clubID != req.ClubID {
+		return fmt.Errorf("photo is not from the specified club")
+	}
+	err = s.storage.DeleteClubPhoto(ctx, req.PhotoID)
+	if err != nil {
+		return fmt.Errorf("can't storage.DeleteClubPhoto: %w", err)
+	}
+	return nil
+}
+
+func (s *ClubService) UpdateClubPhoto(ctx context.Context, req *requests.UpdateClubPhoto) error {
+	clubID := req.ClubID
+	photos := make([]domain.ClubPhoto, 0, len(req.Photos))
+	for _, p := range req.Photos {
+		photos = append(photos, domain.ClubPhoto{
+			ClubID:    clubID,
+			MediaID:   p.MediaID,
+			RefNumber: p.RefNumber,
+		})
+	}
+	err := s.storage.UpdateClubPhotos(ctx, clubID, photos)
+	if err != nil {
+		return fmt.Errorf("can't storage.UpdateClubPhotos: %w", err)
+	}
+	return err
+
+}
+
+func (s *ClubService) GetClearancePost(ctx context.Context, resp *responses.CheckResponse) (*responses.GetClearance, error) {
+	if resp.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins"}, nil
 }

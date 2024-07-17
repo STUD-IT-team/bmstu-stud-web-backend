@@ -1,5 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
+
 create table IF NOT EXISTS document
 (
     id      serial primary key,
@@ -22,6 +23,8 @@ alter table document add foreign key (club_id) references club(id);
 
 -- +goose Down
 -- +goose StatementBegin
+
+drop table IF EXISTS category CASCADE;
 drop table IF EXISTS document CASCADE;
-drop table IF EXISTS category CASCADE; 
+
 -- +goose StatementEnd

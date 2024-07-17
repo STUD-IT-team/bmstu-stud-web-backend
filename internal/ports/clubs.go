@@ -46,8 +46,38 @@ func (h *ClubsHandler) Routes() chi.Router {
 	r.Post("/", h.r.Wrap(h.PostClub))
 	r.Delete("/{club_id}", h.r.Wrap(h.DeleteClub))
 	r.Put("/{club_id}", h.r.Wrap(h.UpdateClub))
+	r.Post("/media/{club_id}", h.r.Wrap(h.PostClubMedia))
+	r.Delete("/media/{club_id}", h.r.Wrap(h.DeleteClubMedia))
+	r.Put("/media/{club_id}", h.r.Wrap(h.UpdateClubMedia))
+	r.Get("/clearance/post/", h.r.Wrap(h.GetClearancePost))
 
 	return r
+}
+
+func (h *ClubsHandler) GetClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got PostClub request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: GetClearancePost Authenticated: %v", resp.MemberID)
+
+	response, err := h.clubs.GetClearancePost(context.Background(), resp)
+	if err != nil {
+		h.logger.Warnf("can't clubs.GetClearancePost GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(response)
 }
 
 // GetAllClubs
@@ -455,6 +485,171 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 	}
 
 	h.logger.Info("ClubsHandler: request done")
+
+	return handler.OkResponse(nil)
+}
+
+// PostClubPhoto
+//
+// @Summary    Добавляет в клуб фотографии клуба в базу данных
+// @Description Добавляет в клуб фотографии клуба в базу данных
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Param      request  body    requests.PostClubPhoto  true  "post club photo data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    409
+// @Failure    500
+// @Router      /clubs/media/{club_id} [post]
+// @Security    Authorized
+func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got PostClubMedia request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: PostClubMedia Authenticated: %v", resp.MemberID)
+
+	photo := &requests.PostClubPhoto{}
+	err = photo.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't service.PostClubMedia %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: parse request.")
+
+	err = h.clubs.PostClubPhoto(context.Background(), photo)
+	if err != nil {
+		h.logger.Warnf("can't service.PostClubMedia %v", err)
+		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+			return handler.ConflictResponse()
+		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		}
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(nil)
+}
+
+// DeleteClubPhoto
+//
+// @Summary    Удаляет фотографию из фотографий клуба
+// @Description Удаляет фотографию из фотографий клуба
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Param      request  body    requests.DeleteClubPhoto  true  "post club photo data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    404
+// @Failure    500
+// @Router      /clubs/media/{club_id} [delete]
+// @Security    Authorized
+func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got DeleteClubMedia request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: DeleteClubMedia Authenticated: %v", resp.MemberID)
+
+	photo := &requests.DeleteClubPhoto{}
+	err = photo.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse DeleteClubMedia %v", err)
+		return handler.BadRequestResponse()
+	}
+	h.logger.Infof("ClubsHandler: parse request.")
+
+	err = h.clubs.DeleteClubPhoto(context.Background(), photo)
+	if err != nil {
+		h.logger.Warnf("can't service.DeleteClubMedia %v", err)
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		}
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(nil)
+}
+
+// UpdateClubPhoto
+//
+// @Summary    Обновляет все фотографии клуба
+// @Description Обновляет все фотографии клуба
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Param      request  body    requests.UpdateClubPhoto  true  "post club photo data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    409
+// @Failure    500
+// @Router      /clubs/media/{club_id} [put]
+// @Security    Authorized
+func (h *ClubsHandler) UpdateClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got UpdateClubMedia request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: UpdateClubMedia Authenticated: %v", resp.MemberID)
+
+	photo := &requests.UpdateClubPhoto{}
+
+	err = photo.Bind(req)
+
+	if err != nil {
+		h.logger.Warnf("can't parse UpdateClubMedia %v", err)
+		return handler.BadRequestResponse()
+	}
+	h.logger.Infof("ClubsHandler: parse request.")
+
+	err = h.clubs.UpdateClubPhoto(context.Background(), photo)
+	if err != nil {
+		h.logger.Warnf("can't service.UpdateClubMedia %v", err)
+		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+			return handler.BadRequestResponse()
+		} else if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+			return handler.NotFoundResponse()
+		}
+		return handler.InternalServerErrorResponse()
+	}
 
 	return handler.OkResponse(nil)
 }

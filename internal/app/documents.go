@@ -63,7 +63,7 @@ func (s *DocumentsService) GetDocumentsByClubID(ctx context.Context, clubID int)
 }
 
 func (s *DocumentsService) PostDocument(ctx context.Context, doc *requests.PostDocument) (*responses.PostDocument, error) {
-	var key = fmt.Sprintf("%d/%s", doc.ClubID, doc.Name)
+	var key = fmt.Sprintf("%d/%s", doc.CategoryID, doc.Name)
 
 	err := s.storage.PostDocument(ctx, doc.Name, key, doc.Data, doc.ClubID, doc.CategoryID)
 	if err != nil {
@@ -83,7 +83,7 @@ func (s *DocumentsService) DeleteDocument(ctx context.Context, id int) error {
 }
 
 func (s *DocumentsService) UpdateDocument(ctx context.Context, doc *requests.UpdateDocument) (*responses.UpdateDocument, error) {
-	var key = fmt.Sprintf("%d/%s", doc.ClubID, doc.Name)
+	var key = fmt.Sprintf("%d/%s", doc.CategoryID, doc.Name)
 
 	err := s.storage.UpdateDocument(ctx, doc.ID, doc.Name, key, doc.Data, doc.ClubID, doc.CategoryID)
 	if err != nil {

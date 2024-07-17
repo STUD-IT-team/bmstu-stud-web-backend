@@ -7,7 +7,7 @@ import (
 )
 
 type GetAllEvents struct {
-	Event []Event `json:"event"`
+	Event []Event `json:"events"`
 }
 
 type Event struct {

@@ -84,6 +84,11 @@ func (s *EventsService) GetEventsByRange(ctx context.Context, from, to time.Time
 	return mapper.MakeResponseEventsByRange(res, eventMediaFiles)
 }
 
+// func (s *EventsService) GetEventMemberRoles(ctx context.Context, id int) (*responses.GetEventMemberRoles, error) {
+
+// 	return mapper.MakeResponseEventMemberRoles(res)
+// }
+
 func (s *EventsService) PostEvent(ctx context.Context, event *domain.Event) error {
 	err := s.storage.PostEvent(ctx, event)
 	if err != nil {

@@ -38,11 +38,11 @@ func (h *MediaHandler) BasePrefix() string {
 func (h *MediaHandler) Routes() chi.Router {
 	r := chi.NewRouter()
 
-	r.Post("/public", h.r.Wrap(h.PostMediaPublic))
-	r.Post("/private", h.r.Wrap(h.PostMediaPrivate))
-	r.Get("/default", h.r.Wrap(h.GetMediaDefault))
+	r.Post("/public/", h.r.Wrap(h.PostMediaPublic))
+	r.Post("/private/", h.r.Wrap(h.PostMediaPrivate))
+	r.Get("/default/", h.r.Wrap(h.GetMediaDefault))
 	r.Get("/default/{id}", h.r.Wrap(h.GetMediaDefaultByID))
-	r.Post("/default", h.r.Wrap(h.PostMediaDefault))
+	r.Post("/default/", h.r.Wrap(h.PostMediaDefault))
 	r.Delete("/default/{id}", h.r.Wrap(h.DeleteMediaDefault))
 	r.Put("/default/{id}", h.r.Wrap(h.UpdateMediaDefault))
 
