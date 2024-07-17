@@ -175,12 +175,12 @@ func (p *Postgres) UpdateMember(ctx context.Context, member *domain.Member) erro
 	return nil
 }
 
-const getMemberByLoginQuery = "SELECT id, login FROM member WHERE login=$1;"
+const getMemberByLoginQuery = "SELECT id, hash_password, login FROM member WHERE login=$1;"
 
 func (p *Postgres) GetMemberByLogin(_ context.Context, login string) (*domain.Member, error) {
 	var user domain.Member
 
-	err := p.db.QueryRow(getMemberByLoginQuery, login).Scan(&user.ID, &user.Login)
+	err := p.db.QueryRow(getMemberByLoginQuery, login).Scan(&user.ID, &user.HashPassword, &user.Login)
 	if err != nil {
 		return nil, wrapPostgresError(err)
 	}

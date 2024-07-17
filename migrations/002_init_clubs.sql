@@ -85,11 +85,11 @@ alter table club_org add FOREIGN KEY (role_id) REFERENCES club_role(id);
 -- +goose Down
 -- +goose StatementBegin
 
+drop table IF EXISTS club_role CASCADE;
 drop table IF EXISTS club_org CASCADE;
 drop table IF EXISTS club_photo CASCADE;
-drop table IF EXISTS club_role CASCADE;
-drop table IF EXISTS club CASCADE;
 drop table IF EXISTS event CASCADE;
 drop table IF EXISTS encounter CASCADE;
+drop table IF EXISTS club CASCADE;
 
 -- +goose StatementEnd

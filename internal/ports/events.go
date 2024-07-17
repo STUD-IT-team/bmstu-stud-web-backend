@@ -168,6 +168,51 @@ func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Reques
 	return handler.OkResponse(res)
 }
 
+// // GetEventMemberRoles get all roles for members of events
+// //
+// //	@Summary     Retrieve all event roles
+// //	@Description Get a list of all roles for members of events
+// //	@Tags        auth.events
+// //	@Produce     json
+// //	@Success     200 {object}  responses.GetEventMemberRoles
+// //	@Failure     404
+// //	@Failure     500
+// //	@Router      /events/members/roles/ [get]
+// //	@Security    Authorised
+// func (h *EventsHandler) GetEventMemberRoles(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	h.logger.Info("EventsHandler: got GetEventMemberRoles request")
+
+// 	accessToken, err := getAccessToken(req)
+// 	if err != nil {
+// 		h.logger.Warnf("can't get access token GetEventMemberRoles: %v", err)
+// 		return handler.UnauthorizedResponse()
+// 	}
+
+// 	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+// 	if err != nil || !resp.Valid {
+// 		h.logger.Warnf("can't GuardService.Check on GetEventMemberRoles: %v", err)
+// 		return handler.UnauthorizedResponse()
+// 	}
+
+// 	h.logger.Infof("EventsHandler: GetEventMemberRoles Authenticated: %v", resp.MemberID)
+
+// 	res, err := h.events.GetEventMemberRoles(context.Background(), resp.MemberID)
+// 	if err != nil {
+// 		h.logger.Warnf("can't EventsService.GetEventMemberRoles: %v", err)
+// 		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+// 			return handler.NotFoundResponse()
+// 		} else if errors.Is(err, app.ErrInvalidCredentials) {
+// 			return handler.UnauthorizedResponse()
+// 		} else {
+// 			return handler.InternalServerErrorResponse()
+// 		}
+// 	}
+
+// 	h.logger.Info("EventsHandler: request GetEventMemberRoles done")
+
+// 	return handler.OkResponse(res)
+// }
+
 // PostEvent creates a new event item
 //
 //		@Summary     Create a new event item
@@ -192,7 +237,7 @@ func (h *EventsHandler) PostEvent(w http.ResponseWriter, req *http.Request) hand
 
 	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
 	if err != nil || !resp.Valid {
-		h.logger.Warnf("can't GuardService.Check on DeleteEvent: %v", err)
+		h.logger.Warnf("can't GuardService.Check on PostEvent: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
@@ -306,7 +351,7 @@ func (h *EventsHandler) UpdateEvent(w http.ResponseWriter, req *http.Request) ha
 
 	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
 	if err != nil || !resp.Valid {
-		h.logger.Warnf("can't GuardService.Check on DeleteEvent: %v", err)
+		h.logger.Warnf("can't GuardService.Check on UpdateEvent: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
