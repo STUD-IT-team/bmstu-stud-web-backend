@@ -96,3 +96,10 @@ func (s *DocumentsService) UpdateDocument(ctx context.Context, doc *requests.Upd
 func (s *DocumentsService) CleanupDocuments(ctx context.Context, logger *logrus.Logger) error {
 	return s.storage.CleanupDocuments(ctx, logger)
 }
+
+func (s *DocumentsService) GetClearancePost(ctx context.Context, resp *responses.CheckResponse) (*responses.GetClearance, error) {
+	if resp.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins"}, nil
+}

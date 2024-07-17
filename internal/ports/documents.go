@@ -249,7 +249,6 @@ func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Req
 //	@Failure     400
 //	@Failure     404
 //	@Failure     500
-
 //	@Router      /documents/categories/{id} [get]
 //	@Security    public
 func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -304,13 +303,27 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on PostDocument: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: PostDocument Authenticated: %v", resp.MemberID)
+	h.logger.Infof("DocumentsHandler: PostDocument Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.documents.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: PostDocument Allowed: %v", checkResp.MemberID)
 
 	doc := &requests.PostDocument{}
 
@@ -351,8 +364,8 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /documents/{id} [delete]
-//	@Security    Authorised
+// @Router      /documents/{id} [delete]
+// @Security    Authorised
 func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got DeleteDocument request")
 
@@ -362,13 +375,27 @@ func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Reque
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on DeleteDocument: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: DeleteDocument Authenticated: %v", resp.MemberID)
+	h.logger.Infof("DocumentsHandler: DeleteDocument Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.documents.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: DeleteDocument Allowed: %v", checkResp.MemberID)
 
 	documentId := &requests.DeleteDocument{}
 
@@ -421,13 +448,27 @@ func (h *DocumentsHandler) UpdateDocument(w http.ResponseWriter, req *http.Reque
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on UpdateDocument: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: UpdateDocument Authenticated: %v", resp.MemberID)
+	h.logger.Infof("DocumentsHandler: UpdateDocument Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.documents.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: UpdateDocument Allowed: %v", checkResp.MemberID)
 
 	doc := &requests.UpdateDocument{}
 
@@ -482,13 +523,27 @@ func (h *DocumentsHandler) PostCategory(w http.ResponseWriter, req *http.Request
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on PostCategory: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: PostCategory Authenticated: %v", resp.MemberID)
+	h.logger.Infof("DocumentsHandler: PostCategory Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.documents.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: PostCategory Allowed: %v", checkResp.MemberID)
 
 	cat := &requests.PostDocumentCategory{}
 
@@ -539,13 +594,27 @@ func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Reque
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on DeleteDocumentCategory: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: DeleteCategory Authenticated: %v", resp.MemberID)
+	h.logger.Infof("DocumentsHandler: DeleteCategory Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.documents.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: DeleteCategory Allowed: %v", checkResp.MemberID)
 
 	catId := &requests.DeleteDocumentCategory{}
 
@@ -599,13 +668,27 @@ func (h *DocumentsHandler) UpdateCategory(w http.ResponseWriter, req *http.Reque
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on UpdateDocumentCategory: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("DocumentsHandler: UpdateCategory Authenticated: %v", resp.MemberID)
+	h.logger.Infof("DocumentsHandler: UpdateCategory Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.documents.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: UpdateCategory Allowed: %v", checkResp.MemberID)
 
 	cat := &requests.UpdateDocumentCategory{}
 

@@ -225,13 +225,27 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on PostFeed: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("FeedHandler: PostFeed Authenticated: %v", resp.MemberID)
+	h.logger.Infof("FeedHandler: PostFeed Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.feed.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't FeedHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("FeedHandler: PostFeed Allowed: %v", checkResp.MemberID)
 
 	feed := &requests.PostFeed{}
 
@@ -270,8 +284,8 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /feed/{id} [delete]
-//	@Security    Authorised
+// @Router      /feed/{id} [delete]
+// @Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got DeleteFeed request")
 
@@ -281,13 +295,27 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on DeleteFeed: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("FeedHandler: DeleteFeed Authenticated: %v", resp.MemberID)
+	h.logger.Infof("FeedHandler: DeleteFeed Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.feed.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't FeedHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("FeedHandler: DeleteFeed Allowed: %v", checkResp.MemberID)
 
 	feedId := &requests.DeleteFeed{}
 
@@ -338,13 +366,27 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on UpdateFeed: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("FeedHandler: UpdateFeed Authenticated: %v", resp.MemberID)
+	h.logger.Infof("FeedHandler: UpdateFeed Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.feed.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't FeedHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("FeedHandler: UpdateFeed Allowed: %v", checkResp.MemberID)
 
 	feed := &requests.UpdateFeed{}
 
@@ -395,13 +437,27 @@ func (h *FeedHandler) PostEncounter(w http.ResponseWriter, req *http.Request) ha
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on PostEncounter: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("FeedHandler: PostEncounter Authenticated: %v", resp.MemberID)
+	h.logger.Infof("FeedHandler: PostEncounter Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.feed.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't FeedHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("FeedHandler: PostEncounter Allowed: %v", checkResp.MemberID)
 
 	encounter := &requests.PostEncounter{}
 
@@ -451,13 +507,27 @@ func (h *FeedHandler) DeleteEncounter(w http.ResponseWriter, req *http.Request) 
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on DeleteEncounter: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("FeedHandler: DeleteEncounter Authenticated: %v", resp.MemberID)
+	h.logger.Infof("FeedHandler: DeleteEncounter Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.feed.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't FeedHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("FeedHandler: DeleteEncounter Allowed: %v", checkResp.MemberID)
 
 	encId := &requests.DeleteEncounter{}
 
@@ -508,13 +578,27 @@ func (h *FeedHandler) UpdateEncounter(w http.ResponseWriter, req *http.Request) 
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on UpdateEncounter: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("FeedHandler: UpdateEncounter Authenticated: %v", resp.MemberID)
+	h.logger.Infof("FeedHandler: UpdateEncounter Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.feed.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't FeedHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("FeedHandler: UpdateEncounter Allowed: %v", checkResp.MemberID)
 
 	enc := &requests.UpdateEncounter{}
 

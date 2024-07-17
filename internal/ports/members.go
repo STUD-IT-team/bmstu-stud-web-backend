@@ -70,13 +70,27 @@ func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request)
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on GetAllMembers: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("MembersHandler: GetAllMembers Authenticated: %v", resp.MemberID)
+	h.logger.Infof("MembersHandler: GetAllMembers Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("MembersHandler: GetAllMembers Allowed: %v", checkResp.MemberID)
 
 	res, err := h.members.GetAllMembers(context.Background())
 	if err != nil {
@@ -116,13 +130,27 @@ func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) han
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on GetAllMembers: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("MembersHandler: GetAllMembers Authenticated: %v", resp.MemberID)
+	h.logger.Infof("MembersHandler: GetAllMembers Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("MembersHandler: GetMember Allowed: %v", checkResp.MemberID)
 
 	memberId := &requests.GetMember{}
 
@@ -172,13 +200,27 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on GetMembersByName: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("MembersHandler: GetMembersByName Authenticated: %v", resp.MemberID)
+	h.logger.Infof("MembersHandler: GetMembersByName Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("MembersHandler: GetMembersByName Allowed: %v", checkResp.MemberID)
 
 	name := &requests.GetMembersByName{}
 
@@ -228,13 +270,27 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on DeleteMember: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("MembersHandler: DeleteMember Authenticated: %v", resp.MemberID)
+	h.logger.Infof("MembersHandler: DeleteMember Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("MembersHandler: DeleteMember Allowed: %v", checkResp.MemberID)
 
 	memberId := &requests.DeleteMember{}
 
@@ -287,13 +343,27 @@ func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) 
 		return handler.UnauthorizedResponse()
 	}
 
-	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !resp.Valid {
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
 		h.logger.Warnf("can't GuardService.Check on DeleteMember: %v", err)
 		return handler.UnauthorizedResponse()
 	}
 
-	h.logger.Infof("MembersHandler: UpdateMember Authenticated: %v", resp.MemberID)
+	h.logger.Infof("MembersHandler: UpdateMember Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	if !cleaResp.Access {
+		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+		return handler.ForbiddenResponse()
+	}
+
+	h.logger.Infof("MembersHandler: UpdateMember Allowed: %v", checkResp.MemberID)
 
 	member := &requests.UpdateMember{}
 

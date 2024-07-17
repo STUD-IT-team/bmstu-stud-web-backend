@@ -158,6 +158,13 @@ func (s *FeedService) UpdateEncounter(ctx context.Context, encounter *domain.Enc
 	return nil
 }
 
+func (s *FeedService) GetClearancePost(ctx context.Context, resp *responses.CheckResponse) (*responses.GetClearance, error) {
+	if resp.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins"}, nil
+}
+
 // func (s *FeedService) GetFeedByFilter(
 // 	ctx context.Context,
 // 	filter requests.GetFeedByFilter,
