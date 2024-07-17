@@ -489,6 +489,21 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 	return handler.OkResponse(nil)
 }
 
+// PostClubPhoto
+//
+// @Summary    Добавляет в клуб фотографии клуба в базу данных
+// @Description Добавляет в клуб фотографии клуба в базу данных
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Param      request  body    requests.PostClubPhoto  true  "post club photo data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    409
+// @Failure    500
+// @Router      /clubs/media/{club_id} [post]
+// @Security    Authorized
 func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got PostClubMedia request")
 
@@ -529,6 +544,21 @@ func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) h
 	return handler.OkResponse(nil)
 }
 
+// DeleteClubPhoto
+//
+// @Summary    Удаляет фотографию из фотографий клуба
+// @Description Удаляет фотографию из фотографий клуба
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Param      request  body    requests.DeleteClubPhoto  true  "post club photo data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    404
+// @Failure    500
+// @Router      /clubs/media/{club_id} [delete]
+// @Security    Authorized
 func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got DeleteClubMedia request")
 
@@ -568,6 +598,21 @@ func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request)
 	return handler.OkResponse(nil)
 }
 
+// UpdateClubPhoto
+//
+// @Summary    Обновляет все фотографии клуба
+// @Description Обновляет все фотографии клуба
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Param      request  body    requests.UpdateClubPhoto  true  "post club photo data"
+// @Success    200
+// @Failure    400
+// @Failure    401
+// @Failure    409
+// @Failure    500
+// @Router      /clubs/media/{club_id} [put]
+// @Security    Authorized
 func (h *ClubsHandler) UpdateClubMedia(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got UpdateClubMedia request")
 
