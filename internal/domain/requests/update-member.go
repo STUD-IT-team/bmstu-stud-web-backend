@@ -17,7 +17,7 @@ type UpdateMember struct {
 	Telegram string `json:"telegram"`
 	Vk       string `json:"vk"`
 	Name     string `json:"name"`
-	IsAdmin  bool   `json:"isAdmin"`
+	IsAdmin  bool   `json:"is_admin"`
 }
 
 type UpdateMemberPointer struct {
@@ -26,7 +26,7 @@ type UpdateMemberPointer struct {
 	Telegram *string `json:"telegram"`
 	Vk       *string `json:"vk"`
 	Name     *string `json:"name"`
-	IsAdmin  *bool   `json:"isAdmin"`
+	IsAdmin  *bool   `json:"is_admin"`
 }
 
 func (f *UpdateMember) Bind(req *http.Request) error {

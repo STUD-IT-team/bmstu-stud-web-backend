@@ -176,6 +176,7 @@ func (h *EventsHandler) GetEventsByRange(w http.ResponseWriter, req *http.Reques
 // //	@Produce     json
 // //	@Success     200 {object}  responses.GetEventMemberRoles
 // //	@Failure     404
+// //	@Failure     401
 // //	@Failure     500
 // //	@Router      /events/members/roles/ [get]
 // //	@Security    Authorised

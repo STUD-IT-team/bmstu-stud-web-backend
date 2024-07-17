@@ -85,8 +85,8 @@ func (s *EventsService) GetEventsByRange(ctx context.Context, from, to time.Time
 }
 
 // func (s *EventsService) GetEventMemberRoles(ctx context.Context, id int) (*responses.GetEventMemberRoles, error) {
-// 	// TODO: Implement this method
-// 	return nil, nil
+
+// 	return mapper.MakeResponseEventMemberRoles(res)
 // }
 
 func (s *EventsService) PostEvent(ctx context.Context, event *domain.Event) error {
