@@ -47,16 +47,17 @@ func MakeResponseClub(club *domain.Club, mainOrgs []domain.ClubOrg, subOrgs []do
 	}
 
 	r := &responses.GetClub{
-		ID:          club.ID,
-		Name:        club.Name,
-		ShortName:   club.ShortName,
-		Logo:        images[club.LogoId],
-		Description: club.Description,
-		Type:        club.Type,
-		VkUrl:       club.VkUrl,
-		TgUrl:       club.TgUrl,
-		MainOrgs:    make([]responses.MainOrg, 0),
-		SubOrgs:     make([]responses.SubClubOrg, 0),
+		ID:               club.ID,
+		Name:             club.Name,
+		ShortName:        club.ShortName,
+		Logo:             images[club.LogoId],
+		Description:      club.Description,
+		ShortDescription: club.ShortDescription,
+		Type:             club.Type,
+		VkUrl:            club.VkUrl,
+		TgUrl:            club.TgUrl,
+		MainOrgs:         make([]responses.MainOrg, 0),
+		SubOrgs:          make([]responses.SubClubOrg, 0),
 	}
 
 	for _, org := range mainOrgs {
@@ -103,15 +104,15 @@ func MakeResponseAllClub(clubs []domain.Club, logos map[int]domain.MediaFile, or
 		}
 		r.Clubs = append(r.Clubs,
 			responses.Club{
-				ID:          club.ID,
-				Name:        club.Name,
-				ShortName:   club.ShortName,
-				Logo:        logos[club.LogoId],
-				Description: club.Description,
-				Type:        club.Type,
-				VkUrl:       club.VkUrl,
-				TgUrl:       club.TgUrl,
-				Orgs:        orgMap[club.ID],
+				ID:               club.ID,
+				Name:             club.Name,
+				ShortName:        club.ShortName,
+				Logo:             logos[club.LogoId],
+				ShortDescription: club.ShortDescription,
+				Type:             club.Type,
+				VkUrl:            club.VkUrl,
+				TgUrl:            club.TgUrl,
+				Orgs:             orgMap[club.ID],
 			})
 	}
 	return r, nil
@@ -148,6 +149,7 @@ func ParsePostClub(req *requests.PostClub) (*domain.Club, []domain.ClubOrg, erro
 	c.Name = req.Name
 	c.ShortName = req.ShortName
 	c.Description = req.Description
+	c.ShortDescription = req.ShortDescription
 	c.LogoId = req.LogoId
 	c.Type = req.Type
 	c.VkUrl = req.VkUrl
@@ -195,6 +197,7 @@ func ParseUpdateClub(req *requests.UpdateClub) (*domain.Club, []domain.ClubOrg, 
 	c.Name = req.Name
 	c.ShortName = req.ShortName
 	c.Description = req.Description
+	c.ShortDescription = req.ShortDescription
 	c.LogoId = req.LogoId
 	c.Type = req.Type
 	c.VkUrl = req.VkUrl

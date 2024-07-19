@@ -7,9 +7,10 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 )
 
-func MakeResponsePostMedia(id int) *responses.PostMedia {
+func MakeResponsePostMedia(id int, key string) *responses.PostMedia {
 	return &responses.PostMedia{
-		ID: id,
+		ID:  id,
+		Key: key,
 	}
 }
 
@@ -47,9 +48,10 @@ func MakeResponseAllDefaultMedia(defaultMedias []domain.DefaultMedia, mediaFiles
 	return &resp, nil
 }
 
-func MakeResponsePostDefaultMedia(id, mediaID int) *responses.PostDefaultMedia {
+func MakeResponsePostDefaultMedia(id int, key string, mediaID int) *responses.PostDefaultMedia {
 	return &responses.PostDefaultMedia{
 		ID:      id,
 		MediaId: mediaID,
+		Key:     key,
 	}
 }

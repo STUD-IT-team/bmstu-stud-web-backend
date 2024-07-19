@@ -9,27 +9,29 @@ import (
 )
 
 type PostClub struct {
-	Name        string    `json:"name"`
-	ShortName   string    `json:"short_name"`
-	Description string    `json:"description"`
-	Type        string    `json:"type"`
-	LogoId      int       `json:"logo_id"`
-	VkUrl       string    `json:"vk_url"`
-	TgUrl       string    `json:"tg_url"`
-	ParentID    int       `json:"parent_id"`
-	Orgs        []ClubOrg `json:"orgs"`
+	Name             string    `json:"name"`
+	ShortName        string    `json:"short_name"`
+	Description      string    `json:"description"`
+	ShortDescription string    `json:"short_description"`
+	Type             string    `json:"type"`
+	LogoId           int       `json:"logo_id"`
+	VkUrl            string    `json:"vk_url"`
+	TgUrl            string    `json:"tg_url"`
+	ParentID         int       `json:"parent_id"`
+	Orgs             []ClubOrg `json:"orgs"`
 }
 
 type PostClubPointer struct {
-	Name        *string   `json:"name"`
-	ShortName   *string   `json:"short_name"`
-	Description *string   `json:"description"`
-	Type        *string   `json:"type"`
-	LogoId      *int      `json:"logo_id"`
-	VkUrl       *string   `json:"vk_url"`
-	TgUrl       *string   `json:"tg_url"`
-	ParentID    *int      `json:"parent_id"`
-	Orgs        []ClubOrg `json:"orgs"`
+	Name             *string   `json:"name"`
+	ShortName        *string   `json:"short_name"`
+	Description      *string   `json:"description"`
+	ShortDescription *string   `json:"short_description"`
+	Type             *string   `json:"type"`
+	LogoId           *int      `json:"logo_id"`
+	VkUrl            *string   `json:"vk_url"`
+	TgUrl            *string   `json:"tg_url"`
+	ParentID         *int      `json:"parent_id"`
+	Orgs             []ClubOrg `json:"orgs"`
 }
 type ClubOrg struct {
 	MemberID int    `json:"member_id"`
@@ -58,15 +60,16 @@ func (c *PostClub) Bind(req *http.Request) error {
 	}
 
 	*c = PostClub{
-		Name:        *pc.Name,
-		ShortName:   *pc.ShortName,
-		Description: *pc.Description,
-		Type:        *pc.Type,
-		LogoId:      *pc.LogoId,
-		VkUrl:       *pc.VkUrl,
-		TgUrl:       *pc.TgUrl,
-		ParentID:    *pc.ParentID,
-		Orgs:        pc.Orgs,
+		Name:             *pc.Name,
+		ShortName:        *pc.ShortName,
+		Description:      *pc.Description,
+		ShortDescription: *pc.ShortDescription,
+		Type:             *pc.Type,
+		LogoId:           *pc.LogoId,
+		VkUrl:            *pc.VkUrl,
+		TgUrl:            *pc.TgUrl,
+		ParentID:         *pc.ParentID,
+		Orgs:             pc.Orgs,
 	}
 
 	return c.validate()
@@ -85,6 +88,9 @@ func (pc *PostClubPointer) validate() error {
 	}
 	if pc.Description == nil {
 		return fmt.Errorf("require: description")
+	}
+	if pc.ShortDescription == nil {
+		return fmt.Errorf("require: short_description")
 	}
 	if pc.Type == nil {
 		return fmt.Errorf("require: type")
