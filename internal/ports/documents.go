@@ -354,16 +354,15 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 
 // DeleteDocument deletes a document item by ID
 //
-//	@Summary     Delete a document item by ID
-//	@Description Delete a specific document item using its ID
-//	@Tags        auth.documents
-//	@Param       id   path     string           true "Document ID"
-//	@Success     200
-//	@Failure     400
-//	@Failure     401
-//	@Failure     404
-//	@Failure     500
-
+// @Summary     Delete a document item by ID
+// @Description Delete a specific document item using its ID
+// @Tags        auth.documents
+// @Param       id   path     string           true "Document ID"
+// @Success     200
+// @Failure     400
+// @Failure     401
+// @Failure     404
+// @Failure     500
 // @Router      /documents/{id} [delete]
 // @Security    Authorised
 func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Request) handler.Response {

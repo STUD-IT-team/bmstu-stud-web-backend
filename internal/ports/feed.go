@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
@@ -257,7 +258,7 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 
 	h.logger.Infof("FeedHandler: parse request PostFeed: %v", feed)
 
-	err = h.feed.PostFeed(context.Background(), mapper.MakeRequestPostFeed(feed))
+	err = h.feed.PostFeed(context.Background(), mapper.MakeRequestPostFeed(feed, time.Now(), checkResp.MemberID))
 	if err != nil {
 		h.logger.Warnf("can't FeedService.PostFeed: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
@@ -274,16 +275,15 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 
 // DeleteFeed deletes a feed item by ID
 //
-//	@Summary     Delete a feed item by ID
-//	@Description Delete a specific feed item using its ID
-//	@Tags        auth.feed
-//	@Param       id   path     string           true "Feed ID"
-//	@Success     200
-//	@Failure     400
-//	@Failure     401
-//	@Failure     404
-//	@Failure     500
-
+// @Summary     Delete a feed item by ID
+// @Description Delete a specific feed item using its ID
+// @Tags        auth.feed
+// @Param       id   path     string           true "Feed ID"
+// @Success     200
+// @Failure     400
+// @Failure     401
+// @Failure     404
+// @Failure     500
 // @Router      /feed/{id} [delete]
 // @Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -398,7 +398,7 @@ func (h *FeedHandler) UpdateFeed(w http.ResponseWriter, req *http.Request) handl
 
 	h.logger.Infof("FeedHandler: parse request UpdateFeed: %v", feed)
 
-	err = h.feed.UpdateFeed(context.Background(), mapper.MakeRequestUpdateFeed(feed))
+	err = h.feed.UpdateFeed(context.Background(), mapper.MakeRequestUpdateFeed(feed, time.Now(), checkResp.MemberID))
 	if err != nil {
 		h.logger.Warnf("can't FeedService.UpdateFeed: %v", err)
 		if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {

@@ -4,33 +4,24 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
 type PostFeed struct {
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Approved    bool      `json:"approved"`
-	MediaID     int       `json:"media_id"`
-	VkPostUrl   string    `json:"vk_post_url"`
-	UpdatedAt   time.Time `json:"updated_at"`
-	CreatedAt   time.Time `json:"created_at"`
-	CreatedBy   int       `json:"created_by"`
-	Views       int       `json:"views"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	Approved    bool   `json:"approved"`
+	MediaID     int    `json:"media_id"`
+	VkPostUrl   string `json:"vk_post_url"`
 }
 
 type PostFeedPointer struct {
-	Title       *string    `json:"title"`
-	Description *string    `json:"description"`
-	Approved    *bool      `json:"approved"`
-	MediaID     *int       `json:"media_id"`
-	VkPostUrl   *string    `json:"vk_post_url"`
-	UpdatedAt   *time.Time `json:"updated_at"`
-	CreatedAt   *time.Time `json:"created_at"`
-	CreatedBy   *int       `json:"created_by"`
-	Views       *int       `json:"views"`
+	Title       *string `json:"title"`
+	Description *string `json:"description"`
+	Approved    *bool   `json:"approved"`
+	MediaID     *int    `json:"media_id"`
+	VkPostUrl   *string `json:"vk_post_url"`
 }
 
 func (f *PostFeed) Bind(req *http.Request) error {
@@ -58,10 +49,6 @@ func (f *PostFeed) Bind(req *http.Request) error {
 		Approved:    *pf.Approved,
 		MediaID:     *pf.MediaID,
 		VkPostUrl:   *pf.VkPostUrl,
-		UpdatedAt:   *pf.UpdatedAt,
-		CreatedAt:   *pf.CreatedAt,
-		CreatedBy:   *pf.CreatedBy,
-		Views:       *pf.Views,
 	}
 
 	return f.validate()
@@ -86,18 +73,6 @@ func (pf *PostFeedPointer) validate() error {
 	}
 	if pf.VkPostUrl == nil {
 		return fmt.Errorf("require: VkPostUrl")
-	}
-	if pf.UpdatedAt == nil {
-		return fmt.Errorf("require: UpdatedAt")
-	}
-	if pf.CreatedAt == nil {
-		return fmt.Errorf("require: CreatedAt")
-	}
-	if pf.CreatedBy == nil {
-		return fmt.Errorf("require: CreatedBy")
-	}
-	if pf.Views == nil {
-		return fmt.Errorf("require: Views")
 	}
 	return nil
 }

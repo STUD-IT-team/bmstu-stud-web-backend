@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
@@ -88,21 +89,20 @@ func MakeResponseFeedByTitle(f []domain.Feed, feedMediaFiles map[int]domain.Medi
 	return &responses.GetFeedByTitle{Feed: feed}, nil
 }
 
-func MakeRequestPostFeed(f *requests.PostFeed) *domain.Feed {
+func MakeRequestPostFeed(f *requests.PostFeed, currTime time.Time, id int) *domain.Feed {
 	return &domain.Feed{
 		Title:       f.Title,
 		Description: f.Description,
 		Approved:    f.Approved,
 		MediaID:     f.MediaID,
 		VkPostUrl:   f.VkPostUrl,
-		UpdatedAt:   f.UpdatedAt,
-		CreatedAt:   f.CreatedAt,
-		CreatedBy:   f.CreatedBy,
-		Views:       f.Views,
+		CreatedAt:   currTime,
+		CreatedBy:   id,
+		UpdatedAt:   currTime,
 	}
 }
 
-func MakeRequestUpdateFeed(f *requests.UpdateFeed) *domain.Feed {
+func MakeRequestUpdateFeed(f *requests.UpdateFeed, currTime time.Time, id int) *domain.Feed {
 	return &domain.Feed{
 		ID:          f.ID,
 		Title:       f.Title,
@@ -110,9 +110,9 @@ func MakeRequestUpdateFeed(f *requests.UpdateFeed) *domain.Feed {
 		Approved:    f.Approved,
 		MediaID:     f.MediaID,
 		VkPostUrl:   f.VkPostUrl,
-		UpdatedAt:   f.UpdatedAt,
-		CreatedAt:   f.CreatedAt,
-		CreatedBy:   f.CreatedBy,
+		CreatedAt:   currTime,
+		CreatedBy:   id,
+		UpdatedAt:   currTime,
 		Views:       f.Views,
 	}
 }
