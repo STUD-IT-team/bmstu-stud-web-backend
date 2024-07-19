@@ -53,6 +53,7 @@ func (h *DocumentsHandler) Routes() chi.Router {
 	r.Post("/categories/", h.r.Wrap(h.PostCategory))
 	r.Delete("/categories/{id}", h.r.Wrap(h.DeleteCategory))
 	r.Put("/categories/{id}", h.r.Wrap(h.UpdateCategory))
+	r.Get("/clearance/post/", h.r.Wrap(h.GetClearancePost))
 
 	return r
 }
@@ -716,4 +717,43 @@ func (h *DocumentsHandler) UpdateCategory(w http.ResponseWriter, req *http.Reque
 	h.logger.Info("DocumentsHandler: request UpdateCategory done")
 
 	return handler.OkResponse(nil)
+}
+
+// GetClearancePost checks if the member is allowed to post/del/put
+//
+//	@Summary     Check member`s post clearance
+//	@Description Check if the member is allowed to post/del/put
+//	@Tags        auth.documents
+//	@Success     200 {object} responses.GetClearance
+//	@Failure     401
+//	@Failure     500
+//	@Router      /documents/clearance/post/ [get]
+//	@Security    Authorised
+func (h *DocumentsHandler) GetClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("DocumentsHandler: got GetClearancePost request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token GetClearancePost: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
+		h.logger.Warnf("can't GuardService.Check on GetClearancePost: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("DocumentsHandler: GetClearancePost Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.documents.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't DocumentsService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	h.logger.Info("DocumentsHandler: GetClearancePost Done")
+
+	return handler.OkResponse(cleaResp)
 }

@@ -44,6 +44,7 @@ func (h *MembersHandler) Routes() chi.Router {
 	r.Get("/search/{name}", h.r.Wrap(h.GetMembersByName))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteMember))
 	r.Put("/{id}", h.r.Wrap(h.UpdateMember))
+	r.Get("/clearance/", h.r.Wrap(h.GetClearance))
 
 	return r
 }
@@ -78,10 +79,10 @@ func (h *MembersHandler) GetAllMembers(w http.ResponseWriter, req *http.Request)
 
 	h.logger.Infof("MembersHandler: GetAllMembers Authenticated: %v", checkResp.MemberID)
 
-	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
 
 	if err != nil {
-		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		h.logger.Warnf("can't MembersHandler.GetClearance: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -138,10 +139,10 @@ func (h *MembersHandler) GetMember(w http.ResponseWriter, req *http.Request) han
 
 	h.logger.Infof("MembersHandler: GetAllMembers Authenticated: %v", checkResp.MemberID)
 
-	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
 
 	if err != nil {
-		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		h.logger.Warnf("can't MembersHandler.GetClearance: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -208,10 +209,10 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 
 	h.logger.Infof("MembersHandler: GetMembersByName Authenticated: %v", checkResp.MemberID)
 
-	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
 
 	if err != nil {
-		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		h.logger.Warnf("can't MembersHandler.GetClearance: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -278,10 +279,10 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 
 	h.logger.Infof("MembersHandler: DeleteMember Authenticated: %v", checkResp.MemberID)
 
-	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
 
 	if err != nil {
-		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		h.logger.Warnf("can't MembersHandler.GetClearance: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -351,10 +352,10 @@ func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) 
 
 	h.logger.Infof("MembersHandler: UpdateMember Authenticated: %v", checkResp.MemberID)
 
-	cleaResp, err := h.members.GetClearancePost(context.Background(), checkResp)
+	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
 
 	if err != nil {
-		h.logger.Warnf("can't MembersHandler.GetClearancePost: %v", err)
+		h.logger.Warnf("can't MembersHandler.GetClearance: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -392,4 +393,43 @@ func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) 
 	h.logger.Info("MembersHandler: request UpdateMember done")
 
 	return handler.OkResponse(nil)
+}
+
+// GetClearance checks if the member is allowed to access members
+//
+//	@Summary     Check member`s clearance
+//	@Description Check if the member is allowed to access members
+//	@Tags        auth.members
+//	@Success     200 {object} responses.GetClearance
+//	@Failure     401
+//	@Failure     500
+//	@Router      /members/clearance/post/ [get]
+//	@Security    Authorised
+func (h *MembersHandler) GetClearance(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("MembersHandler: got GetClearance request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token GetClearance: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
+		h.logger.Warnf("can't GuardService.Check on GetClearance: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("MembersHandler: GetClearance Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't MembersService.GetClearance: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	h.logger.Info("MembersHandler: GetClearance Done")
+
+	return handler.OkResponse(cleaResp)
 }

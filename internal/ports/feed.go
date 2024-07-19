@@ -50,6 +50,7 @@ func (h *FeedHandler) Routes() chi.Router {
 	r.Post("/encounters/", h.r.Wrap(h.PostEncounter))
 	r.Delete("/encounters/{id}", h.r.Wrap(h.DeleteEncounter))
 	r.Put("/encounters/{id}", h.r.Wrap(h.UpdateEncounter))
+	r.Get("/clearance/post/", h.r.Wrap(h.GetClearancePost))
 
 	return r
 }
@@ -625,4 +626,43 @@ func (h *FeedHandler) UpdateEncounter(w http.ResponseWriter, req *http.Request) 
 	h.logger.Info("FeedHandler: request UpdateEncounter done")
 
 	return handler.OkResponse(nil)
+}
+
+// GetClearancePost checks if the member is allowed to post/del/put
+//
+//	@Summary     Check member`s post clearance
+//	@Description Check if the member is allowed to post/del/put
+//	@Tags        auth.feed
+//	@Success     200 {object} responses.GetClearance
+//	@Failure     401
+//	@Failure     500
+//	@Router      /feed/clearance/post/ [get]
+//	@Security    Authorised
+func (h *FeedHandler) GetClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("FeedHandler: got GetClearancePost request")
+
+	accessToken, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token GetClearancePost: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+	if err != nil || !checkResp.Valid {
+		h.logger.Warnf("can't GuardService.Check on GetClearancePost: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("FeedHandler: GetClearancePost Authenticated: %v", checkResp.MemberID)
+
+	cleaResp, err := h.feed.GetClearancePost(context.Background(), checkResp)
+
+	if err != nil {
+		h.logger.Warnf("can't FeedService.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	h.logger.Info("FeedHandler: GetClearancePost Done")
+
+	return handler.OkResponse(cleaResp)
 }
