@@ -8,9 +8,26 @@ create TABLE if not exists encounter (
     club_id int not null
 );
 
-create TABLE IF NOT EXISTS event
+-- create TABLE IF NOT EXISTS event
+-- (
+--     id            serial primary KEY,
+--     title         text      not null,
+--     description   text      not null,
+--     prompt        text      not null,
+--     media_id      int       not null,
+--     date          timestamp not null,
+--     approved      boolean default false,
+--     created_at    timestamp not null,
+--     club_id       int       not null,
+--     main_org      int       not null,
+--     reg_url       text    default '',
+--     reg_open_date timestamp not null, 
+--     feedback_url  text    default ''
+-- );
+
+create table IF NOT EXISTS event
 (
-    id            serial primary KEY,
+    id            serial primary key,
     title         text      not null,
     description   text      not null,
     prompt        text      not null,
@@ -18,8 +35,7 @@ create TABLE IF NOT EXISTS event
     date          timestamp not null,
     approved      boolean default false,
     created_at    timestamp not null,
-    club_id       int       not null,
-    main_org      int       not null,
+    created_by    int       not null,
     reg_url       text    default '',
     reg_open_date timestamp not null, 
     feedback_url  text    default ''
@@ -69,9 +85,9 @@ ALTER TABLE encounter ADD FOREIGN KEY (club_id) REFERENCES club(id);
 ALTER TABLE club ADD FOREIGN KEY (logo) REFERENCES mediafile(id);
 ALTER TABLE club ADD FOREIGN KEY (parent_id) REFERENCES club(id);
 
-ALTER TABLE event ADD FOREIGN KEY (club_id) REFERENCES club(id);
+-- ALTER TABLE event ADD FOREIGN KEY (club_id) REFERENCES club(id);
 ALTER TABLE event ADD FOREIGN KEY (media_id) REFERENCES mediafile(id);
-ALTER TABLE event ADD FOREIGN KEY (main_org) REFERENCES member(id);
+-- ALTER TABLE event ADD FOREIGN KEY (main_org) REFERENCES member(id);
 
 ALTER TABLE club_photo ADD FOREIGN KEY (media_id) REFERENCES mediafile(id);
 ALTER TABLE club_photo ADD FOREIGN KEY (club_id) REFERENCES club(id);
