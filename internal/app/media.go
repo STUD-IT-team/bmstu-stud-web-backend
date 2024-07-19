@@ -13,13 +13,13 @@ import (
 )
 
 type mediaStorage interface {
-	PutMediaFile(ctx context.Context, name string, key string, data []byte) (int, error)
+	PutMediaFile(ctx context.Context, name string, key string, data []byte) (int, string, error)
 	GetMediaFile(_ context.Context, id int) (*domain.MediaFile, error)
 	GetMediaFiles(_ context.Context, ids []int) (map[int]domain.MediaFile, error)
 	ClearUpMedia(ctx context.Context, logger *logrus.Logger) error
 	GetDefaultMedia(ctx context.Context, id int) (*domain.DefaultMedia, error)
 	GetAllDefaultMedia(ctx context.Context) ([]domain.DefaultMedia, error)
-	PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, mediaId int, err error)
+	PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, objKey string, mediaId int, err error)
 	DeleteDefaultMedia(ctx context.Context, id int) error
 	UpdateDefaultMedia(ctx context.Context, id int, name string, key string, data []byte) error
 }
@@ -35,12 +35,12 @@ func NewMediaService(storage mediaStorage) *MediaService {
 }
 
 func (s *MediaService) PostMedia(ctx context.Context, req *requests.PostMedia) (*responses.PostMedia, error) {
-	id, err := s.storage.PutMediaFile(ctx, req.Name, req.Name, req.Data)
+	id, key, err := s.storage.PutMediaFile(ctx, req.Name, req.Name, req.Data)
 	if err != nil {
 		return &responses.PostMedia{}, fmt.Errorf("can't storage.PutMedia: %v", err)
 	}
 
-	return mapper.MakeResponsePostMedia(id), nil
+	return mapper.MakeResponsePostMedia(id, key), nil
 }
 
 const bcryptCost = 12
@@ -51,12 +51,12 @@ func (s *MediaService) PostMediaBcrypt(ctx context.Context, req *requests.PostMe
 		return &responses.PostMedia{}, fmt.Errorf("can't bcrypt.GenerateFromPassword: %v", err)
 	}
 
-	id, err := s.storage.PutMediaFile(ctx, req.Name, string(key), req.Data)
+	id, objKey, err := s.storage.PutMediaFile(ctx, req.Name, string(key), req.Data)
 	if err != nil {
 		return &responses.PostMedia{}, fmt.Errorf("can't storage.PutMedia: %v", err)
 	}
 
-	return mapper.MakeResponsePostMedia(id), nil
+	return mapper.MakeResponsePostMedia(id, objKey), nil
 }
 
 func (s *MediaService) ClearUpMedia(ctx context.Context, logger *logrus.Logger) error {
@@ -100,11 +100,11 @@ func (s *MediaService) GetAllMediaDefault(ctx context.Context) (*responses.GetAl
 }
 
 func (s *MediaService) PutMediaDefault(ctx context.Context, name string, data []byte) (*responses.PostDefaultMedia, error) {
-	id, mediaID, err := s.storage.PutDefaultMedia(ctx, name, name, data)
+	id, key, mediaID, err := s.storage.PutDefaultMedia(ctx, name, name, data)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.PutDefaultMedia: %v", err)
 	}
-	return mapper.MakeResponsePostDefaultMedia(id, mediaID), nil
+	return mapper.MakeResponsePostDefaultMedia(id, key, mediaID), nil
 }
 
 func (s *MediaService) DeleteMediaDefault(ctx context.Context, ID int) error {
