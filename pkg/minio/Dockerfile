@@ -33,7 +33,9 @@ RUN  \
 COPY ./scripts/minio_migration.sh .
 
 RUN mkdir /data
-COPY ./data/* ./data
+RUN mkdir /data/events
+COPY ./data/*.jpg ./data/*.pdf ./data/*.mp4 ./data
+COPY ./data/events/* ./data/events
 
 RUN chmod 777 minio_migration.sh
 

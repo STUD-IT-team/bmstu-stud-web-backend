@@ -9,9 +9,9 @@ VALUES
 
 INSERT INTO document (name, key, club_id, category_id)
 VALUES
-('1.pdf', '1/1.pdf', 1, 1),
-('2.pdf', '2/2.pdf', 2, 2),
-('3.pdf', '3/3.pdf', 3, 3);
+('1.pdf', '1/1.pdf', 0, 1),
+('2.pdf', '2/2.pdf', 1, 2),
+('3.pdf', '3/3.pdf', 1, 3);
 
 -- +goose StatementEnd
 

@@ -14,12 +14,18 @@ for file in data/*.jpg; do
     fi
 done
 
+for file in data/events/*; do
+    if [ -f "$file" ]; then
+        mc put "$file" minio/"$IMAGE_BUCKET"/events/
+    fi
+done
+
 for file in data/*.mp4; do
     if [ -f "$file" ]; then
         mc put "$file" minio/"$VIDEO_BUCKET"
     fi
 done
 
-mc put data/1.pdf minio/"$DOCUMENT_BUCKET"/1
-mc put data/2.pdf minio/"$DOCUMENT_BUCKET"/2
-mc put data/3.pdf minio/"$DOCUMENT_BUCKET"/3
+mc put data/1.pdf minio/"$DOCUMENT_BUCKET"/1/
+mc put data/2.pdf minio/"$DOCUMENT_BUCKET"/2/
+mc put data/3.pdf minio/"$DOCUMENT_BUCKET"/3/
