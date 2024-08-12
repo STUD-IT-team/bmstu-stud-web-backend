@@ -52,7 +52,7 @@ func (h *GuardHandler) Routes() chi.Router {
 // @Success    200
 // @Failure    400
 // @Failure    500
-// @Router      /guard/login [post]
+// @Router      /guard/login/ [post]
 // @Security    Public
 func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handler.Response {
 
@@ -98,7 +98,7 @@ func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handl
 // @Success    201
 // @Failure    401
 // @Failure    500
-// @Router      /guard/logout [post]
+// @Router      /guard/logout/ [post]
 // @Security    Authorized
 func (h *GuardHandler) LogoutUser(w http.ResponseWriter, req *http.Request) handler.Response {
 
@@ -132,7 +132,7 @@ func (h *GuardHandler) LogoutUser(w http.ResponseWriter, req *http.Request) hand
 // @Failure    400
 // @Failure    409
 // @Failure    500
-// @Router      /guard/register [post]
+// @Router      /guard/register/ [post]
 // @Security    Public
 func (h *GuardHandler) RegisterUser(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("GuardHandler: got RegisterUser request")
