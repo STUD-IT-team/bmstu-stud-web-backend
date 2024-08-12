@@ -84,7 +84,9 @@ func (s *storage) PutMediaFile(ctx context.Context, name string, key string, dat
 		return 0, "", fmt.Errorf("can't postges.AddMediaFile: %w", err)
 	}
 
-	return id, key, nil
+	minioName := bucketName + "/" + key
+
+	return id, minioName, nil
 }
 
 // Delete media all media from db and object storage if it is not used in other tables.
