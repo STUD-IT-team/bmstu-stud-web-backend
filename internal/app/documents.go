@@ -16,9 +16,9 @@ type documentsServiceStorage interface {
 	GetDocument(ctx context.Context, id int) (*domain.Document, error)
 	GetDocumentsByCategory(ctx context.Context, categoryID int) ([]domain.Document, error)
 	GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error)
-	PostDocument(ctx context.Context, name, key string, data []byte, clubId, categoryId int) error
+	PostDocument(ctx context.Context, name string, data []byte, clubId, categoryId int) (string, error)
 	DeleteDocument(ctx context.Context, id int) error
-	UpdateDocument(ctx context.Context, id int, name, key string, data []byte, clubId, categoryId int) error
+	UpdateDocument(ctx context.Context, id int, name string, data []byte, clubId, categoryId int) (string, error)
 	CleanupDocuments(ctx context.Context, logger *logrus.Logger) error
 }
 
@@ -63,9 +63,7 @@ func (s *DocumentsService) GetDocumentsByClubID(ctx context.Context, clubID int)
 }
 
 func (s *DocumentsService) PostDocument(ctx context.Context, doc *requests.PostDocument) (*responses.PostDocument, error) {
-	var key = fmt.Sprintf("%d/%s", doc.CategoryID, doc.Name)
-
-	err := s.storage.PostDocument(ctx, doc.Name, key, doc.Data, doc.ClubID, doc.CategoryID)
+	key, err := s.storage.PostDocument(ctx, doc.Name, doc.Data, doc.ClubID, doc.CategoryID)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.PostDocument: %w", err)
 	}
@@ -83,9 +81,7 @@ func (s *DocumentsService) DeleteDocument(ctx context.Context, id int) error {
 }
 
 func (s *DocumentsService) UpdateDocument(ctx context.Context, doc *requests.UpdateDocument) (*responses.UpdateDocument, error) {
-	var key = fmt.Sprintf("%d/%s", doc.CategoryID, doc.Name)
-
-	err := s.storage.UpdateDocument(ctx, doc.ID, doc.Name, key, doc.Data, doc.ClubID, doc.CategoryID)
+	key, err := s.storage.UpdateDocument(ctx, doc.ID, doc.Name, doc.Data, doc.ClubID, doc.CategoryID)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.UpdateDocument: %w", err)
 	}

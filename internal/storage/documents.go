@@ -10,16 +10,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var docBucketName = os.Getenv("DOCUMENT_BUCKET")
-
 type documentsStorage interface {
 	GetAllDocuments(ctx context.Context) ([]domain.Document, error)
 	GetDocument(ctx context.Context, id int) (*domain.Document, error)
 	GetDocumentsByCategory(ctx context.Context, categoryID int) ([]domain.Document, error)
 	GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error)
-	PostDocument(ctx context.Context, name, key string, data []byte, clubId, categoryId int) error
+	PostDocument(ctx context.Context, name string, data []byte, clubId, categoryId int) (string, error)
 	DeleteDocument(ctx context.Context, id int) error
-	UpdateDocument(ctx context.Context, id int, name, key string, data []byte, clubId, categoryId int) error
+	UpdateDocument(ctx context.Context, id int, name string, data []byte, clubId, categoryId int) (string, error)
 	CleanupDocuments(ctx context.Context, logger *logrus.Logger) error
 }
 
@@ -39,7 +37,10 @@ func (s *storage) GetDocumentsByClubID(ctx context.Context, clubID int) ([]domai
 	return s.postgres.GetDocumentsByClubID(ctx, clubID)
 }
 
-func (s *storage) PostDocument(ctx context.Context, name, key string, data []byte, clubId, categoryId int) error {
+func (s *storage) PostDocument(ctx context.Context, name string, data []byte, clubId, categoryId int) (string, error) {
+	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
+	key := fmt.Sprintf("%s/%d/%s", docBucketName, categoryId, name)
+
 	_, err := s.minio.UploadObject(ctx, &miniostorage.UploadObject{
 		BucketName: docBucketName,
 		ObjectName: key,
@@ -47,7 +48,7 @@ func (s *storage) PostDocument(ctx context.Context, name, key string, data []byt
 		Size:       int64(len(data)),
 	})
 	if err != nil {
-		return fmt.Errorf("can't minio.UploadObject: %w", err)
+		return "", fmt.Errorf("can't minio.UploadObject: %w", err)
 	}
 
 	err = s.postgres.PostDocument(ctx, name, key, clubId, categoryId)
@@ -62,13 +63,15 @@ func (s *storage) PostDocument(ctx context.Context, name, key string, data []byt
 		if delErr != nil {
 			err = fmt.Errorf("%w && minio.DeleteObject: %w", err, delErr) // add minioerror to wrap (if occurs)
 		}
-		return err // return the final error
+		return "", err // return the final error
 	}
 
-	return nil
+	return key, nil
 }
 
 func (s *storage) DeleteDocument(ctx context.Context, id int) error {
+	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
+
 	key, err := s.postgres.DeleteDocument(ctx, id)
 	if err != nil {
 		return fmt.Errorf("can't postgres.DeleteDocument: %w", err)
@@ -85,7 +88,10 @@ func (s *storage) DeleteDocument(ctx context.Context, id int) error {
 	return nil
 }
 
-func (s *storage) UpdateDocument(ctx context.Context, id int, name, key string, data []byte, clubId, categoryId int) error {
+func (s *storage) UpdateDocument(ctx context.Context, id int, name string, data []byte, clubId, categoryId int) (string, error) {
+	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
+	key := fmt.Sprintf("%s/%d/%s", docBucketName, categoryId, name)
+
 	_, err := s.minio.UploadObject(ctx, &miniostorage.UploadObject{
 		BucketName: docBucketName,
 		ObjectName: key,
@@ -93,7 +99,7 @@ func (s *storage) UpdateDocument(ctx context.Context, id int, name, key string, 
 		Size:       int64(len(data)),
 	})
 	if err != nil {
-		return fmt.Errorf("can't minio.UploadObject: %w", err)
+		return "", fmt.Errorf("can't minio.UploadObject: %w", err)
 	}
 
 	oldKey, err := s.postgres.UpdateDocument(ctx, id, name, key, clubId, categoryId)
@@ -106,7 +112,7 @@ func (s *storage) UpdateDocument(ctx context.Context, id int, name, key string, 
 		if delErr != nil {
 			err = fmt.Errorf("%w && minio.DeleteObject: %w", err, delErr)
 		}
-		return err
+		return "", err
 	}
 
 	if oldKey != key {
@@ -115,14 +121,16 @@ func (s *storage) UpdateDocument(ctx context.Context, id int, name, key string, 
 			ObjectName: oldKey,
 		})
 		if err != nil {
-			return fmt.Errorf("can't minio.DeleteObject: %w", err)
+			return "", fmt.Errorf("can't minio.DeleteObject: %w", err)
 		}
 	}
 
-	return nil
+	return key, nil
 }
 
 func (s *storage) CleanupDocuments(ctx context.Context, logger *logrus.Logger) error {
+	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
+
 	logger.Infof("Started deleting unknown documents from object storage...")
 
 	keys, err := s.postgres.GetAllDocumentKeys(ctx)
