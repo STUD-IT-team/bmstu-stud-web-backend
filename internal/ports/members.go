@@ -333,7 +333,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Failure     404
 //	@Failure     409
 //	@Failure     500
-//	@Router      /members/update [put]
+//	@Router      /members/{id} [put]
 //	@Security    Authorised
 func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got UpdateMember request")
