@@ -64,18 +64,16 @@ func MakeResponseMembersByName(f []domain.Member, membersMediaFiles map[int]doma
 	return &responses.GetMembersByName{Members: members}, nil
 }
 
-// func MakeRequestPostMember(f *requests.PostMember) *domain.Member {
-// 	return &domain.Member{
-// 		HashPassword: f.HashPassword,
-// 		Login:        f.Login,
-// 		MediaID:      f.MediaID,
-// 		Telegram:     f.Telegram,
-// 		Vk:           f.Vk,
-// 		Name:         f.Name,
-// 		RoleID:       f.RoleID,
-// 		IsAdmin:      f.IsAdmin,
-// 	}
-// }
+func MakeRequestPostMember(f *requests.PostMember) *domain.Member {
+	return &domain.Member{
+		Login:    f.Login,
+		MediaID:  f.MediaID,
+		Telegram: f.Telegram,
+		Vk:       f.Vk,
+		Name:     f.Name,
+		IsAdmin:  f.IsAdmin,
+	}
+}
 
 func MakeRequestUpdateMember(f *requests.UpdateMember) *domain.Member {
 	return &domain.Member{
