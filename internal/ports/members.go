@@ -42,7 +42,7 @@ func (h *MembersHandler) Routes() chi.Router {
 	r.Get("/", h.r.Wrap(h.GetAllMembers))
 	r.Get("/{id}", h.r.Wrap(h.GetMember))
 	r.Get("/search/{name}", h.r.Wrap(h.GetMembersByName))
-	r.Post("/", h.r.Wrap(h.PostMember))
+	// r.Post("/", h.r.Wrap(h.PostMember))
 	r.Delete("/{id}", h.r.Wrap(h.DeleteMember))
 	r.Put("/{id}", h.r.Wrap(h.UpdateMember))
 	r.Get("/clearance/", h.r.Wrap(h.GetClearance))
@@ -249,78 +249,78 @@ func (h *MembersHandler) GetMembersByName(w http.ResponseWriter, req *http.Reque
 	return handler.OkResponse(res)
 }
 
-// PostMember creates a new member
-//
-//	@Summary     Create a new member
-//	@Description Create a new member with the provided data
-//	@Tags        auth.members
-//	@Accept      json
-//	@Param       request body requests.PostMember true "Member data"
-//	@Success     201
-//	@Failure     400
-//	@Failure     401
-//	@Failure     404
-//	@Failure     409
-//	@Failure     500
-//	@Router      /members/ [post]
-//	@Security    Authorised
-func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
-	h.logger.Info("MembersHandler: got PostMember request")
+// // PostMember creates a new member
+// //
+// //	@Summary     Create a new member
+// //	@Description Create a new member with the provided data
+// //	@Tags        auth.members
+// //	@Accept      json
+// //	@Param       request body requests.PostMember true "Member data"
+// //	@Success     201
+// //	@Failure     400
+// //	@Failure     401
+// //	@Failure     404
+// //	@Failure     409
+// //	@Failure     500
+// //	@Router      /members/ [post]
+// //	@Security    Authorised
+// func (h *MembersHandler) PostMember(w http.ResponseWriter, req *http.Request) handler.Response {
+// 	h.logger.Info("MembersHandler: got PostMember request")
 
-	accessToken, err := getAccessToken(req)
-	if err != nil {
-		h.logger.Warnf("can't get access token PostMember: %v", err)
-		return handler.UnauthorizedResponse()
-	}
+// 	accessToken, err := getAccessToken(req)
+// 	if err != nil {
+// 		h.logger.Warnf("can't get access token PostMember: %v", err)
+// 		return handler.UnauthorizedResponse()
+// 	}
 
-	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
-	if err != nil || !checkResp.Valid {
-		h.logger.Warnf("can't GuardService.Check on PostMember: %v", err)
-		return handler.UnauthorizedResponse()
-	}
+// 	checkResp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: accessToken})
+// 	if err != nil || !checkResp.Valid {
+// 		h.logger.Warnf("can't GuardService.Check on PostMember: %v", err)
+// 		return handler.UnauthorizedResponse()
+// 	}
 
-	h.logger.Infof("MembersHandler: PostMember Authenticated: %v", checkResp.MemberID)
+// 	h.logger.Infof("MembersHandler: PostMember Authenticated: %v", checkResp.MemberID)
 
-	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
+// 	cleaResp, err := h.members.GetClearance(context.Background(), checkResp)
 
-	if err != nil {
-		h.logger.Warnf("can't MembersHandler.GetClearance: %v", err)
-		return handler.InternalServerErrorResponse()
-	}
+// 	if err != nil {
+// 		h.logger.Warnf("can't MembersHandler.GetClearance: %v", err)
+// 		return handler.InternalServerErrorResponse()
+// 	}
 
-	if !cleaResp.Access {
-		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
-		return handler.ForbiddenResponse()
-	}
+// 	if !cleaResp.Access {
+// 		h.logger.Warnf("Not allowed: %s", cleaResp.Comment)
+// 		return handler.ForbiddenResponse()
+// 	}
 
-	h.logger.Infof("MembersHandler: PostMember Allowed: %v", checkResp.MemberID)
+// 	h.logger.Infof("MembersHandler: PostMember Allowed: %v", checkResp.MemberID)
 
-	member := &requests.PostMember{}
+// 	member := &requests.PostMember{}
 
-	err = member.Bind(req)
-	if err != nil {
-		h.logger.Warnf("can't requests.Bind PostMember: %v", err)
-		return handler.BadRequestResponse()
-	}
+// 	err = member.Bind(req)
+// 	if err != nil {
+// 		h.logger.Warnf("can't requests.Bind PostMember: %v", err)
+// 		return handler.BadRequestResponse()
+// 	}
 
-	h.logger.Infof("MembersHandler: parse request PostMember: %v", member)
+// 	h.logger.Infof("MembersHandler: parse request PostMember: %v", member)
 
-	err = h.members.PostMember(context.Background(), mapper.MakeRequestPostMember(member))
-	if err != nil {
-		h.logger.Warnf("can't MembersService.PostMember: %v", err)
-		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
-			return handler.ConflictResponse()
-		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
-			return handler.BadRequestResponse()
-		} else {
-			return handler.InternalServerErrorResponse()
-		}
-	}
+// 	err = h.members.PostMember(context.Background(), mapper.MakeRequestPostMember(member))
+// 	if err != nil {
+// 		h.logger.Warnf("can't MembersService.PostMember: %v", err)
+// 		if errors.Is(err, postgres.ErrPostgresUniqueConstraintViolation) {
+// 			return handler.ConflictResponse()
+// 		} else if errors.Is(err, postgres.ErrPostgresForeignKeyViolation) {
+// 			return handler.BadRequestResponse()
+// 		} else {
+// 			return handler.InternalServerErrorResponse()
+// 		}
+// 	}
 
-	h.logger.Info("MembersHandler: request PostMember done")
+// 	h.logger.Info("MembersHandler: request PostMember done")
 
-	return handler.CreatedResponse(nil)
-}
+// 	return handler.CreatedResponse(nil)
+// }
 
 // DeleteMember deletes a member by ID
 //
