@@ -34,8 +34,8 @@ func (s *storage) GetAllDocuments(ctx context.Context) ([]domain.Document, error
 		return nil, fmt.Errorf("can't postgres.GetAllDocuments: %w", err)
 	}
 
-	for _, v := range docs {
-		v.Key = fmt.Sprintf("%s/%s", docBucketName, v.Key)
+	for i := range docs {
+		docs[i].Key = fmt.Sprintf("%s/%s", docBucketName, docs[i].Key)
 	}
 	return docs, nil
 }
@@ -66,8 +66,8 @@ func (s *storage) GetDocumentsByCategory(ctx context.Context, categoryID int) ([
 		return nil, fmt.Errorf("can't postgres.GetDocumentsByCategory: %w", err)
 	}
 
-	for _, v := range docs {
-		v.Key = fmt.Sprintf("%s/%s", docBucketName, v.Key)
+	for i := range docs {
+		docs[i].Key = fmt.Sprintf("%s/%s", docBucketName, docs[i].Key)
 	}
 	return docs, nil
 }
@@ -83,8 +83,8 @@ func (s *storage) GetDocumentsByClubID(ctx context.Context, clubID int) ([]domai
 		return nil, fmt.Errorf("can't postgres.GetDocumentsByClubID: %w", err)
 	}
 
-	for _, v := range docs {
-		v.Key = fmt.Sprintf("%s/%s", docBucketName, v.Key)
+	for i := range docs {
+		docs[i].Key = fmt.Sprintf("%s/%s", docBucketName, docs[i].Key)
 	}
 	return docs, nil
 }
@@ -122,7 +122,7 @@ func (s *storage) PostDocument(ctx context.Context, name string, data []byte, cl
 		return "", err // return the final error
 	}
 
-	return key, nil
+	return fmt.Sprintf("%s/%s", docBucketName, key), nil
 }
 
 func (s *storage) DeleteDocument(ctx context.Context, id int) error {
@@ -187,7 +187,7 @@ func (s *storage) UpdateDocument(ctx context.Context, id int, name string, data 
 		}
 	}
 
-	return key, nil
+	return fmt.Sprintf("%s/%s", docBucketName, key), nil
 }
 
 func (s *storage) CleanupDocuments(ctx context.Context, logger *logrus.Logger) error {
