@@ -10,6 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var docBucketEnv = "DOCUMENT_BUCKET"
+
 type documentsStorage interface {
 	GetAllDocuments(ctx context.Context) ([]domain.Document, error)
 	GetDocument(ctx context.Context, id int) (*domain.Document, error)
@@ -22,24 +24,78 @@ type documentsStorage interface {
 }
 
 func (s *storage) GetAllDocuments(ctx context.Context) ([]domain.Document, error) {
-	return s.postgres.GetAllDocuments(ctx)
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return nil, fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
+
+	docs, err := s.postgres.GetAllDocuments(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("can't postgres.GetAllDocuments: %w", err)
+	}
+
+	for _, v := range docs {
+		v.Key = fmt.Sprintf("%s/%s", docBucketName, v.Key)
+	}
+	return docs, nil
 }
 
 func (s *storage) GetDocument(ctx context.Context, id int) (*domain.Document, error) {
-	return s.postgres.GetDocument(ctx, id)
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return nil, fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
+
+	doc, err := s.postgres.GetDocument(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("can't postgres.GetDocument: %w", err)
+	}
+
+	doc.Key = fmt.Sprintf("%s/%s", docBucketName, doc.Key)
+	return doc, nil
 }
 
 func (s *storage) GetDocumentsByCategory(ctx context.Context, categoryID int) ([]domain.Document, error) {
-	return s.postgres.GetDocumentsByCategory(ctx, categoryID)
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return nil, fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
+
+	docs, err := s.postgres.GetDocumentsByCategory(ctx, categoryID)
+	if err != nil {
+		return nil, fmt.Errorf("can't postgres.GetDocumentsByCategory: %w", err)
+	}
+
+	for _, v := range docs {
+		v.Key = fmt.Sprintf("%s/%s", docBucketName, v.Key)
+	}
+	return docs, nil
 }
 
 func (s *storage) GetDocumentsByClubID(ctx context.Context, clubID int) ([]domain.Document, error) {
-	return s.postgres.GetDocumentsByClubID(ctx, clubID)
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return nil, fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
+
+	docs, err := s.postgres.GetDocumentsByClubID(ctx, clubID)
+	if err != nil {
+		return nil, fmt.Errorf("can't postgres.GetDocumentsByClubID: %w", err)
+	}
+
+	for _, v := range docs {
+		v.Key = fmt.Sprintf("%s/%s", docBucketName, v.Key)
+	}
+	return docs, nil
 }
 
 func (s *storage) PostDocument(ctx context.Context, name string, data []byte, clubId, categoryId int) (string, error) {
-	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
-	key := fmt.Sprintf("%s/%d/%s", docBucketName, categoryId, name)
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return "", fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
+
+	key := fmt.Sprintf("%d/%s", categoryId, name)
 
 	_, err := s.minio.UploadObject(ctx, &miniostorage.UploadObject{
 		BucketName: docBucketName,
@@ -70,7 +126,10 @@ func (s *storage) PostDocument(ctx context.Context, name string, data []byte, cl
 }
 
 func (s *storage) DeleteDocument(ctx context.Context, id int) error {
-	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
 
 	key, err := s.postgres.DeleteDocument(ctx, id)
 	if err != nil {
@@ -89,8 +148,11 @@ func (s *storage) DeleteDocument(ctx context.Context, id int) error {
 }
 
 func (s *storage) UpdateDocument(ctx context.Context, id int, name string, data []byte, clubId, categoryId int) (string, error) {
-	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
-	key := fmt.Sprintf("%s/%d/%s", docBucketName, categoryId, name)
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return "", fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
+	key := fmt.Sprintf("%d/%s", categoryId, name)
 
 	_, err := s.minio.UploadObject(ctx, &miniostorage.UploadObject{
 		BucketName: docBucketName,
@@ -129,7 +191,10 @@ func (s *storage) UpdateDocument(ctx context.Context, id int, name string, data 
 }
 
 func (s *storage) CleanupDocuments(ctx context.Context, logger *logrus.Logger) error {
-	var docBucketName = os.Getenv("DOCUMENT_BUCKET")
+	var docBucketName = os.Getenv(docBucketEnv)
+	if docBucketName == "" {
+		return fmt.Errorf("missing %s environment variable", docBucketEnv)
+	}
 
 	logger.Infof("Started deleting unknown documents from object storage...")
 
