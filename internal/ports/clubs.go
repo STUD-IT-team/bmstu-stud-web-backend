@@ -486,6 +486,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    403
 // @Failure    409
 // @Failure    500
 // @Router      /clubs [post]
@@ -515,6 +516,16 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 	}
 
 	h.logger.Infof("ClubsHandler: parse request: %v", club)
+
+	permission, err := h.clubs.GetClearancePost(context.Background(), resp)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearancePost %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for PostClub: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.PostClub(context.Background(), club)
 
@@ -574,6 +585,16 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 
 	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
 
+	permission, err := h.clubs.GetClearanceDelete(context.Background(), resp)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceDelete %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for DeleteClub: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
+
 	err = h.clubs.DeleteClub(context.Background(), club.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.DeleteClub DeleteClub: %v", err)
@@ -632,6 +653,16 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 	}
 
 	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
+
+	permission, err := h.clubs.GetClearanceUpdate(context.Background(), resp, club.ID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceUpdate %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for UpdateClub: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.UpdateClub(context.Background(), club)
 	if err != nil {
@@ -693,6 +724,16 @@ func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) h
 
 	h.logger.Infof("ClubsHandler: parse request.")
 
+	permission, err := h.clubs.GetClearanceMediaPost(context.Background(), resp, photo.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceMediaPost %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for PostClubMedia: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
+
 	err = h.clubs.PostClubPhoto(context.Background(), photo)
 	if err != nil {
 		h.logger.Warnf("can't service.PostClubMedia %v", err)
@@ -746,6 +787,16 @@ func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request)
 		return handler.BadRequestResponse()
 	}
 	h.logger.Infof("ClubsHandler: parse request.")
+
+	permission, err := h.clubs.GetClearanceMediaDelete(context.Background(), resp, photo.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceMediaDelete %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for DeleteClubMedia: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.DeleteClubPhoto(context.Background(), photo)
 	if err != nil {
@@ -802,6 +853,16 @@ func (h *ClubsHandler) UpdateClubMedia(w http.ResponseWriter, req *http.Request)
 		return handler.BadRequestResponse()
 	}
 	h.logger.Infof("ClubsHandler: parse request.")
+
+	permission, err := h.clubs.GetClearanceMediaUpdate(context.Background(), resp, photo.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceMediaUpdate %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for UpdateClubMedia: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.UpdateClubPhoto(context.Background(), photo)
 	if err != nil {
