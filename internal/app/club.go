@@ -337,3 +337,78 @@ func (s *ClubService) GetClearancePost(ctx context.Context, resp *responses.Chec
 	}
 	return &responses.GetClearance{Access: false, Comment: "only admins"}, nil
 }
+
+func (s *ClubService) GetClearanceUpdate(ctx context.Context, req *responses.CheckResponse, clubID int) (*responses.GetClearance, error) {
+	if req.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	} else {
+		clubOrgs, err := s.storage.GetClubOrgs(ctx, clubID)
+		if err != nil {
+			return &responses.GetClearance{Access: false, Comment: "error"}, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+		}
+		for _, org := range clubOrgs {
+			if org.ID == req.MemberID {
+				return &responses.GetClearance{Access: true, Comment: ""}, nil
+			}
+		}
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins or club orgs"}, nil
+}
+
+func (s *ClubService) GetClearanceDelete(ctx context.Context, resp *responses.CheckResponse) (*responses.GetClearance, error) {
+	if resp.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins"}, nil
+}
+
+func (s *ClubService) GetClearanceMediaPost(ctx context.Context, req *responses.CheckResponse, clubID int) (*responses.GetClearance, error) {
+	if req.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	} else {
+		clubOrgs, err := s.storage.GetClubOrgs(ctx, clubID)
+		if err != nil {
+			return &responses.GetClearance{Access: false, Comment: "error"}, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+		}
+		for _, org := range clubOrgs {
+			if org.ID == req.MemberID {
+				return &responses.GetClearance{Access: true, Comment: ""}, nil
+			}
+		}
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins or club orgs"}, nil
+}
+
+func (s *ClubService) GetClearanceMediaUpdate(ctx context.Context, req *responses.CheckResponse, clubID int) (*responses.GetClearance, error) {
+	if req.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	} else {
+		clubOrgs, err := s.storage.GetClubOrgs(ctx, clubID)
+		if err != nil {
+			return &responses.GetClearance{Access: false, Comment: "error"}, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+		}
+		for _, org := range clubOrgs {
+			if org.ID == req.MemberID {
+				return &responses.GetClearance{Access: true, Comment: ""}, nil
+			}
+		}
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins or club orgs"}, nil
+}
+
+func (s *ClubService) GetClearanceMediaDelete(ctx context.Context, req *responses.CheckResponse, clubID int) (*responses.GetClearance, error) {
+	if req.IsAdmin {
+		return &responses.GetClearance{Access: true, Comment: ""}, nil
+	} else {
+		clubOrgs, err := s.storage.GetClubOrgs(ctx, clubID)
+		if err != nil {
+			return &responses.GetClearance{Access: false, Comment: "error"}, fmt.Errorf("can't storage.GetClubOrgs: %w", err)
+		}
+		for _, org := range clubOrgs {
+			if org.ID == req.MemberID {
+				return &responses.GetClearance{Access: true, Comment: ""}, nil
+			}
+		}
+	}
+	return &responses.GetClearance{Access: false, Comment: "only admins or club orgs"}, nil
+}
