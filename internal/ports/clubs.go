@@ -50,12 +50,17 @@ func (h *ClubsHandler) Routes() chi.Router {
 	r.Delete("/media/{club_id}", h.r.Wrap(h.DeleteClubMedia))
 	r.Put("/media/{club_id}", h.r.Wrap(h.UpdateClubMedia))
 	r.Get("/clearance/post/", h.r.Wrap(h.GetClearancePost))
+	r.Get("/clearance/delete/{club_id}", h.r.Wrap(h.GetClearanceDelete))
+	r.Get("/clearance/update/{club_id}", h.r.Wrap(h.GetClearanceUpdate))
+	r.Get("/media/clearance/post/{club_id}", h.r.Wrap(h.GetMediaClearancePost))
+	r.Get("/media/clearance/delete/{club_id}", h.r.Wrap(h.GetMediaClearanceDelete))
+	r.Get("/media/clearance/update/{club_id}", h.r.Wrap(h.GetMediaClearanceUpdate))
 
 	return r
 }
 
 func (h *ClubsHandler) GetClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
-	h.logger.Info("ClubsHandler: got PostClub request")
+	h.logger.Info("ClubsHandler: got GetClearancePost request")
 
 	access, err := getAccessToken(req)
 	if err != nil {
@@ -73,7 +78,165 @@ func (h *ClubsHandler) GetClearancePost(w http.ResponseWriter, req *http.Request
 
 	response, err := h.clubs.GetClearancePost(context.Background(), resp)
 	if err != nil {
-		h.logger.Warnf("can't clubs.GetClearancePost GetClearancePost: %v", err)
+		h.logger.Warnf("can't clubs.GetClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(response)
+}
+
+func (h *ClubsHandler) GetClearanceDelete(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got GetClearanceDelete request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: GetClearanceDelete Authenticated: %v", resp.MemberID)
+
+	response, err := h.clubs.GetClearanceDelete(context.Background(), resp)
+	if err != nil {
+		h.logger.Warnf("can't clubs.GetClearanceDelete: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(response)
+}
+
+func (h *ClubsHandler) GetClearanceUpdate(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got GetClearanceUpdate request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: GetClearanceUpdate Authenticated: %v", resp.MemberID)
+
+	parsed_req := &requests.GetClearanceClubUpdate{}
+	err = parsed_req.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse request: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	response, err := h.clubs.GetClearanceUpdate(context.Background(), resp, parsed_req.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't clubs.GetClearanceUpdate: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(response)
+}
+
+func (h *ClubsHandler) GetMediaClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got GetMediaClearancePost request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: GetMediaClearancePost Authenticated: %v", resp.MemberID)
+
+	parsed_req := &requests.GetClearanceClubUpdate{}
+	err = parsed_req.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse request: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	response, err := h.clubs.GetClearanceMediaPost(context.Background(), resp, parsed_req.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't clubs.GetMediaClearancePost: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(response)
+}
+
+func (h *ClubsHandler) GetMediaClearanceDelete(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got GetMediaClearanceDelete request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: GetMediaClearanceDelete Authenticated: %v", resp.MemberID)
+
+	parsed_req := &requests.GetClearanceClubUpdate{}
+	err = parsed_req.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse request: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	response, err := h.clubs.GetClearanceMediaDelete(context.Background(), resp, parsed_req.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't clubs.GetMediaClearanceDelete: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+
+	return handler.OkResponse(response)
+}
+
+func (h *ClubsHandler) GetMediaClearanceUpdate(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Info("ClubsHandler: got GetMediaClearanceUpdate request")
+
+	access, err := getAccessToken(req)
+	if err != nil {
+		h.logger.Warnf("can't get access token: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	resp, err := h.guard.Check(context.Background(), &requests.CheckRequest{AccessToken: access})
+	if err != nil || !resp.Valid {
+		h.logger.Warnf("Unauthorized request: %v", err)
+		return handler.UnauthorizedResponse()
+	}
+
+	h.logger.Infof("ClubsHandler: GetMediaClearanceUpdate Authenticated: %v", resp.MemberID)
+
+	parsed_req := &requests.GetClearanceClubUpdate{}
+	err = parsed_req.Bind(req)
+	if err != nil {
+		h.logger.Warnf("can't parse request: %v", err)
+		return handler.BadRequestResponse()
+	}
+
+	response, err := h.clubs.GetClearanceMediaUpdate(context.Background(), resp, parsed_req.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't clubs.GetMediaClearanceUpdate: %v", err)
 		return handler.InternalServerErrorResponse()
 	}
 
@@ -323,6 +486,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    403
 // @Failure    409
 // @Failure    500
 // @Router      /clubs [post]
@@ -352,6 +516,16 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 	}
 
 	h.logger.Infof("ClubsHandler: parse request: %v", club)
+
+	permission, err := h.clubs.GetClearancePost(context.Background(), resp)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearancePost %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for PostClub: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.PostClub(context.Background(), club)
 
@@ -411,6 +585,16 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 
 	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
 
+	permission, err := h.clubs.GetClearanceDelete(context.Background(), resp)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceDelete %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for DeleteClub: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
+
 	err = h.clubs.DeleteClub(context.Background(), club.ID)
 	if err != nil {
 		h.logger.Warnf("can't service.DeleteClub DeleteClub: %v", err)
@@ -469,6 +653,16 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 	}
 
 	h.logger.Infof("ClubsHandler: Parsed request: %v", club)
+
+	permission, err := h.clubs.GetClearanceUpdate(context.Background(), resp, club.ID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceUpdate %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for UpdateClub: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.UpdateClub(context.Background(), club)
 	if err != nil {
@@ -530,6 +724,16 @@ func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) h
 
 	h.logger.Infof("ClubsHandler: parse request.")
 
+	permission, err := h.clubs.GetClearanceMediaPost(context.Background(), resp, photo.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceMediaPost %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for PostClubMedia: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
+
 	err = h.clubs.PostClubPhoto(context.Background(), photo)
 	if err != nil {
 		h.logger.Warnf("can't service.PostClubMedia %v", err)
@@ -583,6 +787,16 @@ func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request)
 		return handler.BadRequestResponse()
 	}
 	h.logger.Infof("ClubsHandler: parse request.")
+
+	permission, err := h.clubs.GetClearanceMediaDelete(context.Background(), resp, photo.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceMediaDelete %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for DeleteClubMedia: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.DeleteClubPhoto(context.Background(), photo)
 	if err != nil {
@@ -639,6 +853,16 @@ func (h *ClubsHandler) UpdateClubMedia(w http.ResponseWriter, req *http.Request)
 		return handler.BadRequestResponse()
 	}
 	h.logger.Infof("ClubsHandler: parse request.")
+
+	permission, err := h.clubs.GetClearanceMediaUpdate(context.Background(), resp, photo.ClubID)
+	if err != nil {
+		h.logger.Warnf("can't service.GetClearanceMediaUpdate %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	if !permission.Access {
+		h.logger.Warnf("do not have enough access for UpdateClubMedia: %v", permission.Comment)
+		return handler.ForbiddenResponse()
+	}
 
 	err = h.clubs.UpdateClubPhoto(context.Background(), photo)
 	if err != nil {
