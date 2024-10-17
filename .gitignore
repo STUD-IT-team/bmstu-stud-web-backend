@@ -29,3 +29,9 @@ test-logs
 test-logs/*
 coverage.tmp.out
 coverage.out
+
+# Python3
+*__pycache__*
+*.log
+*token.json
+*creds.json

@@ -1,15 +1,12 @@
 import json
-from googleapiclient.discovery import build
 import os.path
 import utils
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-from googleapiclient.errors import HttpError
 from member import Member
 from achievement import Achievement
-from googlesheet import GoogleSheetRange, GoogleSpreadsheet
+from googlesheet import GoogleSpreadsheet
 from googleloader import GoogleLoader
 from organisation import Organization
 import googleloader
@@ -17,7 +14,6 @@ import googlesheet
 import logging
 
 SCOPES = googlesheet.SCOPES + googleloader.SCOPES
-SAMPLE_SPREADSHEET_ID = "1lfzZuoui21E78wYmF6fBPXHimgREkx81iSSFF45dOw8"
 
 Settings = json.load(open("settings.json"))
 class OrganizationParser:
@@ -29,6 +25,16 @@ class OrganizationParser:
         self.organisation = Organization()
         self.logger = logger
     
+    def GetOrganisation(self):
+        return self.organisation
+    
+    def ParseAndDownload(self):
+        self.ParseSpreadsheet()
+        self.ParseMembers()
+        self.ParseAchievements()
+        self.DownloadLogo()
+        self.DownloadOrganizationPhotos()
+        self.DownloadMemberPhotos()
 
     def ParseSpreadsheet(self):
         self.logger.info(f"Start loading spreadsheet id={self.spreadsheetGoogleID}.")
@@ -59,9 +65,6 @@ class OrganizationParser:
         self.organisation.Vk = urlRange[f"{Settings["urls_column"]}{Settings["vk_url_row"]}"]
 
         self.logger.debug(f"Parsed organisation {self.organisation.__dict__}.")
-
-        self.ParseMembers()
-        self.ParseAchievements()
     
     def ParseMembers(self):
         self.logger.info(f"Parsing members of organisation {self.organisation.Name}, id={self.spreadsheetGoogleID}.")
@@ -200,36 +203,3 @@ class OrganizationParser:
 
     def GetOrganisationSubdir(self, subdir):
         return os.path.join(os.path.join(Settings["data_dir"], self.organisation.Name, subdir))
-
-
-if __name__ == "__main__":
-    creds = None
-  # The file token.json stores the user's access and refresh tokens, and is
-  # created automatically when the authorization flow completes for the first
-  # time.
-    if os.path.exists("token.json"):
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-  # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-          "creds.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-    # Save the credentials for the next run
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
-
-    
-    l = logging.getLogger("OrganizationParser")
-    l.setLevel(logging.INFO)
-    logging.basicConfig(level=logging.DEBUG, filename="info.log", filemode="w")
-    # logging.basicConfig(level=logging.WARNING, filename="warning.log", filemode="w")
-
-    org = OrganizationParser(SAMPLE_SPREADSHEET_ID, creds, l)
-    org.ParseSpreadsheet()
-    # print(org.organisation.__dict__)
-    org.DownloadLogo()
-    org.DownloadOrganizationPhotos()
-    org.DownloadMemberPhotos()

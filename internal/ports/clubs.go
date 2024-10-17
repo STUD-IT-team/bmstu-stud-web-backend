@@ -745,7 +745,7 @@ func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) h
 		return handler.InternalServerErrorResponse()
 	}
 
-	return handler.OkResponse(nil)
+	return handler.CreatedResponse(nil)
 }
 
 // DeleteClubPhoto

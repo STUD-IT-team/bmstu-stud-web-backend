@@ -1,3 +1,5 @@
+import transliterate as tr
+
 
 def ParseSharedFolderID(url: str) -> str:
     """Parses the Shared Folder ID from the Google Drive URL."""
@@ -19,3 +21,17 @@ def ParseSharedFileID(url: str) -> str:
         fileIndex += 1
     raise ValueError('Could not parse Shared File ID: no files found')
 
+def BytesToIntList(b : bytes) -> list[int]:
+    """Converts a byte array to a list of integers(every byte to one integer)."""
+    return [int(el) for el in b]
+
+def CreateLoginFromName(name : str) -> str:
+    nameParts = name.split()
+    login = ""
+    loginParts = []
+
+    loginParts.append(tr.translit(nameParts[0], 'ru', reversed=True))
+    for part in nameParts[1:]:
+        loginParts.append(tr.translit(part, 'ru', reversed=True)[0])
+    login = '_'.join(loginParts)
+    return login.lower()

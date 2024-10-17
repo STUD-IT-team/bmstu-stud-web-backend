@@ -56,6 +56,7 @@ func MakeResponseClub(club *domain.Club, mainOrgs []domain.ClubOrg, subOrgs []do
 		Type:             club.Type,
 		VkUrl:            club.VkUrl,
 		TgUrl:            club.TgUrl,
+		ParentID:         club.ParentID,
 		MainOrgs:         make([]responses.MainOrg, 0),
 		SubOrgs:          make([]responses.SubClubOrg, 0),
 	}
