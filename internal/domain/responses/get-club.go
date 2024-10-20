@@ -14,6 +14,7 @@ type GetClub struct {
 	Logo             domain.MediaFile `json:"logo"`
 	VkUrl            string           `json:"vk_url"`
 	TgUrl            string           `json:"tg_url"`
+	ParentID         int              `json:"parent_id"`
 	MainOrgs         []MainOrg        `json:"main_orgs"`
 	SubOrgs          []SubClubOrg     `json:"sub_orgs"`
 }
