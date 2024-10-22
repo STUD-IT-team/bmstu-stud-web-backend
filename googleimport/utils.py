@@ -1,20 +1,22 @@
 import transliterate as tr
-
+from urllib.parse import urlparse
 
 def ParseSharedFolderID(url: str) -> str:
     """Parses the Shared Folder ID from the Google Drive URL."""
+    path = urlparse(url).path
     folderIndex = 0
-    splitURL = url.split('/')
+    splitURL = path.split('/')
     while folderIndex < len(splitURL) - 1:
         if splitURL[folderIndex] == 'folders':
             return splitURL[folderIndex + 1]
         folderIndex += 1
     raise ValueError('Could not parse Shared Folder ID: no folders found')
-    
+
 def ParseSharedFileID(url: str) -> str:
     """Parses the Shared File ID from the Google Drive URL."""
+    path = urlparse(url).path
     fileIndex = 0
-    splitURL = url.split('/')
+    splitURL = path.split('/')
     while fileIndex < len(splitURL) - 1:
         if splitURL[fileIndex] == 'file':
             return splitURL[fileIndex + 2]
