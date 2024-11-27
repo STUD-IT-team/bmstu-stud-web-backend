@@ -16,6 +16,7 @@ services:
       - postgres
       - minio
       - internal-back
+      - front-back
 
   postgres:
     container_name: postgres_container
@@ -130,6 +131,7 @@ services:
     networks:
       - minio
       - internal-back
+      - front-back
     
   minio-migrate:
     container_name: migrate_minio
@@ -155,3 +157,5 @@ networks:
     driver: bridge
   internal-back:
     name: internal-back
+  front-back:
+    name: front-back

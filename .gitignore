@@ -35,3 +35,5 @@ coverage.out
 *.log
 *token.json
 *creds.json
+venv/*
+bin/
