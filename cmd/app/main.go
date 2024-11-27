@@ -162,6 +162,7 @@ func main() {
 		Handler:  mainHandler,
 		ErrorLog: log.New(logger.Out, "api", 0),
 	}
+	logger.Info(server.Addr)
 	go func() {
 		logger.Infof("starting server, listening on %s", server.Addr)
 
