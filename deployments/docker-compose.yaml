@@ -15,6 +15,7 @@ services:
     networks:
       - postgres
       - minio
+      - internal-back
 
   postgres:
     container_name: postgres_container
@@ -72,6 +73,7 @@ services:
           memory: 4G
     networks:
       - postgres
+      - internal-back
 
   pgadmin:
     container_name: pgadmin_container
@@ -90,6 +92,7 @@ services:
           memory: 1G
     networks:
       - postgres
+      - internal-back
 
   migrator:
     container_name: migrator_container
@@ -101,6 +104,7 @@ services:
       dockerfile: ./migrations/Dockerfile
     networks:
       - postgres
+      - internal-back
   
   minio:
     container_name: minio_container
@@ -125,6 +129,7 @@ services:
       retries: 3
     networks:
       - minio
+      - internal-back
     
   minio-migrate:
     container_name: migrate_minio
@@ -137,6 +142,7 @@ services:
       - minio.env
     networks:
       - minio
+      - internal-back
 
 volumes:
   SWB_DB-data:
@@ -147,3 +153,5 @@ networks:
     driver: bridge
   minio:
     driver: bridge
+  internal-back:
+    name: internal-back
