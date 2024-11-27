@@ -15,7 +15,6 @@ services:
     networks:
       - postgres
       - minio
-      - internal-back
       - front-back
 
   postgres:
@@ -114,7 +113,7 @@ services:
     command: server --console-address ":9001" /data
     ports:
 #      - "9000:9000"
-      - "9001:9001"
+#      - "9001:9001"
     env_file:
       - minio.env
     healthcheck:
