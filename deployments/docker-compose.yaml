@@ -1,6 +1,6 @@
 services:
   app:
-    container_name: app_container
+    container_name: app-container
     build:
       context: ../
       dockerfile: ./cmd/app/Dockerfile
