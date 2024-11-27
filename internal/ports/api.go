@@ -22,7 +22,7 @@ func NewAPIHandler(r handler.Renderer, api app.API) *APIHandler {
 }
 
 func (h *APIHandler) BasePrefix() string {
-	return ""
+	return "/api"
 }
 
 func (h *APIHandler) Routes() chi.Router {
