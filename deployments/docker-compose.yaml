@@ -4,8 +4,8 @@ services:
     build:
       context: ../
       dockerfile: ./cmd/app/Dockerfile
-    ports:
-      - "5000:5000"
+#    ports:
+#      - "5000:5000"
     env_file:
       - app.env
       - minio.env
@@ -112,7 +112,7 @@ services:
     image: minio/minio:latest
     command: server --console-address ":9001" /data
     ports:
-      - "9000:9000"
+#      - "9000:9000"
       - "9001:9001"
     env_file:
       - minio.env
