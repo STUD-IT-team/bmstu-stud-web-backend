@@ -1,5 +1,3 @@
-version: '3.8'
-name: backend
 services:
   app:
     container_name: app-container
