@@ -111,7 +111,7 @@ services:
     hostname: minio
     image: minio/minio:latest
     command: server --console-address ":9001" /data
-    ports:
+#    ports:
 #      - "9000:9000"
 #      - "9001:9001"
     env_file:
