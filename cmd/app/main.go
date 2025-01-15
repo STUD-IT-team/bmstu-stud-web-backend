@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-chi/chi/middleware"
 	"log"
 	"net/http"
 	"os"
@@ -68,6 +69,7 @@ func main() {
 	jsonRenderer := handler.NewJSONRenderer()
 
 	router := chi.NewRouter()
+	router.Use(middleware.Logger)
 
 	// Storage
 	appPostgres, err := postgres.NewPostgres(
@@ -153,7 +155,7 @@ func main() {
 			handler http.Handler,
 			middlewares ...func(http.Handler) http.Handler,
 		) error {
-			logger.Debugf("[%s]: /bmstu-stud-web/%s%s\n", method, appconfig.APIAppName, route)
+			logger.Debugf("[%s]: /%s%s\n", method, appconfig.APIAppName, route)
 			return nil
 		})
 
