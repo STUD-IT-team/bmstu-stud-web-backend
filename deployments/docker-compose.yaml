@@ -75,6 +75,7 @@ services:
       - postgres
       - internal-back
 
+
   migrator:
     container_name: migrator_container
     depends_on: [postgres]
@@ -143,3 +144,4 @@ networks:
     name: internal-back
   front-back:
     name: front-back
+

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/go-chi/chi/middleware"
 	"log"
 	"net/http"
 	"os"
@@ -40,7 +41,7 @@ import (
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
 // @host      localhost:8080
-// @BasePath  /bmstu-stud-web/api/
+// @BasePath  /api/
 
 // @securityDefinitions.basic  BasicAuth
 
@@ -68,6 +69,7 @@ func main() {
 	jsonRenderer := handler.NewJSONRenderer()
 
 	router := chi.NewRouter()
+	router.Use(middleware.Logger)
 
 	// Storage
 	appPostgres, err := postgres.NewPostgres(
@@ -153,7 +155,7 @@ func main() {
 			handler http.Handler,
 			middlewares ...func(http.Handler) http.Handler,
 		) error {
-			logger.Debugf("[%s]: /bmstu-stud-web/%s%s\n", method, appconfig.APIAppName, route)
+			logger.Debugf("[%s]: /%s%s\n", method, appconfig.APIAppName, route)
 			return nil
 		})
 
@@ -162,6 +164,7 @@ func main() {
 		Handler:  mainHandler,
 		ErrorLog: log.New(logger.Out, "api", 0),
 	}
+	logger.Info(server.Addr)
 	go func() {
 		logger.Infof("starting server, listening on %s", server.Addr)
 

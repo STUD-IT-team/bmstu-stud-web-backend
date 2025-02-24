@@ -18,10 +18,11 @@ create TABLE IF NOT EXISTS event
     date          timestamp not null,
     approved      boolean default false,
     created_at    timestamp not null,
+    created_by    int       not null,
     club_id       int       not null,
     main_org      int       not null,
     reg_url       text    default '',
-    reg_open_date timestamp not null, 
+    reg_open_date timestamp not null,
     feedback_url  text    default ''
 );
 
@@ -79,6 +80,7 @@ ALTER TABLE club_photo ADD CONSTRAINT media_club_ids_unique UNIQUE (club_id, med
 
 ALTER TABLE club_org ADD FOREIGN KEY (club_id) REFERENCES club(id);
 ALTER TABLE club_org ADD FOREIGN KEY (member_id) REFERENCES member(id);
+ALTER TABLE event ADD FOREIGN KEY (created_by) REFERENCES member(id);
 ALTER TABLE club_org ADD FOREIGN KEY (role_id) REFERENCES club_role(id);
 
 -- +goose StatementEnd
