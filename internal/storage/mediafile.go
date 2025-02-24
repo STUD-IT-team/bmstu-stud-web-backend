@@ -13,6 +13,7 @@ import (
 )
 
 const MEDIA_BUCKET_ENV = "IMAGE_BUCKET"
+const VIDEO_BUCKET_ENV = "VIDEO_BUCKET"
 
 type mediaFileStorage interface {
 	GetMediaFile(_ context.Context, id int) (*domain.MediaFile, error)
@@ -26,6 +27,7 @@ type mediaFileStorage interface {
 	PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, objKey string, mediaId int, err error)
 	DeleteDefaultMedia(ctx context.Context, id int) error
 	UpdateDefaultMedia(ctx context.Context, id int, name string, data []byte) error
+	GetMainVideo(ctx context.Context) (*domain.MainVideo, error)
 }
 
 func (s *storage) GetMediaFile(_ context.Context, id int) (*domain.MediaFile, error) {
@@ -276,4 +278,17 @@ func (s *storage) UpdateDefaultMedia(ctx context.Context, id int, name string, k
 
 func (s *storage) GetRandomDefaultMedia(ctx context.Context) (*domain.DefaultMedia, error) {
 	return s.postgres.GetRandomDefaultMedia(ctx)
+}
+
+func (s *storage) GetMainVideo(ctx context.Context) (*domain.MainVideo, error) {
+	videoBucketName := os.Getenv(VIDEO_BUCKET_ENV)
+	if videoBucketName == "" {
+		return nil, fmt.Errorf("missing %s environment variable", VIDEO_BUCKET_ENV)
+	}
+	vid, err := s.postgres.GetActiveMainVideo(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("can't get active main video: %v", err)
+	}
+	vid.Key = videoBucketName + "/" + vid.Key
+	return vid, nil
 }

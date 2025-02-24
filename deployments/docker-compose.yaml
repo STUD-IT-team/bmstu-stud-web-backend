@@ -4,8 +4,8 @@ services:
     build:
       context: ../
       dockerfile: ./cmd/app/Dockerfile
-    ports:
-      - "5000:5000"
+    # ports:
+    #   - "5000:5000"
     env_file:
       - app.env
       - minio.env
@@ -75,24 +75,6 @@ services:
       - postgres
       - internal-back
 
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4:7.2
-    env_file:
-      - pg-admin.env
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    ports:
-      - "5050:80"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-    networks:
-      - postgres
-      - internal-back
 
   migrator:
     container_name: migrator_container
@@ -107,15 +89,17 @@ services:
       - internal-back
   
   minio:
-    container_name: minio_containers
-    hostname: minio
+    container_name: minio-container
+    #hostname: minio
     image: minio/minio:latest
     command: server --console-address ":9001" /data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
     env_file:
       - minio.env
+    volumes:
+      - minio_data:/data
     healthcheck:
       test:
         [
@@ -148,6 +132,8 @@ services:
 volumes:
   SWB_DB-data:
   pgadmin-data:
+  minio_data:
+  
 
 networks:
   postgres:
@@ -158,3 +144,4 @@ networks:
     name: internal-back
   front-back:
     name: front-back
+

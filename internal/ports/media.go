@@ -45,6 +45,7 @@ func (h *MediaHandler) Routes() chi.Router {
 	r.Post("/default/", h.r.Wrap(h.PostMediaDefault))
 	r.Delete("/default/{id}", h.r.Wrap(h.DeleteMediaDefault))
 	r.Put("/default/{id}", h.r.Wrap(h.UpdateMediaDefault))
+	r.Get("/main/video/", h.r.Wrap(h.GetMainVideo))
 
 	return r
 }
@@ -371,4 +372,17 @@ func (h *MediaHandler) UpdateMediaDefault(w http.ResponseWriter, req *http.Reque
 	h.logger.Infof("MediaHandler: done UpdateMediaDefault request")
 
 	return handler.OkResponse(nil)
+}
+
+func (h *MediaHandler) GetMainVideo(w http.ResponseWriter, req *http.Request) handler.Response {
+	h.logger.Infof("Mediahandler: got GetMainVideo request")
+
+	resp, err := h.media.GetMainVideo(context.Background())
+	if err != nil {
+		h.logger.Warnf("can't service.GetMainVideo GetMainVideo: %v", err)
+		return handler.InternalServerErrorResponse()
+	}
+	h.logger.Infof("MediaHandler: done GetMainVideo request")
+
+	return handler.OkResponse(resp)
 }

@@ -9,8 +9,10 @@ create table IF NOT EXISTS main_video
     club_id int  NOT NULL,
     current boolean default NULL,
     FOREIGN KEY (club_id) REFERENCES club(id),
-    CONSTRAINT true_1_per_club UNIQUE (club_id, current)
 );
+
+CREATE UNIQUE INDEX ON main_video (club_id, current)
+WHERE active = TRUE;
 
 -- +goose StatementEnd
 

@@ -22,6 +22,7 @@ type mediaStorage interface {
 	PutDefaultMedia(ctx context.Context, name string, key string, data []byte) (id int, objKey string, mediaId int, err error)
 	DeleteDefaultMedia(ctx context.Context, id int) error
 	UpdateDefaultMedia(ctx context.Context, id int, name string, key string, data []byte) error
+	GetMainVideo(ctx context.Context) (*domain.MainVideo, error)
 }
 
 type MediaService struct {
@@ -113,4 +114,13 @@ func (s *MediaService) DeleteMediaDefault(ctx context.Context, ID int) error {
 
 func (s *MediaService) UpdateMediaDefault(ctx context.Context, ID int, name string, data []byte) error {
 	return s.storage.UpdateDefaultMedia(ctx, ID, name, name, data)
+}
+
+func (s *MediaService) GetMainVideo(ctx context.Context) (*responses.GetMainVideo, error) {
+	vid, err := s.storage.GetMainVideo(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("can't storage.GetMainVideo: %w", err)
+	}
+
+	return &responses.GetMainVideo{MainVideo: *vid}, nil
 }

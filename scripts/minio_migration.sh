@@ -1,6 +1,6 @@
 #!/bin/bash
 
-mc config host add minio http://minio:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
+mc alias set minio http://minio-container:9000 $MINIO_ROOT_USER $MINIO_ROOT_PASSWORD
 mc mb --ignore-existing minio/"$VIDEO_BUCKET"
 mc anonymous set public minio/"$VIDEO_BUCKET"
 mc mb --ignore-existing minio/"$IMAGE_BUCKET"
