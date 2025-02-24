@@ -232,3 +232,17 @@ func (p *Postgres) GetRandomDefaultMedia(ctx context.Context) (*domain.DefaultMe
 	}
 	return &d, nil
 }
+
+const getActiveMainVideo = `
+SELECT id, name, key, club_id, current FROM main_video
+WHERE current = true AND club_id = 0
+`
+
+func (p *Postgres) GetActiveMainVideo(ctx context.Context) (*domain.MainVideo, error) {
+	var m domain.MainVideo
+	err := p.db.QueryRow(getActiveMainVideo).Scan(&m.ID, &m.Name, &m.Key, &m.ClubID, &m.Current)
+	if err != nil {
+		return nil, wrapPostgresError(err)
+	}
+	return &m, nil
+}

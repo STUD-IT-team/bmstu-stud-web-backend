@@ -1,11 +1,11 @@
 services:
   app:
-    container_name: app_container
+    container_name: app-container
     build:
       context: ../
       dockerfile: ./cmd/app/Dockerfile
-    ports:
-      - "5000:5000"
+    # ports:
+    #   - "5000:5000"
     env_file:
       - app.env
       - minio.env
@@ -15,6 +15,7 @@ services:
     networks:
       - postgres
       - minio
+      - front-back
 
   postgres:
     container_name: postgres_container
@@ -72,24 +73,7 @@ services:
           memory: 4G
     networks:
       - postgres
-
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4:7.2
-    env_file:
-      - pg-admin.env
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
-    ports:
-      - "5050:80"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-    networks:
-      - postgres
+      - internal-back
 
   migrator:
     container_name: migrator_container
@@ -101,17 +85,20 @@ services:
       dockerfile: ./migrations/Dockerfile
     networks:
       - postgres
+      - internal-back
   
   minio:
-    container_name: minio_container
-    hostname: minio
+    container_name: minio-container
+    #hostname: minio
     image: minio/minio:latest
     command: server --console-address ":9001" /data
-    ports:
-      - "9000:9000"
-      - "9001:9001"
+#    ports:
+#      - "9000:9000"
+#      - "9001:9001"
     env_file:
       - minio.env
+    volumes:
+      - minio_data:/data
     healthcheck:
       test:
         [
@@ -125,6 +112,8 @@ services:
       retries: 3
     networks:
       - minio
+      - internal-back
+      - front-back
     
   minio-migrate:
     container_name: migrate_minio
@@ -137,13 +126,20 @@ services:
       - minio.env
     networks:
       - minio
+      - internal-back
 
 volumes:
   SWB_DB-data:
   pgadmin-data:
+  minio_data:
+  
 
 networks:
   postgres:
     driver: bridge
   minio:
     driver: bridge
+  internal-back:
+    name: internal-back
+  front-back:
+    name: front-back
