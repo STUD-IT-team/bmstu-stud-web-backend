@@ -45,7 +45,7 @@ func (h *MediaHandler) Routes() chi.Router {
 	r.Post("/default/", h.r.Wrap(h.PostMediaDefault))
 	r.Delete("/default/{id}", h.r.Wrap(h.DeleteMediaDefault))
 	r.Put("/default/{id}", h.r.Wrap(h.UpdateMediaDefault))
-	r.Get("/main/video/", h.r.Wrap(h.GetMainVideo))
+	r.Get("/main/video", h.r.Wrap(h.GetMainVideo))
 
 	return r
 }
