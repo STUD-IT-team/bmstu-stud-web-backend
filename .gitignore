@@ -20,6 +20,7 @@ vendor
 
 # Project specific
 *.env
+!*.example.env
 .pkg
 .cache
 bin
@@ -37,3 +38,6 @@ coverage.out
 *creds.json
 venv/*
 bin/
+
+# external things
+external/
