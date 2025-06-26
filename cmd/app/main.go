@@ -3,12 +3,14 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/go-chi/chi/middleware"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
+
+	"github.com/go-chi/chi/middleware"
 
 	"github.com/go-chi/chi"
 	"github.com/go-co-op/gocron/v2"
@@ -26,33 +28,16 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
 
-//go:generate go run ../configer --apps api --envs local,prod,dev
-
-// @title           Swagger Example API
-// @version         1.0
-// @description     This is a sample server celler server.
-// @termsOfService  http://swagger.io/terms/
-
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
-
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
-
-// @host      localhost:8080
-// @BasePath  /api/
-
-// @securityDefinitions.basic  BasicAuth
-
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
-	cfg := appconfig.MustParseAppConfig[appconfig.APIConfig]()
+
+	logLevel := os.Getenv("LOG_LEVEL")
+	if logLevel == "" {
+		panic("LOG_LEVEL is not set")
+	}
 
 	logger := logrus.New()
 
-	lvl, err := logrus.ParseLevel(cfg.Log.Level)
+	lvl, err := logrus.ParseLevel(logLevel)
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -79,7 +64,7 @@ func main() {
 		logger.WithError(err).Errorf("can`t connect to postgres: %s", os.Getenv("PG_CONNECT"))
 	}
 
-	endpoint := os.Getenv("END_POINT")
+	endpoint := os.Getenv("ENDPOINT")
 	user := os.Getenv("MINIO_ROOT_USER")
 	password := os.Getenv("MINIO_ROOT_PASSWORD")
 	useSSL := false
@@ -87,7 +72,8 @@ func main() {
 	minioStorage, err := miniostorage.NewMinioStorage(endpoint, user, password, useSSL)
 
 	if err != nil {
-		log.Fatalf("Upload err: " + err.Error())
+		log.Fatalf("Upload err: %v", err)
+		log.Fatalf("Endpoint: %s", endpoint)
 	}
 
 	sessionCache := cache.NewSessionCache()
@@ -104,46 +90,30 @@ func main() {
 	documentCategoriesSevice := app.NewDocumentCategoriesService(appStorage)
 	apiService := app.NewAPI(logger, feedService, eventsService, membersService, clubService, guardService, documentsService, documentCategoriesSevice)
 
-	var mainGroupHandler *handler.GroupHandler
 	// Main API router.
-	if cfg.Log.Level == "debug" {
-		mainGroupHandler = handler.NewGroupHandler("/",
-			internalhttp.NewAPIHandler(jsonRenderer, apiService),
-			internalhttp.NewGuardHandler(jsonRenderer, *guardService, logger),
-			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
-			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
-			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
-			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
-			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
-			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, *documentCategoriesSevice, logger, guardService),
-			internalhttp.NewSwagHandler(jsonRenderer),
-		)
-	} else {
-		mainGroupHandler = handler.NewGroupHandler("/",
-			internalhttp.NewAPIHandler(jsonRenderer, apiService),
-			internalhttp.NewGuardHandler(jsonRenderer, *guardService, logger),
-			internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
-			internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
-			internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
-			internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
-			internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
-			internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, *documentCategoriesSevice, logger, guardService),
-			internalhttp.NewSwagHandler(jsonRenderer),
-		)
+	mainGroupHandler := handler.NewGroupHandler("/",
+		internalhttp.NewAPIHandler(jsonRenderer, apiService),
+		internalhttp.NewGuardHandler(jsonRenderer, *guardService, logger),
+		internalhttp.NewClubsHandler(jsonRenderer, *clubService, logger, guardService),
+		internalhttp.NewFeedHandler(jsonRenderer, *feedService, logger, guardService),
+		internalhttp.NewEventsHandler(jsonRenderer, *eventsService, logger, guardService),
+		internalhttp.NewMembersHandler(jsonRenderer, *membersService, logger, guardService),
+		internalhttp.NewMediaHandler(jsonRenderer, mediaService, logger, guardService),
+		internalhttp.NewDocumentsHandler(jsonRenderer, *documentsService, *documentCategoriesSevice, logger, guardService),
+		internalhttp.NewSwagHandler(jsonRenderer),
+	)
+
+	basePath := os.Getenv("BASE_PATH")
+	if basePath == "" {
+		panic("BASE_PATH is not set")
 	}
 
 	mainHandler := handler.New(handler.MakePublicRoutes(
 		router,
 		handler.RoutesCfg{
-			BasePath: cfg.Servers.Public.BasePath,
+			BasePath: basePath,
 		},
 		mainGroupHandler))
-
-	// servers = append(servers, &http.Server{
-	// 	Addr:     cfg.Servers.Public.ListenAddr,
-	// 	Handler:  mainHandler,
-	// 	ErrorLog: log.New(logger.Out, "api", 0),
-	// })
 
 	logger.Debugf("Listing actual routes:\n")
 
@@ -159,8 +129,13 @@ func main() {
 			return nil
 		})
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		panic("PORT is not set")
+	}
+
 	server := &http.Server{
-		Addr:     cfg.Servers.Public.ListenAddr,
+		Addr:     fmt.Sprintf(":%s", port),
 		Handler:  mainHandler,
 		ErrorLog: log.New(logger.Out, "api", 0),
 	}
@@ -198,17 +173,6 @@ func main() {
 	s.Start()
 	logger.Infof("Cron started")
 
-	// for i := range servers {
-	// 	srv := servers[i]
-	// 	go func() {
-	// 		logger.Infof("starting server, listening on %s", srv.Addr)
-
-	// 		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-	// 			logger.WithError(err).Errorf("server can't listen and serve requests")
-	// 		}
-	// 	}()
-	// }
-
 	logger.Infof("app started")
 
 	sigQuit := make(chan os.Signal, 1)
@@ -229,7 +193,7 @@ func main() {
 		logger.WithError(err).Infof("gracefully shutting down the server")
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	defer cancel()
 
 	if err := server.Shutdown(timeoutCtx); err != nil {

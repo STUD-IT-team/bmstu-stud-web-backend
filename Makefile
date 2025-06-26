@@ -1,31 +1,42 @@
-GOROOT ?= /usr/local/go
-GOPATH := $(shell go env GOPATH)
+GO := go
+SWAGGER := swag
 
-BINARIES_DIR := cmd
-SERVICES_LIST := $(shell find $(BINARIES_DIR) -maxdepth 1 \( ! -iname "$(BINARIES_DIR)" \) -type d -exec basename {} \;)
-SERVICES_RUN_TARGETS_LIST := $(addprefix run-, $(SERVICES_LIST))
+APP := ./cmd/app
+SWAGMAINFILE := cmd/app/main.go
+DOCS := cmd/app/docs
 
-ENV := $(if $(ENV),$(ENV),local)
+DOCKER:=docker
+COMPOSE:=deployments/docker-compose.yaml
 
-_gen:
-	go generate ./...
-.PHONY: _gen
+.PHONY: run
 
-gen: ## run code generation on host machine
-	@echo "+ $@"
-	@$(MAKE) _gen
-.PHONY: local-gen
+run:
+	$(GO) run $(APP)
 
-$(SERVICES_RUN_TARGETS_LIST): run-%: ## run service from $(BINARIES_DIR)
-	go run ./cmd/$* --config-path=./cmd/$*/infra/$(ENV)/application.conf
-.PHONY: $(SERVICES_RUN_TARGETS_LIST)
+.PHONY: swag-generate
 
-# need v1.54.2 of golangci-lint
+swag-generate:
+	$(SWAGGER) init --parseDependency --parseInternal -o $(DOCS) -g $(SWAGMAINFILE)
+
+.PHONY: lint
+
 lint:
-	golangci-lint run -v -c golangci.yml ./...
+	golangci-lint run
 
-migration-create-sql:
-	goose -dir=./migrations create $(NAME) sql
+.PHONY: up
 
-swag-generate-app:
-	swag init --parseDependency --parseInternal  -g internal/ports/http/feed.go -o cmd/app/docs/ -g cmd/app/main.go
+up:
+	$(DOCKER) compose -f $(COMPOSE) up  -d
+
+.PHONY: upd
+
+upd:
+	$(DOCKER) compose -f $(COMPOSE) up -d --build
+
+upda: 
+	$(DOCKER) compose -f $(COMPOSE) up  --build
+
+.PHONY: down
+
+down:
+	$(DOCKER) compose -f $(COMPOSE) down

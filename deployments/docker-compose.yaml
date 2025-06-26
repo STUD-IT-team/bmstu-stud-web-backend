@@ -1,25 +1,27 @@
 services:
-  app:
-    container_name: app-container
+  stud-backend:
+    container_name: stud-backend
+    hostname: backend
     build:
       context: ../
       dockerfile: ./cmd/app/Dockerfile
-    # ports:
-    #   - "5000:5000"
+    ports:
+      - "5000:5000"
     env_file:
-      - app.env
-      - minio.env
+      - backend.env
     depends_on:
-      - postgres
-      - minio
+      stud-postgres:
+        condition: service_healthy
+      stud-minio:
+        condition: service_healthy
     networks:
-      - postgres
-      - minio
-      - front-back
+      - stud-postgres
+      - stud-minio
+      - stud-front-back
 
-  postgres:
-    container_name: postgres_container
-    hostname: postgres
+  stud-postgres:
+    container_name: stud-postgres
+    hostname: stud-postgres
     image: postgres:14.8-alpine3.18
     command:
       - "postgres"
@@ -51,55 +53,47 @@ services:
       - "pg_stat_statements.max=10000"
       - "-c"
       - "pg_stat_statements.track=all"
-
     env_file:
-      - db.env
-#    volumes:
-#      - ../InitDatabase:/docker-entrypoint-initdb.d
-#      - ../SWB_DB-data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+      - pg.env
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stud -d stud_web_backend"]
+      # Need to get data from env file
+      test: ["CMD-SHELL", "pg_isready -U stud -d stud"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     restart: unless-stopped
+    volumes:
+      - stud-db-data:/var/lib/postgresql/data
     deploy:
       resources:
         limits:
           cpus: '1'
           memory: 4G
     networks:
-      - postgres
-      - internal-back
+      - stud-postgres
 
 
-  migrator:
-    container_name: migrator_container
-    depends_on: [postgres]
+  stud-pg-migrator:
+    container_name: stud-pg-migrator
+    depends_on: [stud-postgres]
     env_file:
-      - migrator.env
+      - migr.env
     build:
       context: ../
       dockerfile: ./migrations/Dockerfile
     networks:
-      - postgres
-      - internal-back
+      - stud-postgres
   
-  minio:
-    container_name: minio-container
-    #hostname: minio
-    image: minio/minio:latest
-    command: server --console-address ":9001" /data
-#    ports:
-#      - "9000:9000"
-#      - "9001:9001"
+  stud-minio:
+    container_name: stud-minio
+    hostname: stud-minio
+    image: minio/minio:RELEASE.2025-06-13T11-33-47Z
+    command: server --console-address ":9001" --address ":9000" /data
     env_file:
       - minio.env
     volumes:
-      - minio_data:/data
+      - stud-minio-data:/data
     healthcheck:
       test:
         [
@@ -112,36 +106,31 @@ services:
       timeout: 20s
       retries: 3
     networks:
-      - minio
-      - internal-back
-      - front-back
+      - stud-minio
+      - stud-front-back
     
-  minio-migrate:
-    container_name: migrate_minio
+  stud-minio-migrate:
+    container_name: stud-minio-migrate
     depends_on:
-      - minio
+      - stud-minio
     build:
       context: ../
       dockerfile: ./pkg/minio/Dockerfile
     env_file: 
       - minio.env
     networks:
-      - minio
-      - internal-back
+      - stud-minio
 
 volumes:
-  SWB_DB-data:
-  pgadmin-data:
-  minio_data:
-  
+  stud-db-data:
+  stud-minio-data:
 
 networks:
-  postgres:
+  stud-postgres:
     driver: bridge
-  minio:
+  stud-minio:
     driver: bridge
-  internal-back:
-    name: internal-back
-  front-back:
-    name: front-back
+  stud-front-back:
+    driver: bridge
+    external: true
 
