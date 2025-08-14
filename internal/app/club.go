@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
@@ -107,7 +108,9 @@ func (s *ClubService) GetClubsByName(ctx context.Context, name string) (*respons
 	}
 
 	orgs, err := s.storage.GetAllClubOrgs(ctx)
-	if err != nil {
+	if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+		orgs = []domain.ClubOrg{}
+	} else if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
 	}
@@ -135,7 +138,9 @@ func (s *ClubService) GetClubsByType(ctx context.Context, type_ string) (*respon
 	}
 
 	orgs, err := s.storage.GetAllClubOrgs(ctx)
-	if err != nil {
+	if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+		orgs = []domain.ClubOrg{}
+	} else if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
 	}
@@ -164,7 +169,9 @@ func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, 
 	}
 
 	orgs, err := s.storage.GetAllClubOrgs(ctx)
-	if err != nil {
+	if errors.Is(err, postgres.ErrPostgresNotFoundError) {
+		orgs = []domain.ClubOrg{}
+	} else if err != nil {
 		err = fmt.Errorf("can't storage.GetAllClubOrgs: %w", err)
 		return nil, err
 	}
