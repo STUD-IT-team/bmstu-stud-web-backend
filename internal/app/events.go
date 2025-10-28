@@ -57,7 +57,7 @@ func (s *EventsService) GetEvent(ctx context.Context, id int) (*responses.GetEve
 		return nil, fmt.Errorf("can't storage.GetEvent: %w", err)
 	}
 
-	feedMediaFile, err := s.storage.GetMediaFile(ctx, id)
+	feedMediaFile, err := s.storage.GetMediaFile(ctx, res.MediaID)
 	if err != nil {
 		return nil, fmt.Errorf("can't storage.GetEventMediaFile: %w", err)
 	}
