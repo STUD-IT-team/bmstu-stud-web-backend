@@ -7,14 +7,16 @@ import (
 )
 
 func getAccessToken(req *http.Request) (int64, error) {
-	c, err := req.Cookie("AccessToken")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			return 0, fmt.Errorf("cookie is not set PostFeed: %v", err)
-		}
-		return 0, fmt.Errorf("cookie error PostFeed: %v", err)
+	// c, err := req.Cookie("AccessToken")
+	c, ok := req.Header["Authorization"]
+	if !ok {
+		return 0, fmt.Errorf("no header Authorization")
 	}
-	id, err := strconv.ParseInt(c.Value, 10, 64)
+	if len(c) != 1 {
+		return 0, fmt.Errorf("more than one header Authorization")
+	}
+	val := c[0]
+	id, err := strconv.ParseInt(val, 10, 64)
 	if err != nil {
 		return 0, fmt.Errorf("can't ParseInt on cookie value: %w", err)
 	}

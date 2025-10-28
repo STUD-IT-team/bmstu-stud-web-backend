@@ -85,7 +85,8 @@ func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handl
 	h.logger.Infof("GuardHandler: request LoginUser done")
 
 	resp := handler.OkResponse(nil)
-	resp.SetKVHeader("Set-Cookie", "AccessToken="+res.AccessToken+"; Path=/; HttpOnly")
+	// resp.SetKVHeader("Set-Cookie", "AccessToken="+res.AccessToken+"; Path=/; HttpOnly")
+	resp.SetKVHeader("Authorization", res.AccessToken)
 
 	return resp
 }
