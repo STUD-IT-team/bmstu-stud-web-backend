@@ -52,15 +52,18 @@ func (h *MediaHandler) Routes() chi.Router {
 
 // PostMediaPublic
 //
-// @Summary    Загружает изображение в базу данных
-// @Description Загружает изображение в базу данных публично, то есть в хранилище хранится файл по тому же названию, что и подан на вход.
-// @Tags      auth.media
-// @Produce    json
-// @Param      request  body    requests.PostMedia  true  "post media data"
-// @Success    200   {object}  responses.PostMedia
-// @Failure    400
-// @Failure    401
-// @Failure    500
+// @Summary     Загружает изображение в базу данных
+// @Description Загружает изображение в базу данных публично, имя файла сохраняется как есть
+// @Tags        auth.media
+// @Accept      multipart/form-data
+// @Produce     json
+// @Param       name  formData  string  true  "Имя файла"
+// @Param       data  formData  file    true  "Файл"
+// @Success     200   {object}  responses.PostMedia
+// @Failure     400
+// @Failure     401
+// @Failure     409
+// @Failure     500
 // @Router      /media/public [post]
 // @Security    Authorized
 func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request) handler.Response {
@@ -106,15 +109,18 @@ func (h *MediaHandler) PostMediaPublic(w http.ResponseWriter, req *http.Request)
 
 // PostMediaPrivate
 //
-// @Summary    Загружает изображение в базу данных
-// @Description Загружает изображение в базу данных приватно, то есть название загруженного файла и хранящегося объетка различаются. По сути из вне нельзя заранее узнать ключ для получения файла.
-// @Tags      auth.media
-// @Produce    json
-// @Param      request  body    requests.PostMedia  true  "post media data"
-// @Success    200   {object}  responses.PostMedia
-// @Failure    400
-// @Failure    401
-// @Failure    500
+// @Summary     Загружает изображение в базу данных
+// @Description Загружает изображение в базу данных приватно, имя в хранилище отличается от исходного
+// @Tags        auth.media
+// @Accept      multipart/form-data
+// @Produce     json
+// @Param       name  formData  string  true  "Имя файла"
+// @Param       data  formData  file    true  "Файл"
+// @Success     200   {object}  responses.PostMedia
+// @Failure     400
+// @Failure     401
+// @Failure     409
+// @Failure     500
 // @Router      /media/private [post]
 // @Security    Authorized
 func (h *MediaHandler) PostMediaPrivate(w http.ResponseWriter, req *http.Request) handler.Response {

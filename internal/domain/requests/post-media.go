@@ -1,39 +1,51 @@
 package requests
 
 import (
-	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
 type PostMedia struct {
-	Name string `json:"name"`
-	Data []byte `json:"data"`
+	Name string
+	Data []byte
 }
 
 type PostMediaPointer struct {
-	Name *string `json:"name"`
-	Data []byte  `json:"data"`
+	Name *string
+	Data []byte
 }
 
+const maxMemory = 10 << 24
+
 func (m *PostMedia) Bind(req *http.Request) error {
-	decoder := json.NewDecoder(req.Body)
-	decoder.DisallowUnknownFields()
+
+	if err := req.ParseMultipartForm(maxMemory); err != nil {
+		return fmt.Errorf("can't parse multipart form on PostMedia.Bind: %v", err)
+	}
+
 	pm := PostMediaPointer{}
 
-	err := decoder.Decode(&pm)
-	if err != nil {
-		return fmt.Errorf("can't json decoder on PostMedia.Bind: %v", err)
+	// name
+	if name := req.FormValue("name"); name != "" {
+		pm.Name = &name
 	}
 
-	if decoder.More() {
-		return fmt.Errorf("extraneous data after JSON object on PostMedia.Bind")
+	// data (file)
+	file, _, err := req.FormFile("data")
+	if err != nil {
+		return fmt.Errorf("%v: require: Data", domain.ErrIncorrectRequest)
+	}
+	defer file.Close()
+
+	pm.Data, err = io.ReadAll(file)
+	if err != nil {
+		return fmt.Errorf("can't read file data on PostMedia.Bind: %v", err)
 	}
 
-	err = pm.validate()
-	if err != nil {
+	if err := pm.validate(); err != nil {
 		return fmt.Errorf("%v: %v", domain.ErrIncorrectRequest, err)
 	}
 
@@ -45,16 +57,16 @@ func (m *PostMedia) Bind(req *http.Request) error {
 	return m.validate()
 }
 
-func (f *PostMedia) validate() error {
+func (m *PostMedia) validate() error {
 	return nil
 }
 
-func (pf *PostMediaPointer) validate() error {
-	if pf.Data == nil {
-		return fmt.Errorf("require: Data")
-	}
-	if pf.Name == nil {
+func (pm *PostMediaPointer) validate() error {
+	if pm.Name == nil {
 		return fmt.Errorf("require: Name")
+	}
+	if pm.Data == nil {
+		return fmt.Errorf("require: Data")
 	}
 	return nil
 }
