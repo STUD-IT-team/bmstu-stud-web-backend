@@ -218,14 +218,14 @@ func (s *ClubService) GetClubMembers(ctx context.Context, clubID int) (*response
 	return mapper.MakeResponseClubMembers(clubID, orgs, subOrgs, media)
 }
 
-func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) error {
+func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) (int, error) {
 	club, orgs, err := mapper.ParsePostClub(req)
 	if err != nil {
-		return fmt.Errorf("can't mapper.PostClub: %w", err)
+		return 0, fmt.Errorf("can't mapper.PostClub: %w", err)
 	}
 	clubID, err := s.storage.AddClub(ctx, club)
 	if err != nil {
-		return fmt.Errorf("can't storage.AddClub: %w", err)
+		return 0, fmt.Errorf("can't storage.AddClub: %w", err)
 	}
 
 	for i := range orgs {
@@ -234,10 +234,10 @@ func (s *ClubService) PostClub(ctx context.Context, req *requests.PostClub) erro
 
 	err = s.storage.AddOrgs(ctx, orgs)
 	if err != nil {
-		return fmt.Errorf("can't storage.AddOrgs: %w", err)
+		return 0, fmt.Errorf("can't storage.AddOrgs: %w", err)
 	}
 
-	return nil
+	return clubID, nil
 }
 
 func (s *ClubService) DeleteClub(ctx context.Context, clubID int) error {

@@ -7,6 +7,7 @@ import (
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
@@ -483,7 +484,7 @@ func (h *ClubsHandler) GetClubMedia(w http.ResponseWriter, req *http.Request) ha
 // @Tags      auth.club
 // @Produce    json
 // @Param      request  body    requests.PostClub  true  "post club data"
-// @Success    200
+// @Success    200      {object}  responses.PostClubResponse
 // @Failure    400
 // @Failure    401
 // @Failure    403
@@ -527,7 +528,7 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 		return handler.ForbiddenResponse()
 	}
 
-	err = h.clubs.PostClub(context.Background(), club)
+	clubID, err := h.clubs.PostClub(context.Background(), club)
 
 	if err != nil {
 		h.logger.Warnf("can't service.PostClub %v", err)
@@ -541,7 +542,7 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 	}
 
 	h.logger.Info("ClubsHandler: request done")
-	return handler.OkResponse(nil)
+	return handler.OkResponse(responses.PostClubResponse{ID: clubID})
 }
 
 // DeleteClub
