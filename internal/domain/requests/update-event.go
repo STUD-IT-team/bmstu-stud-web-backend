@@ -12,9 +12,9 @@ import (
 )
 
 type UpdateEvent struct {
-	ID          int       `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
+	ID          int    `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 
 	Prompt      string    `json:"prompt"`
 	MediaID     int       `json:"media_id"`
@@ -24,7 +24,7 @@ type UpdateEvent struct {
 	CreatedBy   int       `json:"created_by"`
 	RegUrl      string    `json:"reg_url"`
 	RegOpenDate time.Time `json:"reg_open_date"`
-	FeedbackUrl string    `json:"eventback_url"`
+	FeedbackUrl string    `json:"feedback_url"`
 }
 
 type UpdateEventPointer struct {
@@ -38,7 +38,7 @@ type UpdateEventPointer struct {
 	CreatedBy   *int       `json:"created_by"`
 	RegUrl      *string    `json:"reg_url"`
 	RegOpenDate *time.Time `json:"reg_open_date"`
-	FeedbackUrl *string    `json:"eventback_url"`
+	FeedbackUrl *string    `json:"feedback_url"`
 }
 
 func (ev *UpdateEvent) Bind(req *http.Request) error {

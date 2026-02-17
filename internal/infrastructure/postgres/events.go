@@ -17,6 +17,8 @@ date         ,
 approved     ,
 created_at   ,
 created_by   ,
+main_org     ,
+club_id      ,
 reg_url      ,
 reg_open_date,
 feedback_url
@@ -37,6 +39,7 @@ func (p *Postgres) GetAllEvents(_ context.Context) ([]domain.Event, error) {
 			&event.ID, &event.Title, &event.Description,
 			&event.Prompt, &event.MediaID, &event.Date,
 			&event.Approved, &event.CreatedAt, &event.CreatedBy,
+			&event.MainOrg, &event.ClubID,
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
 		if err != nil {
@@ -63,6 +66,8 @@ date         ,
 approved     ,
 created_at   ,
 created_by   ,
+main_org     ,
+club_id      ,
 reg_url      ,
 reg_open_date,
 feedback_url
@@ -75,6 +80,7 @@ func (p *Postgres) GetEvent(_ context.Context, id int) (*domain.Event, error) {
 		&event.ID, &event.Title, &event.Description,
 		&event.Prompt, &event.MediaID, &event.Date,
 		&event.Approved, &event.CreatedAt, &event.CreatedBy,
+		&event.MainOrg, &event.ClubID,
 		&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 	if err != nil {
 		return nil, wrapPostgresError(err)
@@ -94,6 +100,8 @@ date         ,
 approved     ,
 created_at   ,
 created_by   ,
+main_org     ,
+club_id      ,
 reg_url      ,
 reg_open_date,
 feedback_url
@@ -115,6 +123,7 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 			&event.ID, &event.Title, &event.Description,
 			&event.Prompt, &event.MediaID, &event.Date,
 			&event.Approved, &event.CreatedAt, &event.CreatedBy,
+			&event.MainOrg, &event.ClubID,
 			&event.RegUrl, &event.RegOpenDate, &event.FeedbackUrl)
 
 		if err != nil {
@@ -131,14 +140,15 @@ func (p *Postgres) GetEventsByRange(_ context.Context, from, to time.Time) ([]do
 	return events, nil
 }
 
-const postEventQuery = `INSERT INTO event (title, description, prompt,  media_id,  date, approved, created_at, created_by, reg_url, reg_open_date, feedback_url)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
+const postEventQuery = `INSERT INTO event (title, description, prompt,  media_id,  date, approved, created_at, created_by, main_org, club_id, reg_url, reg_open_date, feedback_url)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`
 
 func (p *Postgres) PostEvent(_ context.Context, event *domain.Event) error {
 	_, err := p.db.Exec(postEventQuery,
 		event.Title, event.Description,
 		event.Prompt, event.MediaID, event.Date,
 		event.Approved, event.CreatedAt, event.CreatedBy,
+		event.MainOrg, event.ClubID,
 		event.RegUrl, event.RegOpenDate, event.FeedbackUrl,
 	)
 
@@ -175,8 +185,10 @@ created_at=$7,
 created_by=$8,
 reg_url=$9,
 reg_open_date=$10,
-feedback_url=$11
-WHERE id=$12`
+feedback_url=$11,
+main_org=$12,
+club_id=$13
+WHERE id=$14`
 
 func (p *Postgres) UpdateEvent(_ context.Context, event *domain.Event) error {
 	tag, err := p.db.Exec(updateEventQuery,
@@ -184,6 +196,7 @@ func (p *Postgres) UpdateEvent(_ context.Context, event *domain.Event) error {
 		event.Prompt, event.MediaID, event.Date,
 		event.Approved, event.CreatedAt, event.CreatedBy,
 		event.RegUrl, event.RegOpenDate, event.FeedbackUrl,
+		event.MainOrg, event.ClubID,
 		event.ID,
 	)
 	if err != nil {
