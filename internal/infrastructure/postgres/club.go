@@ -834,10 +834,10 @@ func (s *Postgres) DeleteClubPhoto(_ context.Context, id int) error {
 	return wrapPostgresError(tx.Commit())
 }
 
-const getPhotoClubID = "SELECT club_id FROM club_photo WHERE id = $1"
+const getPhotoClubID = "SELECT id FROM club_photo WHERE club_id = $1 AND media_id = $2"
 
-func (s *Postgres) GetPhotoClubID(_ context.Context, photoID int) (int, error) {
-	var clubID int
-	err := s.db.QueryRow(getPhotoClubID, photoID).Scan(&clubID)
-	return clubID, wrapPostgresError(err)
+func (s *Postgres) GetPhotoClubID(_ context.Context, clubID, mediaID int) (int, error) {
+	var id int
+	err := s.db.QueryRow(getPhotoClubID, clubID, mediaID).Scan(&id)
+	return id, wrapPostgresError(err)
 }

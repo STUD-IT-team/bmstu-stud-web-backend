@@ -30,7 +30,7 @@ type clubStorage interface {
 	UpdateClub(ctx context.Context, c *domain.Club, o []domain.ClubOrg) error
 	AddClubPhotos(ctx context.Context, p []domain.ClubPhoto) error
 	DeleteClubPhoto(ctx context.Context, ids int) error
-	GetPhotoClubID(ctx context.Context, photoID int) (int, error)
+	GetPhotoClubID(ctx context.Context, clubID, mediaID int) (int, error)
 	UpdateClubPhotos(ctx context.Context, clubID int, photos []domain.ClubPhoto) error
 }
 
@@ -303,17 +303,14 @@ func (s *ClubService) PostClubPhoto(ctx context.Context, req *requests.PostClubP
 }
 
 func (s *ClubService) DeleteClubPhoto(ctx context.Context, req *requests.DeleteClubPhoto) error {
-	clubID, err := s.storage.GetPhotoClubID(ctx, req.PhotoID)
+	clubPhotoId, err := s.storage.GetPhotoClubID(ctx, req.ClubID, req.PhotoID)
 	if err != nil {
 		if err == postgres.ErrPostgresNotFoundError {
 			return fmt.Errorf("photo not found")
 		}
 		return fmt.Errorf("can't storage.GetPhotoClubID: %w", err)
 	}
-	if clubID != req.ClubID {
-		return fmt.Errorf("photo is not from the specified club")
-	}
-	err = s.storage.DeleteClubPhoto(ctx, req.PhotoID)
+	err = s.storage.DeleteClubPhoto(ctx, clubPhotoId)
 	if err != nil {
 		return fmt.Errorf("can't storage.DeleteClubPhoto: %w", err)
 	}

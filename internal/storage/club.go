@@ -86,8 +86,8 @@ func (s *storage) DeleteClubPhoto(ctx context.Context, id int) error {
 	return s.postgres.DeleteClubPhoto(ctx, id)
 }
 
-func (s *storage) GetPhotoClubID(ctx context.Context, photoID int) (int, error) {
-	return s.postgres.GetPhotoClubID(ctx, photoID)
+func (s *storage) GetPhotoClubID(ctx context.Context, clubID, mediaID int) (int, error) {
+	return s.postgres.GetPhotoClubID(ctx, clubID, mediaID)
 }
 
 func (s *storage) UpdateClubPhotos(ctx context.Context, clubID int, photos []domain.ClubPhoto) error {
