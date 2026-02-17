@@ -12,6 +12,8 @@ type Event struct {
 	Approved    bool      `json:"approved"`
 	CreatedAt   time.Time `json:"created_at"`
 	CreatedBy   int       `json:"created_by"`
+	MainOrg     int       `json:"main_org"`
+	ClubID      int       `json:"club_id"`
 	RegUrl      string    `json:"reg_url"`
 	RegOpenDate time.Time `json:"reg_open_date"`
 	FeedbackUrl string    `json:"feedback_url"`
