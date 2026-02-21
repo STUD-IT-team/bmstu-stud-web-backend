@@ -6,6 +6,7 @@ import (
 	"github.com/go-chi/chi"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
+	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/responses"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 )
 
@@ -33,6 +34,15 @@ func (h *APIHandler) Routes() chi.Router {
 	return r
 }
 
+// echo
+//
+// @Summary    Echo endpoint
+// @Description Возвращает базовую информацию о состоянии API
+// @Tags      public.api
+// @Produce    json
+// @Success    200      {object}  responses.GetEcho
+// @Router      /api/echo [get]
+// @Security    Public
 func (h *APIHandler) echo(_ http.ResponseWriter, r *http.Request) handler.Response {
 	out := h.api.Echo()
 

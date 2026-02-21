@@ -333,7 +333,7 @@ func (h *EventsHandler) DeleteEvent(w http.ResponseWriter, req *http.Request) ha
 //	@Tags        auth.events
 //	@Accept      json
 //	@Param       id   path     string           true "Event ID"
-//	@Param       request body requests.PostEvent true "Event new data"
+//	@Param       request body requests.UpdateEvent true "Event new data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401

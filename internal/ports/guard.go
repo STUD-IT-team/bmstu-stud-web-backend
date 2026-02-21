@@ -96,7 +96,7 @@ func (h *GuardHandler) LoginUser(w http.ResponseWriter, req *http.Request) handl
 // @Summary    Выход из системы
 // @Description Выход из системы, удалением сессии из кеша. Кука на стороне пользователя остается, но по ней нельзя будет взаимодействовать.
 // @Tags      auth.guard
-// @Success    201
+// @Success    200
 // @Failure    401
 // @Failure    500
 // @Router      /guard/logout [post]
@@ -129,7 +129,7 @@ func (h *GuardHandler) LogoutUser(w http.ResponseWriter, req *http.Request) hand
 // @Description Регистрация нового пользователя в системе без админки. По умолчанию создается случайная аватарка из дефолтных. После регистрации пытается авторизоваться, но в случае ошибки авторизации все равно вернет 201.
 // @Tags      public.guard
 // @Param      request  body    requests.Register  true  "register user data"
-// @Success    200
+// @Success    201
 // @Failure    400
 // @Failure    409
 // @Failure    500
