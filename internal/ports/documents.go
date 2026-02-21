@@ -250,8 +250,8 @@ func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Req
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /documents/categories/{id} [get]
-//	@Security    public
+// @Router      /documents/categories/{id} [get]
+// @Security    public
 func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got GetCategory request")
 
@@ -351,8 +351,8 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /documents/{id} [delete]
-//	@Security    Authorised
+// @Router      /documents/{id} [delete]
+// @Security    Authorised
 func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got DeleteDocument request")
 
@@ -403,7 +403,7 @@ func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Reque
 //	@Accept      json
 //	@Produce     json
 //	@Param       id   path     string           true "Document ID"
-//	@Param       request body requests.PostDocument true "Document new data"
+//	@Param       request body requests.UpdateDocument true "Document new data"
 //	@Success     200 {object} responses.UpdateDocument
 //	@Failure     400
 //	@Failure     401
@@ -581,7 +581,7 @@ func (h *DocumentsHandler) DeleteCategory(w http.ResponseWriter, req *http.Reque
 //	@Tags        auth.documents
 //	@Accept      json
 //	@Param       id   path     string           true "DocumentCategory ID"
-//	@Param       request body requests.PostDocumentCategory true "DocumentCategory new data"
+//	@Param       request body requests.UpdateDocumentCategory true "DocumentCategory new data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401

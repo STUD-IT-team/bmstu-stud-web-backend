@@ -270,8 +270,8 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /feed/{id} [delete]
-//	@Security    Authorised
+// @Router      /feed/{id} [delete]
+// @Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got DeleteFeed request")
 
@@ -322,10 +322,11 @@ func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handl
 //	@Tags        auth.feed
 //	@Accept      json
 //	@Param       id   path     string           true "Feed ID"
-//	@Param       request body requests.PostFeed true "Feed new data"
+//	@Param       request body requests.UpdateFeed true "Feed new data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401
+//	@Failure     404
 //	@Failure     500
 //	@Router      /feed/{id} [put]
 //	@Security    Authorised
@@ -491,7 +492,7 @@ func (h *FeedHandler) DeleteEncounter(w http.ResponseWriter, req *http.Request) 
 //	@Tags        auth.feed
 //	@Accept      json
 //	@Param       id   path     string           true "Encounter ID"
-//	@Param       request body requests.PostEncounter true "Encounter new data"
+//	@Param       request body requests.UpdateEncounter true "Encounter new data"
 //	@Success     200
 //	@Failure     400
 //	@Failure     401

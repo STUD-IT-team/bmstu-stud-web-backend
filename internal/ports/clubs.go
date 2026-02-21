@@ -60,6 +60,17 @@ func (h *ClubsHandler) Routes() chi.Router {
 	return r
 }
 
+// GetClearancePost
+//
+// @Summary    Проверяет право на создание клуба
+// @Description Проверяет, может ли текущий пользователь создавать клубы
+// @Tags      auth.club
+// @Produce    json
+// @Success    200      {object}  responses.GetClearance
+// @Failure    401
+// @Failure    500
+// @Router      /clubs/clearance/post/ [get]
+// @Security    Authorized
 func (h *ClubsHandler) GetClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClearancePost request")
 
@@ -86,6 +97,18 @@ func (h *ClubsHandler) GetClearancePost(w http.ResponseWriter, req *http.Request
 	return handler.OkResponse(response)
 }
 
+// GetClearanceDelete
+//
+// @Summary    Проверяет право на удаление клуба
+// @Description Проверяет, может ли текущий пользователь удалять клубы
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClearance
+// @Failure    401
+// @Failure    500
+// @Router      /clubs/clearance/delete/{club_id} [get]
+// @Security    Authorized
 func (h *ClubsHandler) GetClearanceDelete(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClearanceDelete request")
 
@@ -112,6 +135,19 @@ func (h *ClubsHandler) GetClearanceDelete(w http.ResponseWriter, req *http.Reque
 	return handler.OkResponse(response)
 }
 
+// GetClearanceUpdate
+//
+// @Summary    Проверяет право на обновление клуба
+// @Description Проверяет, может ли текущий пользователь обновлять конкретный клуб
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClearance
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /clubs/clearance/update/{club_id} [get]
+// @Security    Authorized
 func (h *ClubsHandler) GetClearanceUpdate(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClearanceUpdate request")
 
@@ -145,6 +181,19 @@ func (h *ClubsHandler) GetClearanceUpdate(w http.ResponseWriter, req *http.Reque
 	return handler.OkResponse(response)
 }
 
+// GetMediaClearancePost
+//
+// @Summary    Проверяет право на добавление фото клуба
+// @Description Проверяет, может ли текущий пользователь добавлять фото в конкретный клуб
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClearance
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /clubs/media/clearance/post/{club_id} [get]
+// @Security    Authorized
 func (h *ClubsHandler) GetMediaClearancePost(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetMediaClearancePost request")
 
@@ -178,6 +227,19 @@ func (h *ClubsHandler) GetMediaClearancePost(w http.ResponseWriter, req *http.Re
 	return handler.OkResponse(response)
 }
 
+// GetMediaClearanceDelete
+//
+// @Summary    Проверяет право на удаление фото клуба
+// @Description Проверяет, может ли текущий пользователь удалять фото из конкретного клуба
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClearance
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /clubs/media/clearance/delete/{club_id} [get]
+// @Security    Authorized
 func (h *ClubsHandler) GetMediaClearanceDelete(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetMediaClearanceDelete request")
 
@@ -211,6 +273,19 @@ func (h *ClubsHandler) GetMediaClearanceDelete(w http.ResponseWriter, req *http.
 	return handler.OkResponse(response)
 }
 
+// GetMediaClearanceUpdate
+//
+// @Summary    Проверяет право на обновление фото клуба
+// @Description Проверяет, может ли текущий пользователь обновлять фото конкретного клуба
+// @Tags      auth.club
+// @Produce    json
+// @Param      club_id    path    int  true  "club id"
+// @Success    200      {object}  responses.GetClearance
+// @Failure    400
+// @Failure    401
+// @Failure    500
+// @Router      /clubs/media/clearance/update/{club_id} [get]
+// @Security    Authorized
 func (h *ClubsHandler) GetMediaClearanceUpdate(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetMediaClearanceUpdate request")
 
@@ -320,12 +395,12 @@ func (h *ClubsHandler) GetClub(w http.ResponseWriter, req *http.Request) handler
 // @Description  Возвращает все клубы, у которых введенная строка является подстрокой в типе
 // @Tags      public.club
 // @Produce    json
-// @Param      club_type    path    string  true  "club type"
+// @Param      type    path    string  true  "club type"
 // @Success    200      {object}  responses.GetClubsByType
 // @Failure    400
 // @Failure    404
 // @Failure    500
-// @Router      /clubs/type/{club_type} [get]
+// @Router      /clubs/type/{type} [get]
 // @Security    Public
 func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClubsByType request")
@@ -361,12 +436,12 @@ func (h *ClubsHandler) GetClubsByType(w http.ResponseWriter, req *http.Request) 
 // @Description  Возвращает все клубы, у которых введенная строка является подстрокой в имени
 // @Tags      public.club
 // @Produce    json
-// @Param      club_name    path    string  true  "club name"
+// @Param      name    path    string  true  "club name"
 // @Success    200      {object}  responses.GetClubsByName
 // @Failure    400
 // @Failure    404
 // @Failure    500
-// @Router      /clubs/search/{club_name} [get]
+// @Router      /clubs/search/{name} [get]
 // @Security    Public
 func (h *ClubsHandler) GetClubsByName(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got GetClubByName request")
@@ -555,9 +630,10 @@ func (h *ClubsHandler) PostClub(w http.ResponseWriter, req *http.Request) handle
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    403
 // @Failure    404
 // @Failure    500
-// @Router      /clubs [delete]
+// @Router      /clubs/{club_id} [delete]
 // @Security    Authorized
 func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got DeleteClub request")
@@ -619,14 +695,15 @@ func (h *ClubsHandler) DeleteClub(w http.ResponseWriter, req *http.Request) hand
 // @Tags      auth.club
 // @Produce    json
 // @Param      club_id    path    int  true  "club id"
-// @Param      request  body    requests.PostClub  true  "update club data"
+// @Param      request  body    requests.UpdateClub  true  "update club data"
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    403
 // @Failure    409
 // @Failure    404
 // @Failure    500
-// @Router      /clubs [put]
+// @Router      /clubs/{club_id} [put]
 // @Security    Authorized
 func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("ClubsHandler: got UpdateClub request")
@@ -692,9 +769,10 @@ func (h *ClubsHandler) UpdateClub(w http.ResponseWriter, req *http.Request) hand
 // @Produce    json
 // @Param      club_id    path    int  true  "club id"
 // @Param      request  body    requests.PostClubPhoto  true  "post club photo data"
-// @Success    200
+// @Success    201
 // @Failure    400
 // @Failure    401
+// @Failure    403
 // @Failure    409
 // @Failure    500
 // @Router      /clubs/media/{club_id} [post]
@@ -760,6 +838,7 @@ func (h *ClubsHandler) PostClubMedia(w http.ResponseWriter, req *http.Request) h
 // @Success    200
 // @Failure    400
 // @Failure    401
+// @Failure    403
 // @Failure    404
 // @Failure    500
 // @Router      /clubs/media/{club_id} [delete]
@@ -824,7 +903,8 @@ func (h *ClubsHandler) DeleteClubMedia(w http.ResponseWriter, req *http.Request)
 // @Success    200
 // @Failure    400
 // @Failure    401
-// @Failure    409
+// @Failure    403
+// @Failure    404
 // @Failure    500
 // @Router      /clubs/media/{club_id} [put]
 // @Security    Authorized

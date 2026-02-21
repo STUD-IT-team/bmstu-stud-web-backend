@@ -269,6 +269,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Description Update a member's information with the provided data
 //	@Tags        auth.members
 //	@Accept      json
+//	@Param       id   path     string               true "Member ID"
 //	@Param       request body requests.UpdateMember true "Member data"
 //	@Success     200
 //	@Failure     400
@@ -276,7 +277,7 @@ func (h *MembersHandler) DeleteMember(w http.ResponseWriter, req *http.Request) 
 //	@Failure     404
 //	@Failure     409
 //	@Failure     500
-//	@Router      /members/update [put]
+//	@Router      /members/{id} [put]
 //	@Security    Authorised
 func (h *MembersHandler) UpdateMember(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("MembersHandler: got UpdateMember request")

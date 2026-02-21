@@ -287,7 +287,7 @@ func (h *MediaHandler) PostMediaDefault(w http.ResponseWriter, req *http.Request
 // @Failure    401
 // @Failure    500
 //
-// @Router      /media/default/ [delete]
+// @Router      /media/default/{id} [delete]
 // @Security    Authorized
 func (h *MediaHandler) DeleteMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got DeleteMediaDefault request")
@@ -341,7 +341,7 @@ func (h *MediaHandler) DeleteMediaDefault(w http.ResponseWriter, req *http.Reque
 // @Failure    409
 // @Failure    500
 //
-// @Router      /media/default/ [put]
+// @Router      /media/default/{id} [put]
 // @Security    Authorized
 func (h *MediaHandler) UpdateMediaDefault(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got UpdateMediaDefault request")
@@ -380,6 +380,16 @@ func (h *MediaHandler) UpdateMediaDefault(w http.ResponseWriter, req *http.Reque
 	return handler.OkResponse(nil)
 }
 
+// GetMainVideo
+//
+// @Summary    Возвращает главное видео главной страницы
+// @Description Возвращает текущий объект main video
+// @Tags      public.media
+// @Produce    json
+// @Success    200      {object}  responses.GetMainVideo
+// @Failure    500
+// @Router      /media/main/video [get]
+// @Security    Public
 func (h *MediaHandler) GetMainVideo(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Infof("Mediahandler: got GetMainVideo request")
 
