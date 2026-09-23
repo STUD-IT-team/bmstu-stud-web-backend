@@ -3,8 +3,9 @@ package http
 import (
 	"github.com/go-chi/chi"
 
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 	httpSwagger "github.com/swaggo/http-swagger"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
 
 	_ "github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/app/docs"
 )

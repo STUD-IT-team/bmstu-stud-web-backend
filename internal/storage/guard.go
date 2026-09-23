@@ -2,7 +2,11 @@ package storage
 
 import (
 	"context"
+	"crypto/rand"
+	"errors"
 	"fmt"
+	"math"
+	"math/big"
 	"time"
 
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
@@ -10,23 +14,28 @@ import (
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/times"
 )
 
-var nextSessionID int64 = 0
+var maxSessionID = big.NewInt(math.MaxInt64)
 
-func getNextSessionID() int64 {
-	if nextSessionID < 0 {
-		nextSessionID = 0
+// newSessionID generates a cryptographically random session ID rather than a
+// sequential one, since the ID doubles as the bearer access token and must
+// not be predictable.
+func newSessionID() (int64, error) {
+	n, err := rand.Int(rand.Reader, maxSessionID)
+	if err != nil {
+		return 0, fmt.Errorf("can't generate session id: %w", err)
 	}
-	nextSessionID++
-	return nextSessionID
+
+	return n.Int64(), nil
 }
 
 type guardStorage interface {
 	GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error)
-	SetSession(id string, value domain.Session)
-	FindSession(id string) *domain.Session
-	DeleteSession(id string)
-	CheckSession(accessToken string) (*domain.Session, error)
+	SetSession(id int64, value domain.Session)
+	FindSession(id int64) (domain.Session, error)
+	DeleteSession(id int64)
+	CheckSession(accessToken int64) (domain.Session, error)
 	CreateSession(memberID int, isAdmin bool) (domain.Session, error)
+	RegisterMember(ctx context.Context, member *domain.Member) (int, error)
 }
 
 func (s *storage) GetMemberAndValidatePassword(ctx context.Context, login string, password string) (domain.Member, error) {
@@ -80,16 +89,25 @@ const sessionDuration = 5 * time.Hour
 const MaxSessionCreateTries = 10
 
 func (s *storage) CreateSession(memberID int, isAdmin bool) (domain.Session, error) {
-	sessionID := getNextSessionID()
-	cnt := 0
-	_, err := s.FindSession(sessionID)
-	for err == ErrNotFound && cnt < MaxSessionCreateTries {
-		cnt++
-		sessionID = getNextSessionID()
-		_, err = s.FindSession(sessionID)
+	var sessionID int64
+
+	free := false
+
+	for cnt := 0; cnt < MaxSessionCreateTries; cnt++ {
+		id, err := newSessionID()
+		if err != nil {
+			return domain.Session{}, err
+		}
+
+		if _, err = s.FindSession(id); errors.Is(err, domain.ErrNotFound) {
+			sessionID = id
+			free = true
+
+			break
+		}
 	}
 
-	if cnt == MaxSessionCreateTries {
+	if !free {
 		return domain.Session{}, ErrCantCreateSession
 	}
 

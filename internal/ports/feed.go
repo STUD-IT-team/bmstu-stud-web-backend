@@ -270,8 +270,8 @@ func (h *FeedHandler) PostFeed(w http.ResponseWriter, req *http.Request) handler
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /feed/{id} [delete]
-//	@Security    Authorised
+// @Router      /feed/{id} [delete]
+// @Security    Authorised
 func (h *FeedHandler) DeleteFeed(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("FeedHandler: got DeleteFeed request")
 

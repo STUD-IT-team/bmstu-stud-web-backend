@@ -1,19 +1,28 @@
-FROM golang:1.21.2-alpine
+FROM golang:1.21.2-alpine AS builder
 
 RUN apk add --no-cache make
 
-RUN mkdir /build
 WORKDIR /build
 
-COPY ../../go.* .
+COPY go.mod go.sum ./
 RUN go mod download
 
-COPY ../../cmd/. cmd/
-COPY ../../Makefile .
-COPY ../../internal/. internal/
-COPY ../../pkg/. pkg/
+COPY cmd/ cmd/
+COPY internal/ internal/
+COPY pkg/ pkg/
+COPY Makefile ./
 
-RUN go install github.com/swaggo/swag/cmd/swag@latest
+RUN go install github.com/swaggo/swag/cmd/swag@v1.16.3
 RUN make swag-generate
 
-CMD ["make", "run"]
+RUN CGO_ENABLED=0 go build -o /out/app ./cmd/app
+
+FROM alpine:3.19
+
+RUN apk add --no-cache ca-certificates tzdata
+
+COPY --from=builder /out/app /app/app
+
+EXPOSE 5000
+
+ENTRYPOINT ["/app/app"]

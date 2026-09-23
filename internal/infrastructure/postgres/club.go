@@ -574,14 +574,14 @@ func (s *Postgres) AddOrgs(_ context.Context, orgs []domain.ClubOrg) error {
 
 	for _, org := range orgs {
 		var id int
-		err := s.db.QueryRow(addOrgRole, org.RoleName, org.RoleSpec).Scan(&id)
+		err := tx.QueryRow(addOrgRole, org.RoleName, org.RoleSpec).Scan(&id)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 		_, err = tx.Exec(addOrgs, id, org.ID, org.ClubID)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 	}
@@ -637,41 +637,42 @@ func (s *Postgres) DeleteClubWithOrgs(_ context.Context, clubID int) error {
 
 	_, err = tx.Exec(deleteClubMembers, clubID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(deleteClubPhotos, clubID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(deleteClubEncounters, clubID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(deleteClubDocuments, clubID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 
 	_, err = tx.Exec(updateClubParents, clubID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 
 	tag, err := tx.Exec(deleteClub, clubID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 
 	if tag.RowsAffected() == 0 {
+		_ = tx.Rollback()
 		return ErrPostgresNotFoundError
 	}
 
@@ -711,29 +712,30 @@ func (s *Postgres) UpdateClub(_ context.Context, c *domain.Club, o []domain.Club
 		c.ID,
 	)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 	if tag.RowsAffected() == 0 {
+		_ = tx.Rollback()
 		return ErrPostgresNotFoundError
 	}
 
 	_, err = tx.Exec(deleteClubOrgs, c.ID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 
 	for _, org := range o {
 		var id int
-		err := s.db.QueryRow(addOrgRole, org.RoleName, org.RoleSpec).Scan(&id)
+		err := tx.QueryRow(addOrgRole, org.RoleName, org.RoleSpec).Scan(&id)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 		_, err = tx.Exec(addOrgs, id, org.ID, org.ClubID)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 	}
@@ -751,7 +753,7 @@ func (s *Postgres) AddClubPhotos(_ context.Context, p []domain.ClubPhoto) error 
 	for _, photo := range p {
 		_, err = tx.Exec(addClubPhoto, photo.RefNumber, photo.ClubID, photo.MediaID)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 	}
@@ -771,16 +773,16 @@ func (s *Postgres) UpdateClubPhotos(_ context.Context, clubID int, p []domain.Cl
 	}
 
 	dbPhotos := []domain.ClubPhoto{}
-	rows, err := tx.Query(getClubPhoto, p[0].ClubID)
+	rows, err := tx.Query(getClubPhoto, clubID)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 	for rows.Next() {
 		dbPhoto := domain.ClubPhoto{}
 		err := rows.Scan(&dbPhoto.ID, &dbPhoto.RefNumber, &dbPhoto.ClubID, &dbPhoto.MediaID)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 		dbPhotos = append(dbPhotos, dbPhoto)
@@ -804,7 +806,7 @@ func (s *Postgres) UpdateClubPhotos(_ context.Context, clubID int, p []domain.Cl
 	for _, id := range toDelete {
 		_, err := tx.Exec(deleteClubPhoto, id)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 	}
@@ -812,7 +814,7 @@ func (s *Postgres) UpdateClubPhotos(_ context.Context, clubID int, p []domain.Cl
 	for _, photo := range p {
 		_, err := tx.Exec(upsertClubPhoto, photo.RefNumber, clubID, photo.MediaID)
 		if err != nil {
-			tx.Rollback()
+			_ = tx.Rollback()
 			return wrapPostgresError(err)
 		}
 	}
@@ -828,7 +830,7 @@ func (s *Postgres) DeleteClubPhoto(_ context.Context, id int) error {
 	}
 	_, err = tx.Exec(deleteClubPhoto, id)
 	if err != nil {
-		tx.Rollback()
+		_ = tx.Rollback()
 		return wrapPostgresError(err)
 	}
 	return wrapPostgresError(tx.Commit())

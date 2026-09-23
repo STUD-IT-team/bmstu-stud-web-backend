@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,7 +19,6 @@ import (
 	"go.uber.org/automaxprocs/maxprocs"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/cache"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/miniostorage"
@@ -61,7 +61,7 @@ func main() {
 		os.Getenv("PG_CONNECT"),
 	)
 	if err != nil {
-		logger.WithError(err).Errorf("can`t connect to postgres: %s", os.Getenv("PG_CONNECT"))
+		logger.WithError(err).Fatalf("can't connect to postgres")
 	}
 
 	endpoint := os.Getenv("ENDPOINT")
@@ -70,10 +70,8 @@ func main() {
 	useSSL := false
 
 	minioStorage, err := miniostorage.NewMinioStorage(endpoint, user, password, useSSL)
-
 	if err != nil {
-		log.Fatalf("Upload err: %v", err)
-		log.Fatalf("Endpoint: %s", endpoint)
+		logger.WithError(err).Fatalf("can't connect to minio at %s", endpoint)
 	}
 
 	sessionCache := cache.NewSessionCache()
@@ -118,14 +116,14 @@ func main() {
 	logger.Debugf("Listing actual routes:\n")
 
 	_ = chi.Walk(
-		router,
+		mainHandler.Mux,
 		func(
 			method string,
 			route string,
 			handler http.Handler,
 			middlewares ...func(http.Handler) http.Handler,
 		) error {
-			logger.Debugf("[%s]: /%s%s\n", method, appconfig.APIAppName, route)
+			logger.Debugf("[%s]: %s\n", method, route)
 			return nil
 		})
 
@@ -143,7 +141,7 @@ func main() {
 	go func() {
 		logger.Infof("starting server, listening on %s", server.Addr)
 
-		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.WithError(err).Errorf("server can't listen and serve requests")
 		}
 	}()
@@ -161,14 +159,14 @@ func main() {
 		gocron.NewTask(mediaService.ClearUpMedia, context.Background(), logger),
 	)
 	if err != nil {
-		logger.Fatalf("gocron обдристался at ClearMediaStorages...")
+		logger.Fatalf("failed to schedule media cleanup job")
 	}
 	_, err = s.NewJob(
 		cleanupJob,
 		gocron.NewTask(documentsService.CleanupDocuments, context.Background(), logger),
 	)
 	if err != nil {
-		logger.Fatalf("gocron обдристался at ClearUnknownDocuments...")
+		logger.Fatalf("failed to schedule document cleanup job")
 	}
 	s.Start()
 	logger.Infof("Cron started")
@@ -193,7 +191,7 @@ func main() {
 		logger.WithError(err).Infof("gracefully shutting down the server")
 	}
 
-	timeoutCtx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	timeoutCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := server.Shutdown(timeoutCtx); err != nil {

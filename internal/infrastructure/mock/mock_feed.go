@@ -8,8 +8,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	domain "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	gomock "github.com/golang/mock/gomock"
+
+	domain "github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
 // MockfeedServiceStorage is a mock of feedServiceStorage interface.

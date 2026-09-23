@@ -1,8 +1,9 @@
 package logger
 
 import (
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig/vars"
 	"github.com/sirupsen/logrus"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/cmd/configer/appconfig/vars"
 )
 
 func SetupLogger(log vars.LoggerConfig) *logrus.Logger {

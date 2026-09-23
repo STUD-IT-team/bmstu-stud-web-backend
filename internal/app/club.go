@@ -53,7 +53,7 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 
 	mainOrgs, err := s.storage.GetClubOrgs(ctx, id)
 	if err != nil {
-		if err == postgres.ErrPostgresNotFoundError {
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
 			mainOrgs = []domain.ClubOrg{}
 		} else {
 			err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
@@ -63,7 +63,7 @@ func (s *ClubService) GetClub(ctx context.Context, id int) (*responses.GetClub, 
 
 	subOrgs, err := s.storage.GetClubSubOrgs(ctx, id)
 	if err != nil {
-		if err == postgres.ErrPostgresNotFoundError {
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
 			subOrgs = []domain.ClubOrg{}
 		} else {
 			err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
@@ -181,7 +181,7 @@ func (s *ClubService) GetAllClubs(ctx context.Context) (*responses.GetAllClubs, 
 func (s *ClubService) GetClubMembers(ctx context.Context, clubID int) (*responses.GetClubMembers, error) {
 	orgs, err := s.storage.GetClubOrgs(ctx, clubID)
 	if err != nil {
-		if err == postgres.ErrPostgresNotFoundError {
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
 			orgs = []domain.ClubOrg{}
 		} else {
 			err = fmt.Errorf("can't storage.GetClubOrgs: %w", err)
@@ -191,7 +191,7 @@ func (s *ClubService) GetClubMembers(ctx context.Context, clubID int) (*response
 
 	subOrgs, err := s.storage.GetClubSubOrgs(ctx, clubID)
 	if err != nil {
-		if err == postgres.ErrPostgresNotFoundError {
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
 			subOrgs = []domain.ClubOrg{}
 		} else {
 			err = fmt.Errorf("can't storage.GetClubSubOrgs: %w", err)
@@ -265,7 +265,7 @@ func (s *ClubService) UpdateClub(ctx context.Context, req *requests.UpdateClub) 
 func (s *ClubService) GetClubMediaFiles(ctx context.Context, clubID int) (*responses.GetClubMedia, error) {
 	clubPhotos, err := s.storage.GetClubMediaFiles(ctx, clubID)
 	if err != nil {
-		if err == postgres.ErrPostgresNotFoundError {
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
 			clubPhotos = []domain.ClubPhoto{}
 		} else {
 			return nil, fmt.Errorf("can't storage.GetClubMediaFiles: %w", err)
@@ -305,7 +305,7 @@ func (s *ClubService) PostClubPhoto(ctx context.Context, req *requests.PostClubP
 func (s *ClubService) DeleteClubPhoto(ctx context.Context, req *requests.DeleteClubPhoto) error {
 	clubPhotoId, err := s.storage.GetPhotoClubID(ctx, req.ClubID, req.PhotoID)
 	if err != nil {
-		if err == postgres.ErrPostgresNotFoundError {
+		if errors.Is(err, postgres.ErrPostgresNotFoundError) {
 			return fmt.Errorf("photo not found")
 		}
 		return fmt.Errorf("can't storage.GetPhotoClubID: %w", err)

@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/go-chi/chi"
+
+	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 )
 
 type UpdateEncounter struct {

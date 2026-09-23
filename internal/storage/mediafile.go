@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/miniostorage"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
-	"github.com/sirupsen/logrus"
 )
 
 const MEDIA_BUCKET_ENV = "IMAGE_BUCKET"

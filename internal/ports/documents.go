@@ -250,8 +250,8 @@ func (h *DocumentsHandler) GetAllCategories(w http.ResponseWriter, req *http.Req
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /documents/categories/{id} [get]
-//	@Security    public
+// @Router      /documents/categories/{id} [get]
+// @Security    public
 func (h *DocumentsHandler) GetCategory(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got GetCategory request")
 
@@ -351,8 +351,8 @@ func (h *DocumentsHandler) PostDocument(w http.ResponseWriter, req *http.Request
 //	@Failure     404
 //	@Failure     500
 
-//	@Router      /documents/{id} [delete]
-//	@Security    Authorised
+// @Router      /documents/{id} [delete]
+// @Security    Authorised
 func (h *DocumentsHandler) DeleteDocument(w http.ResponseWriter, req *http.Request) handler.Response {
 	h.logger.Info("DocumentsHandler: got DeleteDocument request")
 

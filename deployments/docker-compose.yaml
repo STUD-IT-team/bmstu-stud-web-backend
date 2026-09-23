@@ -58,8 +58,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      # Need to get data from env file
-      test: ["CMD-SHELL", "pg_isready -U stud -d stud"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -78,7 +77,9 @@ services:
 
   stud-pg-migrator:
     container_name: stud-pg-migrator
-    depends_on: [stud-postgres]
+    depends_on:
+      stud-postgres:
+        condition: service_healthy
     env_file:
       - migr.env
     build:
@@ -90,7 +91,7 @@ services:
   stud-minio:
     container_name: stud-minio
     hostname: stud-minio
-    image: minio/minio:RELEASE.2025-06-13T11-33-47Z
+    image: quay.io/minio/minio:RELEASE.2025-06-13T11-33-47Z
     command: server --console-address ":9001" --address ":9000" /data
     env_file:
       - minio.env
@@ -117,7 +118,8 @@ services:
   stud-minio-migrate:
     container_name: stud-minio-migrate
     depends_on:
-      - stud-minio
+      stud-minio:
+        condition: service_healthy
     build:
       context: ../
       dockerfile: ./pkg/minio/Dockerfile
@@ -135,6 +137,10 @@ networks:
     driver: bridge
   stud-minio:
     driver: bridge
+  # Shared with a separately-run frontend stack; docker compose will not
+  # create this for you. Run `docker network create stud-front-back` (or
+  # `make up`/`make build`, which does this automatically) before using
+  # this compose file directly.
   stud-front-back:
     driver: bridge
     external: true

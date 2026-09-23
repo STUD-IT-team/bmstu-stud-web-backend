@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/miniostorage"
-	"github.com/sirupsen/logrus"
 )
 
 var docBucketName = os.Getenv("DOCUMENT_BUCKET")

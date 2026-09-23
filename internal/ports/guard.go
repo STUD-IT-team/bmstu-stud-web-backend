@@ -5,12 +5,13 @@ import (
 	"errors"
 	"net/http"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/app/mapper"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/domain/requests"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/internal/infrastructure/postgres"
 	"github.com/STUD-IT-team/bmstu-stud-web-backend/pkg/handler"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/go-chi/chi"
 )

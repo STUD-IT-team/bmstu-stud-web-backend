@@ -1,8 +1,9 @@
 package handler
 
 import (
-	"github.com/go-chi/chi"
 	"net/http"
+
+	"github.com/go-chi/chi"
 )
 
 type RoutesCfg struct {
